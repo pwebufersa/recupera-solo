@@ -9,11 +9,9 @@ const GESSO = 0;
 const ENXOFRE = 2;
 const ARQUIVO = pathToFileURL(path.resolve('index.html')).href;
 
-async function carregarExemploComPrecos(pagina) {
+async function carregarExemplo(pagina) {
   await pagina.goto('/');
   await pagina.getByRole('button', { name: /exemplo/i }).click();
-  await pagina.locator('#price' + GESSO).fill(String(PRECOS.gessoGranelEntregue));
-  await pagina.locator('#price' + ENXOFRE).fill(String(PRECOS.enxofreElementar));
   await pagina.locator('#calc').click();
 }
 
@@ -39,6 +37,8 @@ test('o botão Usar exemplo preenche os campos', async function ({ page }) {
   await expect(page.locator('#na')).toHaveValue('7');
   await expect(page.locator('#use' + GESSO)).toBeChecked();
   await expect(page.locator('#use' + ENXOFRE)).toBeChecked();
+  await expect(page.locator('#price' + GESSO)).toHaveValue(String(PRECOS.gessoGranelEntregue));
+  await expect(page.locator('#price' + ENXOFRE)).toHaveValue(String(PRECOS.enxofreElementar));
 });
 
 test('a página funciona aberta direto do arquivo', async function ({ page }) {
@@ -49,7 +49,7 @@ test('a página funciona aberta direto do arquivo', async function ({ page }) {
 });
 
 test('o exemplo com preços de mercado indica o gesso como menor custo', async function ({ page }) {
-  await carregarExemploComPrecos(page);
+  await carregarExemplo(page);
 
   await expect(page.locator('#results')).toBeVisible();
   await expect(page.locator('#diagnosis')).toContainText('81,40%');
@@ -73,7 +73,7 @@ test('o formulário vazio aponta dez campos e leva ao primeiro', async function 
 
 test('o cálculo não cria rolagem lateral em tela estreita', async function ({ page }) {
   await page.setViewportSize({ width: 320, height: 800 });
-  await carregarExemploComPrecos(page);
+  await carregarExemplo(page);
 
   const medida = await page.evaluate(function () {
     const raiz = document.documentElement;
@@ -102,7 +102,7 @@ test('todos os campos têm nome acessível', async function ({ page }) {
 });
 
 test('a tabela de resultados tem legenda e cabeçalhos com escopo', async function ({ page }) {
-  await carregarExemploComPrecos(page);
+  await carregarExemplo(page);
 
   await expect(page.locator('#out caption')).toHaveCount(1);
   const escopos = await page.locator('#out thead th').evaluateAll(function (celulas) {

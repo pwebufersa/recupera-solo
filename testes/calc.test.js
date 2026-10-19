@@ -49,6 +49,11 @@ test('o arquivo único não inicia a tela sem documento', function () {
   assert.equal(typeof contexto.document, 'undefined');
 });
 
+test('os preços do exemplo são os preços pesquisados', function () {
+  assert.equal(corretivo('Gesso').precoExemplo, PRECOS.gessoGranelEntregue);
+  assert.equal(corretivo('Enxofre').precoExemplo, PRECOS.enxofreElementar);
+});
+
 test('a PST inicial é a razão entre o sódio e a CTC', function () {
   const resultado = calcularDoses(DADOS_DO_EXERCICIO, []);
 

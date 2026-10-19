@@ -6,9 +6,9 @@
 // Regra de cálculo
 
 const CORRETIVOS = [
-  { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80 },
+  { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80, precoExemplo: 425 },
   { nome: 'Cloreto de cálcio (CaCl₂·2H₂O)', pe: 73, c: 1.10, tipo: 'direto' },
-  { nome: 'Enxofre elementar (S)', pe: 16, c: 1.25, tipo: 'acido', purezaExemplo: 95 },
+  { nome: 'Enxofre elementar (S)', pe: 16, c: 1.25, tipo: 'acido', purezaExemplo: 95, precoExemplo: 6200 },
   { nome: 'Ácido sulfúrico (H₂SO₄)', pe: 49, c: 1.10, tipo: 'acido' },
   { nome: 'Sulfato de ferro (FeSO₄·7H₂O)', pe: 139, c: 1.10, tipo: 'acido' },
   { nome: 'Sulfato de alumínio (Al₂(SO₄)₃·18H₂O)', pe: 111, c: 1.10, tipo: 'acido' },
@@ -403,10 +403,12 @@ function carregarExemplo() {
       return;
     }
     porId('purity' + indice).value = corretivo.purezaExemplo;
+    porId('price' + indice).value = corretivo.precoExemplo;
     porId('use' + indice).checked = true;
   });
   definirModo('exemplo', '<b>Modo exemplo:</b> dados do exercício carregados. ' +
-    'Gesso e enxofre estão selecionados; informe apenas os preços de mercado (R$/t).');
+    'Gesso e enxofre estão selecionados, com preços de mercado de outubro de 2026: ' +
+    'R$ 425,00/t e R$ 6.200,00/t. Os valores podem ser editados.');
 }
 
 function novaAnalise() {

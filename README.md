@@ -7,8 +7,11 @@ celular. O conteúdo, os oito corretivos e o cálculo são os mesmos da origem.
 
 ```bash
 npm run servidor   # http://127.0.0.1:8099
-npm test           # 10 testes de cálculo e 8 de navegador, em duas telas
+npm test           # 11 testes de cálculo e 8 de navegador, em duas telas
 ```
+
+O botão "Usar exemplo" carrega os dados do exercício com os preços de mercado
+de outubro de 2026 já preenchidos, todos editáveis.
 
 A publicação é estática, no Netlify. Os testes ficam fora do que é publicado.
 
@@ -21,8 +24,7 @@ A publicação é estática, no Netlify. Os testes ficam fora do que é publicad
 
 `index.html`, `style.css` e `script.js` formam a página, com o cálculo no
 mesmo arquivo, como no original. `testes/` traz o servidor local, os preços e
-as duas suítes.
-`.github/workflows/testes.yml` roda tudo a cada envio.
+as duas suítes. `.github/workflows/testes.yml` roda tudo a cada envio.
 
 ## Limitações
 
