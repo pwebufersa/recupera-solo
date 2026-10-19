@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sistema de apoio à decisão para diagnóstico e recuperação de solos sódicos: corretivos, dose, custo e procedimento.">
+<meta name="theme-color" content="#0c6b46">
+<title>RECUPERA-SOLO | Recuperação de solos sódicos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+
+<header class="topbar">
+  <div class="marca">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 64 64" role="img" focusable="false">
+        <path d="M32 8c-10 3-16 10-16 19 8 0 14-3 18-10 1 7-1 13-6 18" class="folha"/>
+        <path d="M12 40c8-5 16-5 24 0s16 5 20 0M12 49c8-5 16-5 24 0s16 5 20 0" class="solo"/>
+      </svg>
+    </span>
+    <div>
+      <h1>RECUPERA-<b>SOLO</b></h1>
+      <p>Recuperação de solos sódicos</p>
+    </div>
+  </div>
+  <div class="carimbo">
+    <strong>Sistema de apoio à decisão</strong>
+    <span>Diagnóstico · Corretivos · Dose · Custos · Manejo</span>
+  </div>
+</header>
+
+<main id="conteudo" class="pagina">
+
+  <section class="cartao" aria-labelledby="titulo-modo">
+    <div class="titulo-secao">
+      <span aria-hidden="true">1</span>
+      <div>
+        <h2 id="titulo-modo">Escolha como iniciar</h2>
+        <p>Use o exercício demonstrativo ou faça uma nova análise com seus próprios dados.</p>
+      </div>
+    </div>
+    <div class="acoes-modo">
+      <button type="button" id="exampleMode" aria-pressed="false">Usar exemplo</button>
+      <button type="button" id="customMode" class="secundario" aria-pressed="false">Nova análise</button>
+    </div>
+    <p id="modeNote" class="nota-modo" role="status">Nenhum modo selecionado.</p>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-dados">
+    <div class="titulo-secao">
+      <span aria-hidden="true">2</span>
+      <div>
+        <h2 id="titulo-dados">Dados de entrada</h2>
+        <p>Informe os dados da análise do solo e a meta de recuperação.</p>
+      </div>
+    </div>
+    <div class="grade-dados">
+      <label for="ph">pH (H₂O)<input id="ph" name="ph" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 9,2" required></label>
+      <label for="ce">CEes (dS m⁻¹)<input id="ce" name="ce" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 2,4" required></label>
+      <label for="ctc">CTC (cmolc kg⁻¹)<input id="ctc" name="ctc" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 8,6" required></label>
+      <label for="na">Na⁺ trocável (cmolc kg⁻¹)<input id="na" name="na" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 7,0" required></label>
+      <label for="caco3">CaCO₃ (%)<input id="caco3" name="caco3" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 1,5" required></label>
+      <label for="ds">Densidade do solo (g cm⁻³)<input id="ds" name="ds" type="number" inputmode="decimal" step="0.01" placeholder="Ex.: 1,40" required></label>
+      <label for="h">Profundidade a recuperar (cm)<input id="h" name="h" type="number" inputmode="numeric" step="1" placeholder="Ex.: 60" required></label>
+      <label for="pstf">PST final desejada (%)<input id="pstf" name="pstf" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 10" required></label>
+      <label for="area">Área (ha)<input id="area" name="area" type="number" inputmode="decimal" step="0.01" placeholder="Ex.: 1,0" required></label>
+      <label for="texture">Textura
+        <select id="texture" name="texture">
+          <option value="">Selecione</option>
+          <option>Arenosa</option>
+          <option>Média</option>
+          <option>Argilosa</option>
+        </select>
+      </label>
+      <label for="drain">Drenagem
+        <select id="drain" name="drain">
+          <option value="">Selecione</option>
+          <option>Adequada</option>
+          <option>Deficiente</option>
+          <option>Inexistente</option>
+        </select>
+      </label>
+      <label for="water">Qualidade da água
+        <select id="water" name="water">
+          <option value="">Selecione</option>
+          <option>Baixa salinidade</option>
+          <option>Moderada salinidade</option>
+          <option>Alta salinidade</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-corretivos">
+    <div class="titulo-secao">
+      <span aria-hidden="true">3</span>
+      <div>
+        <h2 id="titulo-corretivos">Corretivos e custos</h2>
+        <p>Selecione os corretivos que deseja avaliar. PE e coeficiente C já estão cadastrados no sistema.</p>
+      </div>
+    </div>
+    <div id="amendGrid" class="grade-corretivos"></div>
+    <div class="acoes">
+      <button type="button" id="clear" class="secundario">Limpar</button>
+      <button type="button" id="calc">Gerar diagnóstico e recomendação</button>
+    </div>
+  </section>
+
+  <div id="legenda-erros" class="resumo-erros oculto" role="alert" tabindex="-1"></div>
+
+  <section id="results" class="resultados oculto" aria-labelledby="titulo-resultados">
+    <section class="cartao" aria-labelledby="titulo-resultados">
+      <div class="titulo-secao">
+        <span aria-hidden="true">4</span>
+        <div>
+          <h2 id="titulo-resultados">Resultados integrados</h2>
+          <p>Diagnóstico, corretivos tecnicamente adequados, dose, custo e procedimento.</p>
+        </div>
+      </div>
+      <div class="grade-resultados">
+        <article class="caixa-resultado">
+          <h3>Diagnóstico do solo</h3>
+          <div id="diagnosis"></div>
+        </article>
+        <article class="caixa-resultado">
+          <h3>Recomendação técnica</h3>
+          <div id="recommendation"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-dose">
+      <h2 id="titulo-dose">Dose e custo</h2>
+      <div class="tabela-rolagem">
+        <table id="out">
+          <caption class="oculto-visual">Dose, custo por hectare e custo total de cada corretivo selecionado</caption>
+          <thead>
+            <tr>
+              <th scope="col">Corretivo</th>
+              <th scope="col">Adequação</th>
+              <th scope="col">Dose teórica</th>
+              <th scope="col">Dose prática</th>
+              <th scope="col">Dose comercial</th>
+              <th scope="col">Custo/ha</th>
+              <th scope="col">Custo total</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="best" class="destaque" role="status"></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-procedimento">
+      <h2 id="titulo-procedimento">Procedimento de recuperação</h2>
+      <div id="procedure"></div>
+    </section>
+  </section>
+</main>
+
+<footer>
+  RECUPERA-SOLO · Sistema de apoio à decisão para recuperação de solos sódicos
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
