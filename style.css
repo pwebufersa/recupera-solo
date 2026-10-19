@@ -254,7 +254,7 @@ code {
 .titulo-secao p {
   margin-top: 4px;
   color: var(--tinta-suave);
-  max-width: min(62ch, 100%);
+  max-width: 100%;
 }
 
 /* Modo de início */
@@ -562,9 +562,10 @@ td.atencao {
   margin-top: 16px;
   padding: 14px 16px;
   border-radius: var(--raio-pequeno);
-  background: var(--ocre-claro);
-  border: 1px solid #ecd7c4;
-  color: #5d3410;
+  border: 1px solid #dcc3ae;
+  border-left: 4px solid var(--ocre);
+  background: #f4e9e0;
+  color: #5b3317;
 }
 
 .destaque:empty {
