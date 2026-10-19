@@ -10,6 +10,13 @@ npm run servidor   # http://127.0.0.1:8099
 npm test           # 11 testes de cálculo e 8 de navegador
 ```
 
+## Publicação
+
+- Cópia em funcionamento: `https://pwebufersa.github.io/recupera-solo/`
+- Original: `https://dapper-flan-955869.netlify.app/`
+
+A publicação do GitHub Pages sai da branch `main`; os testes não entram no site.
+
 ## Estrutura
 
 | Caminho | Função |
@@ -23,4 +30,3 @@ npm test           # 11 testes de cálculo e 8 de navegador
 - [MELHORIAS.md](MELHORIAS.md): mudanças na tela, com capturas.
 - [PRECOS.md](PRECOS.md): preços por tonelada e fontes.
 
-Publicação estática no Netlify; os testes não entram no site publicado.
