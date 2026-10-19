@@ -17,3 +17,11 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chrome
       - run: npm test
+      - name: Relatório do navegador
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

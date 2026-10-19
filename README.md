@@ -40,6 +40,8 @@ npm test           # 11 testes de cálculo e 8 de navegador
 | `.github/workflows/testes.yml` | execução a cada envio |
 
 Antes de cada envio, `npm run prints` refaz as capturas usadas em MELHORIAS.md.
+Os relatórios de teste são gerados a cada execução e não são versionados; no
+GitHub Actions, o relatório de falha fica disponível por sete dias.
 
 ## Publicação
 
