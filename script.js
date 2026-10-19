@@ -406,9 +406,7 @@ function carregarExemplo() {
     porId('price' + indice).value = corretivo.precoExemplo;
     porId('use' + indice).checked = true;
   });
-  definirModo('exemplo', '<b>Modo exemplo:</b> dados do exercício carregados. ' +
-    'Gesso e enxofre estão selecionados, com preços de mercado de outubro de 2026: ' +
-    'R$ 425,00/t e R$ 6.200,00/t. Os valores podem ser editados.');
+  definirModo('exemplo', '<b>Modo exemplo:</b> dados do exercício carregados. ');
 }
 
 function novaAnalise() {
