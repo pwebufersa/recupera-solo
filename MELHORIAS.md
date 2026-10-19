@@ -21,7 +21,8 @@ Depois do cálculo, a tabela vira cartões:
 ## Alterações
 
 - Campos empilhados; botões em largura total.
-- Títulos de seção um pouco maiores, mais próximos do original.
+- Títulos de seção maiores, mais próximos do original.
+- Texto de abertura em uma linha nas telas largas.
 - Tabela de resultados em cartões.
 - Erro junto ao campo; resumo com âncoras e foco no primeiro erro.
 - Teclado numérico nos campos de número.
