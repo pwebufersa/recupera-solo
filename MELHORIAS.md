@@ -18,16 +18,25 @@ Depois do cálculo, a tabela vira cartões:
 
 ![Resultados no celular](prints/depois-resultados-celular.png)
 
+## Comparação
+
+Refinamento de tipografia, ritmo e destaque, com a identidade mantida.
+
+![Comparação no computador](prints/comparacao-desktop.png)
+
+![Comparação no celular](prints/comparacao-celular.png)
+
 ## Alterações
 
 - Campos empilhados; botões em largura total.
-- Títulos de seção maiores, mais próximos do original.
+- Títulos de seção maiores, com entrelinha de 1,6 e mais espaço entre seções.
 - Texto de abertura em uma linha nas telas largas.
 - Tabela de resultados em cartões.
 - Erro junto ao campo; resumo com âncoras e foco no primeiro erro.
 - Teclado numérico nos campos de número.
 - Textos de exemplo mais claros nos campos.
-- Caixa do menor custo em dourado, distinta do verde de ação e do laranja de alerta.
+- Campos com altura mínima de 46 px e valores monetários sem quebra.
+- Caixa do menor custo em dourado, sem barra lateral colorida.
 - Impressão sem botões e sem cabeçalho.
 
 ## Pendência

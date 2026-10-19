@@ -47,7 +47,7 @@ body {
   color: var(--tinta);
   font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.6;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -210,16 +210,16 @@ code {
 .pagina {
   max-width: 1480px;
   margin: 0 auto;
-  padding: var(--espaco) var(--espaco) 8px;
+  padding: calc(var(--espaco) * 1.15) var(--espaco) 8px;
   display: grid;
-  gap: clamp(16px, 2vw, 22px);
+  gap: clamp(18px, 2.4vw, 28px);
 }
 
 .cartao {
   background: var(--papel);
   border: 1px solid var(--linha);
   border-radius: var(--raio);
-  padding: clamp(16px, 3vw, 30px);
+  padding: clamp(20px, 3vw, 34px);
   box-shadow: var(--sombra);
 }
 
@@ -231,16 +231,16 @@ code {
 .titulo-secao {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  margin-bottom: clamp(16px, 2vw, 24px);
+  gap: 16px;
+  margin-bottom: clamp(20px, 2.6vw, 30px);
 }
 
 .titulo-secao > span {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--verde);
   color: #fff;
@@ -250,7 +250,8 @@ code {
 }
 
 .titulo-secao h2 {
-  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  letter-spacing: -0.01em;
 }
 
 .titulo-secao p {
@@ -296,6 +297,7 @@ input,
 select {
   width: 100%;
   margin-top: 6px;
+  min-height: 46px;
   padding: 12px 14px;
   border: 1px solid #c3d3d3;
   border-radius: var(--raio-pequeno);
@@ -341,20 +343,25 @@ select[aria-invalid="true"] {
 .grade-corretivos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px 16px;
 }
 
 .corretivo {
   border: 1px solid var(--linha);
-  border-radius: var(--raio-pequeno);
-  padding: 16px;
+  border-radius: 12px;
+  padding: 18px;
+  background: var(--papel);
+  transition: border-color var(--transicao), background var(--transicao);
+}
+
+.corretivo:hover {
+  border-color: #b9cbca;
   background: #fbfdfc;
-  transition: border-color var(--transicao), box-shadow var(--transicao);
 }
 
 .corretivo:has(input[type="checkbox"]:checked) {
   border-color: var(--verde);
-  box-shadow: 0 0 0 2px rgba(12, 107, 70, 0.12);
+  background: #f2f8f4;
 }
 
 .corretivo-topo {
@@ -565,9 +572,9 @@ td.atencao {
   padding: 14px 16px;
   border-radius: var(--raio-pequeno);
   border: 1px solid var(--dourado-linha);
-  border-left: 4px solid var(--dourado);
   background: var(--dourado-claro);
   color: #55400f;
+  font-variant-numeric: tabular-nums;
 }
 
 .destaque:empty {
@@ -591,7 +598,8 @@ td.atencao {
 /* Rodapé */
 
 footer {
-  padding: 22px var(--espaco) 34px;
+  margin-top: 8px;
+  padding: 26px var(--espaco) 38px;
   text-align: center;
   color: var(--tinta-suave);
   font-size: 0.9rem;
