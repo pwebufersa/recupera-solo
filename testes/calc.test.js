@@ -1,8 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 
-import { CORRETIVOS, adequacao, calcularDoses, classificar } from '../calc.js';
 import { PRECOS } from './precos.js';
+
+/* O site usa um arquivo único, sem módulos, para abrir também por file://.
+   O teste carrega esse arquivo em um contexto do Node e usa a API exposta. */
+
+const codigo = fs.readFileSync(new URL('../script.js', import.meta.url), 'utf8');
+const contexto = vm.createContext({});
+vm.runInContext(codigo, contexto, { filename: 'script.js' });
+
+const { CORRETIVOS, adequacao, calcularDoses, classificar } = contexto.RecuperaSolo;
 
 const DADOS_DO_EXERCICIO = {
   ph: 9.2, ce: 2.4, ctc: 8.6, na: 7, caco3: 1.5, ds: 1.4, h: 60, pstf: 10, area: 1
@@ -33,6 +43,11 @@ function proximo(valor, esperado, tolerancia) {
     'esperado ' + esperado + ' com margem ' + margem + ', obtido ' + valor
   );
 }
+
+test('o arquivo único não inicia a tela sem documento', function () {
+  assert.equal(typeof contexto.RecuperaSolo.calcularDoses, 'function');
+  assert.equal(typeof contexto.document, 'undefined');
+});
 
 test('a PST inicial é a razão entre o sódio e a CTC', function () {
   const resultado = calcularDoses(DADOS_DO_EXERCICIO, []);

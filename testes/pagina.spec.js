@@ -1,9 +1,13 @@
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
 import { expect, test } from '@playwright/test';
 
 import { PRECOS } from './precos.js';
 
 const GESSO = 0;
 const ENXOFRE = 2;
+const ARQUIVO = pathToFileURL(path.resolve('index.html')).href;
 
 async function carregarExemploComPrecos(pagina) {
   await pagina.goto('/');
@@ -25,6 +29,23 @@ test('a página abre com o formulário e sem resultados', async function ({ page
   await expect(page.locator('#results')).toBeHidden();
   await expect(page.locator('#amendGrid .corretivo')).toHaveCount(8);
   expect(erros).toEqual([]);
+});
+
+test('o botão Usar exemplo preenche os campos', async function ({ page }) {
+  await page.goto('/');
+  await page.getByRole('button', { name: /exemplo/i }).click();
+
+  await expect(page.locator('#ph')).toHaveValue('9.2');
+  await expect(page.locator('#na')).toHaveValue('7');
+  await expect(page.locator('#use' + GESSO)).toBeChecked();
+  await expect(page.locator('#use' + ENXOFRE)).toBeChecked();
+});
+
+test('a página funciona aberta direto do arquivo', async function ({ page }) {
+  await page.goto(ARQUIVO);
+  await page.getByRole('button', { name: /exemplo/i }).click();
+
+  await expect(page.locator('#ph')).toHaveValue('9.2');
 });
 
 test('o exemplo com preços de mercado indica o gesso como menor custo', async function ({ page }) {

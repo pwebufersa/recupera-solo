@@ -7,7 +7,7 @@ celular. O conteúdo, os oito corretivos e o cálculo são os mesmos da origem.
 
 ```bash
 npm run servidor   # http://127.0.0.1:8099
-npm test           # 9 testes de cálculo e 6 de navegador, em duas telas
+npm test           # 10 testes de cálculo e 8 de navegador, em duas telas
 ```
 
 A publicação é estática, no Netlify. Os testes ficam fora do que é publicado.
@@ -19,8 +19,9 @@ A publicação é estática, no Netlify. Os testes ficam fora do que é publicad
 | [MELHORIAS.md](MELHORIAS.md) | o que mudou na tela, com capturas |
 | [PRECOS.md](PRECOS.md) | preços por tonelada usados nos testes, com fontes |
 
-`index.html`, `style.css` e `script.js` formam a página; `calc.js` guarda o
-cálculo. `testes/` traz o servidor local, os preços e as duas suítes.
+`index.html`, `style.css` e `script.js` formam a página, com o cálculo no
+mesmo arquivo, como no original. `testes/` traz o servidor local, os preços e
+as duas suítes.
 `.github/workflows/testes.yml` roda tudo a cada envio.
 
 ## Limitações
