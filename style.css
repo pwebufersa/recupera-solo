@@ -7,6 +7,9 @@
   --verde-escuro: #085036;
   --verde-claro: #e7f1ec;
   --ocre: #9a531e;
+  --dourado: #96721f;
+  --dourado-claro: #f8f1de;
+  --dourado-linha: #e3d3a6;
   --azul: #123d68;
   --tinta: #102a3a;
   --tinta-suave: #4b6270;
@@ -561,10 +564,10 @@ td.atencao {
   margin-top: 16px;
   padding: 14px 16px;
   border-radius: var(--raio-pequeno);
-  border: 1px solid #dcc3ae;
-  border-left: 4px solid var(--ocre);
-  background: #f4e9e0;
-  color: #5b3317;
+  border: 1px solid var(--dourado-linha);
+  border-left: 4px solid var(--dourado);
+  background: var(--dourado-claro);
+  color: #55400f;
 }
 
 .destaque:empty {
