@@ -1,9 +1,12 @@
 /* RECUPERA-SOLO, cálculo e tela no mesmo arquivo, como na versão de origem.
-   A primeira parte é a regra de cálculo, sem acesso ao documento, para poder
-   ser testada pelo Node. A segunda monta os corretivos, valida os campos e
-   desenha a tabela. O início só acontece quando existe documento. */
+   O arquivo é dividido em oito partes, na ordem em que são usadas:
+   1. dados do sistema; 2. regras de cálculo; 3. leitura da tela;
+   4. validação; 5. montagem da página; 6. cálculo na tela;
+   7. ações dos botões; 8. início.
+   Nenhuma biblioteca é necessária. O início só ocorre quando existe documento,
+   o que permite carregar o arquivo no Node para os testes. */
 
-// Regra de cálculo
+// 1. Dados do sistema
 
 const CORRETIVOS = [
   { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80, precoExemplo: 425 },
@@ -35,6 +38,9 @@ const ROTULOS_TABELA = [
   'Dose comercial', 'Custo/ha', 'Custo total'
 ];
 
+// 2. Regras de cálculo
+
+/** Classifica o solo pela saturação por sódio e pela condutividade elétrica. */
 function classificar(pst, ce) {
   const sodico = pst >= 15;
   const salino = ce >= 4;
@@ -44,6 +50,7 @@ function classificar(pst, ce) {
   return salino ? 'salino' : 'não sódico pelos critérios informados';
 }
 
+/** Diz se o corretivo é adequado ao pH e à presença de carbonatos. */
 function adequacao(corretivo, ph, caco3) {
   if (corretivo.tipo === 'direto') {
     return {
@@ -132,14 +139,16 @@ function calcularDoses(dados, selecionados) {
   };
 }
 
-// Tela
+// 3. Leitura da tela
 
-function porId(id) {
+/** Devolve o elemento da página com o identificador informado. */
+function elemento(id) {
   return document.getElementById(id);
 }
 
-function numero(id) {
-  const campo = porId(id);
+/** Lê um campo numérico, aceitando vírgula como separador decimal. */
+function valorDoCampo(id) {
+  const campo = elemento(id);
   if (!campo) {
     return NaN;
   }
@@ -147,19 +156,124 @@ function numero(id) {
   return texto === '' ? NaN : Number(texto);
 }
 
-function formatar(valor, casas) {
+function formatarNumero(valor, casas) {
+  const quantidade = casas === undefined ? 2 : casas;
   return Number(valor).toLocaleString('pt-BR', {
-    minimumFractionDigits: casas === undefined ? 2 : casas,
-    maximumFractionDigits: casas === undefined ? 2 : casas
+    minimumFractionDigits: quantidade,
+    maximumFractionDigits: quantidade
   });
 }
 
-function dinheiro(valor) {
-  return 'R$ ' + formatar(valor, 2);
+function formatarDinheiro(valor) {
+  return 'R$ ' + formatarNumero(valor, 2);
 }
 
+// 4. Validação dos campos
+
+function limparErros() {
+  document.querySelectorAll('.erro-campo').forEach(function (marca) {
+    marca.remove();
+  });
+  document.querySelectorAll('[aria-invalid="true"]').forEach(function (campo) {
+    campo.removeAttribute('aria-invalid');
+  });
+  const resumo = elemento('legenda-erros');
+  resumo.classList.add('oculto');
+  resumo.innerHTML = '';
+}
+
+function registrarErro(campo, mensagem, mensagens) {
+  campo.setAttribute('aria-invalid', 'true');
+  const marca = document.createElement('span');
+  marca.className = 'erro-campo';
+  marca.id = campo.id + '-erro';
+  marca.textContent = mensagem;
+  campo.insertAdjacentElement('afterend', marca);
+  mensagens.push({ campo: campo, mensagem: mensagem });
+}
+
+function mostrarResumoDeErros(mensagens) {
+  const resumo = elemento('legenda-erros');
+  resumo.innerHTML = '<strong>' + (mensagens.length === 1
+    ? 'Um campo precisa de atenção.'
+    : mensagens.length + ' campos precisam de atenção.') + '</strong><ul>' +
+    mensagens.map(function (item) {
+      return '<li><a href="#' + item.campo.id + '">' + item.mensagem + '</a></li>';
+    }).join('') + '</ul>';
+  resumo.classList.remove('oculto');
+  mensagens[0].campo.focus();
+}
+
+/** Confere todos os campos e devolve falso quando há erro. */
+function validar() {
+  limparErros();
+  const mensagens = [];
+  CAMPOS.forEach(function (id) {
+    const campo = elemento(id);
+    if (!Number.isFinite(valorDoCampo(id))) {
+      registrarErro(campo, 'Informe ' + NOMES[id] + '.', mensagens);
+    }
+  });
+
+  const limites = { ph: [0, 14], ce: [0, 50], pstf: [0, 100] };
+  Object.keys(limites).forEach(function (id) {
+    const campo = elemento(id);
+    if (campo.hasAttribute('aria-invalid')) {
+      return;
+    }
+    const valor = valorDoCampo(id);
+    if (valor < limites[id][0] || valor > limites[id][1]) {
+      registrarErro(campo, NOMES[id] + ' deve ficar entre ' + limites[id][0] +
+        ' e ' + limites[id][1] + '.', mensagens);
+    }
+  });
+
+  ['ctc', 'ds', 'h', 'area'].forEach(function (id) {
+    const campo = elemento(id);
+    if (!campo.hasAttribute('aria-invalid') && valorDoCampo(id) <= 0) {
+      registrarErro(campo, NOMES[id] + ' deve ser maior que zero.', mensagens);
+    }
+  });
+
+  if (!elemento('na').hasAttribute('aria-invalid') &&
+      !elemento('ctc').hasAttribute('aria-invalid') &&
+      valorDoCampo('na') > valorDoCampo('ctc')) {
+    registrarErro(elemento('na'), 'O Na⁺ trocável não pode ser maior que a CTC.', mensagens);
+  }
+
+  const escolhidos = CORRETIVOS.filter(function (_, indice) {
+    return elemento('use' + indice).checked;
+  });
+  if (escolhidos.length === 0) {
+    registrarErro(elemento('amendGrid'), 'Selecione pelo menos um corretivo.', mensagens);
+  }
+
+  CORRETIVOS.forEach(function (_, indice) {
+    if (!elemento('use' + indice).checked) {
+      return;
+    }
+    const pureza = valorDoCampo('purity' + indice);
+    const preco = valorDoCampo('price' + indice);
+    if (Number.isFinite(pureza) && (pureza <= 0 || pureza > 100)) {
+      registrarErro(elemento('purity' + indice), 'A pureza deve ficar entre 0 e 100.', mensagens);
+    }
+    if (Number.isFinite(preco) && preco <= 0) {
+      registrarErro(elemento('price' + indice), 'O preço deve ser maior que zero.', mensagens);
+    }
+  });
+
+  if (mensagens.length > 0) {
+    mostrarResumoDeErros(mensagens);
+    return false;
+  }
+  return true;
+}
+
+// 5. Montagem da página
+
+/** Cria um cartão para cada corretivo, com pureza e preço. */
 function montarCorretivos() {
-  const grade = porId('amendGrid');
+  const grade = elemento('amendGrid');
   grade.innerHTML = CORRETIVOS.map(function (corretivo, indice) {
     return '<article class="corretivo">' +
       '<div class="corretivo-topo">' +
@@ -177,159 +291,65 @@ function montarCorretivos() {
   }).join('');
 }
 
-function limparErros() {
-  document.querySelectorAll('.erro-campo').forEach(function (marca) {
-    marca.remove();
-  });
-  document.querySelectorAll('[aria-invalid="true"]').forEach(function (campo) {
-    campo.removeAttribute('aria-invalid');
-  });
-  const resumo = porId('legenda-erros');
-  resumo.classList.add('oculto');
-  resumo.innerHTML = '';
-}
-
-function registrarErro(campo, mensagem, mensagens) {
-  campo.setAttribute('aria-invalid', 'true');
-  const marca = document.createElement('span');
-  marca.className = 'erro-campo';
-  marca.id = campo.id + '-erro';
-  marca.textContent = mensagem;
-  campo.insertAdjacentElement('afterend', marca);
-  mensagens.push({ campo: campo, mensagem: mensagem });
-}
-
-function validar() {
-  limparErros();
-  const mensagens = [];
-  CAMPOS.forEach(function (id) {
-    const campo = porId(id);
-    if (!Number.isFinite(numero(id))) {
-      registrarErro(campo, 'Informe ' + NOMES[id] + '.', mensagens);
-    }
-  });
-
-  const limites = { ph: [0, 14], ce: [0, 50], pstf: [0, 100] };
-  Object.keys(limites).forEach(function (id) {
-    const campo = porId(id);
-    if (campo.hasAttribute('aria-invalid')) {
-      return;
-    }
-    const valor = numero(id);
-    if (valor < limites[id][0] || valor > limites[id][1]) {
-      registrarErro(campo, NOMES[id] + ' deve ficar entre ' + limites[id][0] +
-        ' e ' + limites[id][1] + '.', mensagens);
-    }
-  });
-
-  ['ctc', 'ds', 'h', 'area'].forEach(function (id) {
-    const campo = porId(id);
-    if (!campo.hasAttribute('aria-invalid') && numero(id) <= 0) {
-      registrarErro(campo, NOMES[id] + ' deve ser maior que zero.', mensagens);
-    }
-  });
-
-  if (!porId('na').hasAttribute('aria-invalid') &&
-      !porId('ctc').hasAttribute('aria-invalid') &&
-      numero('na') > numero('ctc')) {
-    registrarErro(porId('na'), 'O Na⁺ trocável não pode ser maior que a CTC.', mensagens);
-  }
-
-  const escolhidos = CORRETIVOS.filter(function (_, indice) {
-    return porId('use' + indice).checked;
-  });
-  if (escolhidos.length === 0) {
-    registrarErro(porId('amendGrid'), 'Selecione pelo menos um corretivo.', mensagens);
-  }
-
-  CORRETIVOS.forEach(function (_, indice) {
-    if (!porId('use' + indice).checked) {
-      return;
-    }
-    const pureza = numero('purity' + indice);
-    const preco = numero('price' + indice);
-    if (Number.isFinite(pureza) && (pureza <= 0 || pureza > 100)) {
-      registrarErro(porId('purity' + indice), 'A pureza deve ficar entre 0 e 100.', mensagens);
-    }
-    if (Number.isFinite(preco) && preco <= 0) {
-      registrarErro(porId('price' + indice), 'O preço deve ser maior que zero.', mensagens);
-    }
-  });
-
-  if (mensagens.length > 0) {
-    mostrarResumo(mensagens);
-    return false;
-  }
-  return true;
-}
-
-function mostrarResumo(mensagens) {
-  const resumo = porId('legenda-erros');
-  resumo.innerHTML = '<strong>' + (mensagens.length === 1
-    ? 'Um campo precisa de atenção.'
-    : mensagens.length + ' campos precisam de atenção.') + '</strong><ul>' +
-    mensagens.map(function (item) {
-      return '<li><a href="#' + item.campo.id + '">' + item.mensagem + '</a></li>';
-    }).join('') + '</ul>';
-  resumo.classList.remove('oculto');
-  mensagens[0].campo.focus();
-}
+// 6. Cálculo na tela
 
 function dadosDoFormulario() {
   return {
-    ph: numero('ph'),
-    ce: numero('ce'),
-    ctc: numero('ctc'),
-    na: numero('na'),
-    caco3: numero('caco3'),
-    ds: numero('ds'),
-    h: numero('h'),
-    pstf: numero('pstf'),
-    area: numero('area')
+    ph: valorDoCampo('ph'),
+    ce: valorDoCampo('ce'),
+    ctc: valorDoCampo('ctc'),
+    na: valorDoCampo('na'),
+    caco3: valorDoCampo('caco3'),
+    ds: valorDoCampo('ds'),
+    h: valorDoCampo('h'),
+    pstf: valorDoCampo('pstf'),
+    area: valorDoCampo('area')
   };
 }
 
-function selecionados() {
+/** Reúne os corretivos marcados, com a pureza e o preço informados. */
+function corretivosSelecionados() {
   const escolhidos = [];
   CORRETIVOS.forEach(function (corretivo, indice) {
-    if (!porId('use' + indice).checked) {
+    if (!elemento('use' + indice).checked) {
       return;
     }
     escolhidos.push({
       corretivo: corretivo,
-      pureza: numero('purity' + indice),
-      preco: numero('price' + indice)
+      pureza: valorDoCampo('purity' + indice),
+      preco: valorDoCampo('price' + indice)
     });
   });
   return escolhidos;
 }
 
+/** Calcula, desenha o diagnóstico, a tabela, a recomendação e o procedimento. */
 function calcular() {
   if (!validar()) {
     return;
   }
 
   const dados = dadosDoFormulario();
-  const resultado = calcularDoses(dados, selecionados());
+  const resultado = calcularDoses(dados, corretivosSelecionados());
 
-  porId('diagnosis').innerHTML =
-    '<div class="metrica"><b>' + formatar(resultado.pstInicial) + '%</b>' +
+  elemento('diagnosis').innerHTML =
+    '<div class="metrica"><b>' + formatarNumero(resultado.pstInicial) + '%</b>' +
     '<span>PST inicial calculada</span></div>' +
     '<p><b>Classificação:</b> ' + resultado.classe + '.</p>' +
-    '<p><b>Meta:</b> PST ' + formatar(dados.pstf) + '% na camada de ' +
-    formatar(dados.h, 0) + ' cm.</p>';
+    '<p><b>Meta:</b> PST ' + formatarNumero(dados.pstf) + '% na camada de ' +
+    formatarNumero(dados.h, 0) + ' cm.</p>';
 
-  const corpo = porId('out').querySelector('tbody');
+  const corpo = elemento('out').querySelector('tbody');
   corpo.innerHTML = '';
   resultado.linhas.forEach(function (linha) {
     const celulas = [
       '<b>' + linha.nome + '</b>',
       '<span class="' + (linha.ajuste.ok ? 'bom' : 'atencao') + '">' + linha.ajuste.rotulo + '</span>',
-      formatar(linha.doseTeorica) + ' kg/ha',
-      formatar(linha.dosePratica) + ' kg/ha',
-      Number.isFinite(linha.doseComercial) ? formatar(linha.doseComercial) + ' kg/ha' : 'Informe a pureza',
-      Number.isFinite(linha.custo) ? dinheiro(linha.custo) : 'Informe o preço',
-      Number.isFinite(linha.total) ? dinheiro(linha.total) : 'Sem valor'
+      formatarNumero(linha.doseTeorica) + ' kg/ha',
+      formatarNumero(linha.dosePratica) + ' kg/ha',
+      Number.isFinite(linha.doseComercial) ? formatarNumero(linha.doseComercial) + ' kg/ha' : 'Informe a pureza',
+      Number.isFinite(linha.custo) ? formatarDinheiro(linha.custo) : 'Informe o preço',
+      Number.isFinite(linha.total) ? formatarDinheiro(linha.total) : 'Sem valor'
     ];
     corpo.insertAdjacentHTML('beforeend', '<tr>' + celulas.map(function (celula, coluna) {
       return '<td data-rotulo="' + ROTULOS_TABELA[coluna] + '">' + celula + '</td>';
@@ -338,19 +358,19 @@ function calcular() {
 
   const melhor = resultado.melhor;
 
-  porId('best').innerHTML = melhor
+  elemento('best').innerHTML = melhor
     ? '<strong>Menor custo entre as alternativas tecnicamente adequadas:</strong> ' +
-      melhor.nome + ', <b>' + dinheiro(melhor.custo) + '/ha</b> (' +
-      dinheiro(melhor.total) + ' para ' + formatar(dados.area) + ' ha).'
+      melhor.nome + ', <b>' + formatarDinheiro(melhor.custo) + '/ha</b> (' +
+      formatarDinheiro(melhor.total) + ' para ' + formatarNumero(dados.area) + ' ha).'
     : 'Informe pureza e preço dos corretivos selecionados para realizar a comparação econômica.';
 
-  porId('recommendation').innerHTML = selecionados().map(function (item) {
+  elemento('recommendation').innerHTML = corretivosSelecionados().map(function (item) {
     return '<p><b>' + item.corretivo.nome + ':</b> ' +
       adequacao(item.corretivo, dados.ph, dados.caco3).nota + '</p>';
   }).join('');
 
   const escolhido = melhor ? melhor.nome : 'o corretivo tecnicamente selecionado';
-  porId('procedure').innerHTML = '<ol>' +
+  elemento('procedure').innerHTML = '<ol>' +
     '<li>Confirmar a análise do solo, a profundidade efetiva e a condição de drenagem.</li>' +
     '<li>Aplicar <b>' + escolhido + '</b> conforme a dose comercial calculada e a forma tecnicamente recomendada.</li>' +
     '<li>Promover a substituição do Na⁺ trocável por Ca²⁺.</li>' +
@@ -359,52 +379,54 @@ function calcular() {
     '<li>Monitorar PST, CEes, pH e propriedades físicas do solo.</li>' +
     '</ol>';
 
-  const resultados = porId('results');
+  const resultados = elemento('results');
   resultados.classList.remove('oculto');
-  const titulo = porId('titulo-resultados');
+  const titulo = elemento('titulo-resultados');
   titulo.setAttribute('tabindex', '-1');
   titulo.focus({ preventScroll: true });
   resultados.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// 7. Ações dos botões
+
 function limparCampos() {
   CAMPOS.forEach(function (id) {
-    porId(id).value = '';
+    elemento(id).value = '';
   });
   ['texture', 'drain', 'water'].forEach(function (id) {
-    porId(id).selectedIndex = 0;
+    elemento(id).selectedIndex = 0;
   });
   CORRETIVOS.forEach(function (_, indice) {
-    porId('purity' + indice).value = '';
-    porId('price' + indice).value = '';
-    porId('use' + indice).checked = false;
+    elemento('purity' + indice).value = '';
+    elemento('price' + indice).value = '';
+    elemento('use' + indice).checked = false;
   });
-  porId('results').classList.add('oculto');
+  elemento('results').classList.add('oculto');
   limparErros();
 }
 
 function definirModo(botao, texto) {
-  porId('exampleMode').setAttribute('aria-pressed', String(botao === 'exemplo'));
-  porId('customMode').setAttribute('aria-pressed', String(botao === 'outro'));
-  porId('modeNote').innerHTML = texto;
+  elemento('exampleMode').setAttribute('aria-pressed', String(botao === 'exemplo'));
+  elemento('customMode').setAttribute('aria-pressed', String(botao === 'outro'));
+  elemento('modeNote').innerHTML = texto;
 }
 
 function carregarExemplo() {
   limparCampos();
   const valores = { ph: 9.2, ce: 2.4, ctc: 8.6, na: 7, caco3: 1.5, ds: 1.4, h: 60, pstf: 10, area: 1 };
   Object.keys(valores).forEach(function (id) {
-    porId(id).value = valores[id];
+    elemento(id).value = valores[id];
   });
-  porId('texture').value = 'Média';
-  porId('drain').value = 'Adequada';
-  porId('water').value = 'Baixa salinidade';
+  elemento('texture').value = 'Média';
+  elemento('drain').value = 'Adequada';
+  elemento('water').value = 'Baixa salinidade';
   CORRETIVOS.forEach(function (corretivo, indice) {
     if (corretivo.purezaExemplo === undefined) {
       return;
     }
-    porId('purity' + indice).value = corretivo.purezaExemplo;
-    porId('price' + indice).value = corretivo.precoExemplo;
-    porId('use' + indice).checked = true;
+    elemento('purity' + indice).value = corretivo.purezaExemplo;
+    elemento('price' + indice).value = corretivo.precoExemplo;
+    elemento('use' + indice).checked = true;
   });
   definirModo('exemplo', '<b>Modo exemplo:</b> dados do exercício carregados. ');
 }
@@ -415,18 +437,21 @@ function novaAnalise() {
     'corretivos. Pureza e preço são editáveis.');
 }
 
-function iniciar() {
+// 8. Início
+
+function iniciarPagina() {
   montarCorretivos();
-  porId('exampleMode').addEventListener('click', carregarExemplo);
-  porId('customMode').addEventListener('click', novaAnalise);
-  porId('calc').addEventListener('click', calcular);
-  porId('clear').addEventListener('click', function () {
+  elemento('exampleMode').addEventListener('click', carregarExemplo);
+  elemento('customMode').addEventListener('click', novaAnalise);
+  elemento('calc').addEventListener('click', calcular);
+  elemento('clear').addEventListener('click', function () {
     limparCampos();
     definirModo('', 'Nenhum modo selecionado.');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
+/* A API abaixo serve aos testes de cálculo e ao console do navegador. */
 globalThis.RecuperaSolo = {
   CORRETIVOS: CORRETIVOS,
   CAMPOS: CAMPOS,
@@ -438,5 +463,5 @@ globalThis.RecuperaSolo = {
 };
 
 if (typeof document !== 'undefined') {
-  iniciar();
+  iniciarPagina();
 }

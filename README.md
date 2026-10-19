@@ -35,9 +35,11 @@ npm test           # 11 testes de cálculo e 8 de navegador
 
 | Caminho | Função |
 |---|---|
-| `index.html`, `style.css`, `script.js` | página e cálculo, em arquivo único |
+| `index.html`, `style.css`, `script.js` | página e cálculo, em arquivo único e comentado por seções |
 | `testes/` | servidor local, preços, capturas e as duas suítes |
 | `.github/workflows/testes.yml` | execução a cada envio |
+
+Antes de cada envio, `npm run prints` refaz as capturas usadas em MELHORIAS.md.
 
 ## Publicação
 
