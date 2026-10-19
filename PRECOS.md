@@ -1,7 +1,6 @@
-# Preços de referência
+# Preços por tonelada
 
-Consulta de 18/10/2026, por tonelada, sem frete. Servem de exemplo de mercado,
-não substituem a cotação do fornecedor.
+Consulta de 18/10/2026, sem frete.
 
 | Corretivo | Preço | Fonte |
 |---|---|---|
@@ -11,9 +10,8 @@ não substituem a cotação do fornecedor.
 | Enxofre elementar 99% | R$ 6.200,00/t | MF Rural, anúncios de São Paulo, de R$ 5.250,00 a R$ 9.998,00/t |
 | Enxofre importado, CFR Brasil | US$ 1.200,00/t | Forbes Agro, julho de 2026 |
 
-Os valores do gesso e do enxofre são preenchidos pelo botão "Usar exemplo", e
-os testes conferem se continuam iguais aos desta página.
+Gesso e enxofre são preenchidos pelo botão "Usar exemplo"; os testes conferem a
+igualdade com esta tabela.
 
-Com os dados do exemplo, o gesso custa R$ 29.454,73/ha e o enxofre,
-R$ 67.320,25/ha. Os preços inventados do teste anterior, R$ 420,00/t e
-R$ 1.900,00/t, faziam o enxofre parecer mais barato, contra o mercado.
+No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha. Os valores
+anteriores, R$ 420,00/t e R$ 1.900,00/t, invertiam a conclusão.
