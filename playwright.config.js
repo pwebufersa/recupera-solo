@@ -1,0 +1,28 @@
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './testes',
+  testMatch: '**/*.spec.js',
+  fullyParallel: true,
+  reporter: [['list']],
+  use: {
+    baseURL: 'http://127.0.0.1:8099',
+    channel: 'chrome',
+    trace: 'retain-on-failure'
+  },
+  webServer: {
+    command: 'node testes/servidor.js',
+    url: 'http://127.0.0.1:8099/',
+    reuseExistingServer: !process.env.CI
+  },
+  projects: [
+    {
+      name: 'computador',
+      use: { viewport: { width: 1280, height: 900 } }
+    },
+    {
+      name: 'celular',
+      use: { ...devices['Pixel 7'] }
+    }
+  ]
+});

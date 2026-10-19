@@ -33,6 +33,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background: var(--fundo);
@@ -47,6 +53,7 @@ h1,
 h2,
 h3 {
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--azul);
   line-height: 1.2;
   text-wrap: balance;
@@ -54,6 +61,14 @@ h3 {
 
 p {
   margin: 0;
+  overflow-wrap: anywhere;
+}
+
+img,
+table,
+pre,
+code {
+  max-width: 100%;
 }
 
 ::selection {
@@ -238,7 +253,7 @@ p {
 .titulo-secao p {
   margin-top: 4px;
   color: var(--tinta-suave);
-  max-width: 62ch;
+  max-width: min(62ch, 100%);
 }
 
 /* Modo de início */

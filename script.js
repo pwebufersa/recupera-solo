@@ -1,37 +1,15 @@
 /* RECUPERA-SOLO, comportamento da página.
-   A regra de cálculo é a mesma da versão de origem. O que muda é a forma de
-   informar: validação por campo, mensagens em linha, anúncio para leitores de
-   tela e tabela que vira cartões no celular. */
+   A regra de cálculo está em calc.js. Aqui ficam a leitura dos campos, a
+   validação, as mensagens em linha e a montagem da tabela. */
 
-const corretivos = [
-  { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80 },
-  { nome: 'Cloreto de cálcio (CaCl₂·2H₂O)', pe: 73, c: 1.10, tipo: 'direto' },
-  { nome: 'Enxofre elementar (S)', pe: 16, c: 1.25, tipo: 'acido', purezaExemplo: 95 },
-  { nome: 'Ácido sulfúrico (H₂SO₄)', pe: 49, c: 1.10, tipo: 'acido' },
-  { nome: 'Sulfato de ferro (FeSO₄·7H₂O)', pe: 139, c: 1.10, tipo: 'acido' },
-  { nome: 'Sulfato de alumínio (Al₂(SO₄)₃·18H₂O)', pe: 111, c: 1.10, tipo: 'acido' },
-  { nome: 'Calcário (CaCO₃)', pe: 50, c: 1.25, tipo: 'baixa' },
-  { nome: 'Resíduo de engenho', pe: 20, c: 1.25, tipo: 'baixa' }
-];
-
-const CAMPOS = ['ph', 'ce', 'ctc', 'na', 'caco3', 'ds', 'h', 'pstf', 'area'];
-
-const NOMES = {
-  ph: 'pH (H₂O)',
-  ce: 'CEes (dS m⁻¹)',
-  ctc: 'CTC (cmolc kg⁻¹)',
-  na: 'Na⁺ trocável',
-  caco3: 'CaCO₃ (%)',
-  ds: 'Densidade do solo',
-  h: 'Profundidade',
-  pstf: 'PST final',
-  area: 'Área'
-};
-
-const ROTULOS_TABELA = [
-  'Corretivo', 'Adequação', 'Dose teórica', 'Dose prática',
-  'Dose comercial', 'Custo/ha', 'Custo total'
-];
+import {
+  CORRETIVOS,
+  CAMPOS,
+  NOMES,
+  ROTULOS_TABELA,
+  adequacao,
+  calcularDoses
+} from './calc.js';
 
 function porId(id) {
   return document.getElementById(id);
@@ -59,7 +37,7 @@ function dinheiro(valor) {
 
 function montarCorretivos() {
   const grade = porId('amendGrid');
-  grade.innerHTML = corretivos.map(function (corretivo, indice) {
+  grade.innerHTML = CORRETIVOS.map(function (corretivo, indice) {
     return '<article class="corretivo">' +
       '<div class="corretivo-topo">' +
       '<input id="use' + indice + '" type="checkbox" aria-describedby="dados' + indice + '">' +
@@ -134,14 +112,14 @@ function validar() {
     registrarErro(porId('na'), 'O Na⁺ trocável não pode ser maior que a CTC.', mensagens);
   }
 
-  const selecionados = corretivos.filter(function (_, indice) {
+  const selecionados = CORRETIVOS.filter(function (_, indice) {
     return porId('use' + indice).checked;
   });
   if (selecionados.length === 0) {
     registrarErro(porId('amendGrid'), 'Selecione pelo menos um corretivo.', mensagens);
   }
 
-  corretivos.forEach(function (_, indice) {
+  CORRETIVOS.forEach(function (_, indice) {
     if (!porId('use' + indice).checked) {
       return;
     }
@@ -174,40 +152,33 @@ function mostrarResumo(mensagens) {
   mensagens[0].campo.focus();
 }
 
-function adequacao(corretivo, ph, caco3) {
-  if (corretivo.tipo === 'direto') {
-    return {
-      rotulo: 'Potencialmente adequado',
-      ok: true,
-      nota: 'Fornece Ca²⁺ diretamente para substituir Na⁺ no complexo de troca.'
-    };
-  }
-  if (corretivo.tipo === 'acido') {
-    if (caco3 > 0) {
-      return {
-        rotulo: 'Adequado com carbonatos',
-        ok: true,
-        nota: 'A acidez gerada favorece a dissolução de carbonatos e a disponibilização de Ca²⁺.'
-      };
-    }
-    return {
-      rotulo: 'Uso com cautela',
-      ok: false,
-      nota: 'Sem carbonatos alcalino-terrosos, requer avaliação específica devido ao risco de acidificação.'
-    };
-  }
-  if (ph < 7.5 && caco3 <= 0) {
-    return {
-      rotulo: 'Pode ser considerado',
-      ok: true,
-      nota: 'Fonte de Ca de baixa solubilidade, mais indicada em condições específicas de pH e ausência de carbonatos.'
-    };
-  }
+function dadosDoFormulario() {
   return {
-    rotulo: 'Baixa prioridade',
-    ok: false,
-    nota: 'A baixa solubilidade limita sua eficiência nas condições informadas.'
+    ph: numero('ph'),
+    ce: numero('ce'),
+    ctc: numero('ctc'),
+    na: numero('na'),
+    caco3: numero('caco3'),
+    ds: numero('ds'),
+    h: numero('h'),
+    pstf: numero('pstf'),
+    area: numero('area')
   };
+}
+
+function selecionados() {
+  const escolhidos = [];
+  CORRETIVOS.forEach(function (corretivo, indice) {
+    if (!porId('use' + indice).checked) {
+      return;
+    }
+    escolhidos.push({
+      corretivo: corretivo,
+      pureza: numero('purity' + indice),
+      preco: numero('price' + indice)
+    });
+  });
+  return escolhidos;
 }
 
 function calcular() {
@@ -215,82 +186,44 @@ function calcular() {
     return;
   }
 
-  const ph = numero('ph');
-  const ce = numero('ce');
-  const ctc = numero('ctc');
-  const na = numero('na');
-  const caco3 = numero('caco3');
-  const ds = numero('ds');
-  const h = numero('h');
-  const pstf = numero('pstf');
-  const area = numero('area');
-
-  const pstInicial = (na / ctc) * 100;
-  const delta = Math.max(0, pstInicial - pstf);
-  const sodico = pstInicial >= 15;
-  const salino = ce >= 4;
-  const classe = sodico
-    ? (salino ? 'salino-sódico' : 'sódico')
-    : (salino ? 'salino' : 'não sódico pelos critérios informados');
+  const dados = dadosDoFormulario();
+  const resultado = calcularDoses(dados, selecionados());
 
   porId('diagnosis').innerHTML =
-    '<div class="metrica"><b>' + formatar(pstInicial) + '%</b>' +
+    '<div class="metrica"><b>' + formatar(resultado.pstInicial) + '%</b>' +
     '<span>PST inicial calculada</span></div>' +
-    '<p><b>Classificação:</b> ' + classe + '.</p>' +
-    '<p><b>Meta:</b> PST ' + formatar(pstf) + '% na camada de ' +
-    formatar(h, 0) + ' cm.</p>';
+    '<p><b>Classificação:</b> ' + resultado.classe + '.</p>' +
+    '<p><b>Meta:</b> PST ' + formatar(dados.pstf) + '% na camada de ' +
+    formatar(dados.h, 0) + ' cm.</p>';
 
   const corpo = porId('out').querySelector('tbody');
   corpo.innerHTML = '';
-  const candidatos = [];
-
-  corretivos.forEach(function (corretivo, indice) {
-    if (!porId('use' + indice).checked) {
-      return;
-    }
-    const pureza = numero('purity' + indice);
-    const preco = numero('price' + indice);
-    const ajuste = adequacao(corretivo, ph, caco3);
-    const doseTeorica = (delta * ctc * corretivo.pe * h * ds) / 100;
-    const dosePratica = doseTeorica * corretivo.c;
-    const doseComercial = pureza > 0 ? dosePratica / (pureza / 100) : NaN;
-    const custo = Number.isFinite(doseComercial) ? (doseComercial / 1000) * preco : NaN;
-    const total = Number.isFinite(custo) ? custo * area : NaN;
-
-    if (ajuste.ok && Number.isFinite(custo)) {
-      candidatos.push({ nome: corretivo.nome, custo: custo, total: total });
-    }
-
+  resultado.linhas.forEach(function (linha) {
     const celulas = [
-      '<b>' + corretivo.nome + '</b>',
-      '<span class="' + (ajuste.ok ? 'bom' : 'atencao') + '">' + ajuste.rotulo + '</span>',
-      formatar(doseTeorica) + ' kg/ha',
-      formatar(dosePratica) + ' kg/ha',
-      Number.isFinite(doseComercial) ? formatar(doseComercial) + ' kg/ha' : 'Informe a pureza',
-      Number.isFinite(custo) ? dinheiro(custo) : 'Informe o preço',
-      Number.isFinite(total) ? dinheiro(total) : 'Sem valor'
+      '<b>' + linha.nome + '</b>',
+      '<span class="' + (linha.ajuste.ok ? 'bom' : 'atencao') + '">' + linha.ajuste.rotulo + '</span>',
+      formatar(linha.doseTeorica) + ' kg/ha',
+      formatar(linha.dosePratica) + ' kg/ha',
+      Number.isFinite(linha.doseComercial) ? formatar(linha.doseComercial) + ' kg/ha' : 'Informe a pureza',
+      Number.isFinite(linha.custo) ? dinheiro(linha.custo) : 'Informe o preço',
+      Number.isFinite(linha.total) ? dinheiro(linha.total) : 'Sem valor'
     ];
     corpo.insertAdjacentHTML('beforeend', '<tr>' + celulas.map(function (celula, coluna) {
       return '<td data-rotulo="' + ROTULOS_TABELA[coluna] + '">' + celula + '</td>';
     }).join('') + '</tr>');
   });
 
-  candidatos.sort(function (a, b) {
-    return a.custo - b.custo;
-  });
-  const melhor = candidatos[0];
+  const melhor = resultado.melhor;
 
   porId('best').innerHTML = melhor
     ? '<strong>Menor custo entre as alternativas tecnicamente adequadas:</strong> ' +
       melhor.nome + ', <b>' + dinheiro(melhor.custo) + '/ha</b> (' +
-      dinheiro(melhor.total) + ' para ' + formatar(area) + ' ha).'
+      dinheiro(melhor.total) + ' para ' + formatar(dados.area) + ' ha).'
     : 'Informe pureza e preço dos corretivos selecionados para realizar a comparação econômica.';
 
-  porId('recommendation').innerHTML = corretivos.map(function (corretivo, indice) {
-    if (!porId('use' + indice).checked) {
-      return '';
-    }
-    return '<p><b>' + corretivo.nome + ':</b> ' + adequacao(corretivo, ph, caco3).nota + '</p>';
+  porId('recommendation').innerHTML = selecionados().map(function (item) {
+    return '<p><b>' + item.corretivo.nome + ':</b> ' +
+      adequacao(item.corretivo, dados.ph, dados.caco3).nota + '</p>';
   }).join('');
 
   const escolhido = melhor ? melhor.nome : 'o corretivo tecnicamente selecionado';
@@ -318,7 +251,7 @@ function limparCampos() {
   ['texture', 'drain', 'water'].forEach(function (id) {
     porId(id).selectedIndex = 0;
   });
-  corretivos.forEach(function (_, indice) {
+  CORRETIVOS.forEach(function (_, indice) {
     porId('purity' + indice).value = '';
     porId('price' + indice).value = '';
     porId('use' + indice).checked = false;
@@ -342,7 +275,7 @@ function carregarExemplo() {
   porId('texture').value = 'Média';
   porId('drain').value = 'Adequada';
   porId('water').value = 'Baixa salinidade';
-  corretivos.forEach(function (corretivo, indice) {
+  CORRETIVOS.forEach(function (corretivo, indice) {
     if (corretivo.purezaExemplo === undefined) {
       return;
     }

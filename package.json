@@ -1,0 +1,16 @@
+{
+  "name": "recupera-solo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Página estática do RECUPERA-SOLO, com testes de cálculo e de navegador.",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unidade && npm run test:navegador",
+    "test:unidade": "node --test testes/calc.test.js",
+    "test:navegador": "playwright test",
+    "servidor": "node testes/servidor.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  }
+}
