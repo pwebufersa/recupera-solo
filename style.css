@@ -242,12 +242,13 @@ code {
   border-radius: 50%;
   background: var(--verde);
   color: #fff;
+  font-size: 1.1rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .titulo-secao h2 {
-  font-size: clamp(1.1rem, 1.9vw, 1.45rem);
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
 }
 
 .titulo-secao p {

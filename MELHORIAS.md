@@ -14,9 +14,14 @@ Antes, os campos ultrapassavam a borda direita. Depois, o conteúdo cabe na tela
 |---|---|
 | ![Antes](prints/antes-celular.png) | ![Depois](prints/depois-celular.png) |
 
+Depois do cálculo, a tabela vira cartões:
+
+![Resultados no celular](prints/depois-resultados-celular.png)
+
 ## Alterações
 
 - Campos empilhados; botões em largura total.
+- Títulos de seção um pouco maiores, mais próximos do original.
 - Tabela de resultados em cartões.
 - Erro junto ao campo; resumo com âncoras e foco no primeiro erro.
 - Teclado numérico nos campos de número.
