@@ -14,10 +14,6 @@ Antes, os campos ultrapassavam a borda direita. Depois, o conteúdo cabe na tela
 |---|---|
 | ![Antes](prints/antes-celular.png) | ![Depois](prints/depois-celular.png) |
 
-Depois do cálculo, a tabela vira cartões:
-
-![Resultados no celular](prints/depois-resultados-celular.png)
-
 ## Com e sem Impeccable
 
 A versão com Impeccable recebeu títulos e entrelinha maiores, mais espaço entre

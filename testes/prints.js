@@ -42,12 +42,6 @@ for (const tela of TELAS) {
   const depois = await abrir(navegador, tela, atual);
   await capturar(depois, 'depois-' + tela.nome + '.png');
 
-  if (tela.nome === 'celular') {
-    await depois.getByRole('button', { name: /exemplo/i }).click();
-    await depois.locator('#calc').click();
-    await depois.waitForTimeout(800);
-    await capturar(depois, 'depois-resultados-celular.png');
-  }
   await depois.close();
 }
 
