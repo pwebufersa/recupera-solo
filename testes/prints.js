@@ -1,48 +1,81 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { chromium } from '@playwright/test';
 
-/* Refaz as capturas de MELHORIAS.md a partir dos dois index.html.
+/* Refaz as comparações de MELHORIAS.md entre o site original e esta versão.
+   As capturas mostram a seção de resultados, onde a diferença é maior.
    Execução: npm run prints */
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pasta = path.join(raiz, 'prints');
+const temporaria = fs.mkdtempSync(path.join(os.tmpdir(), 'recupera-prints-'));
 const original = pathToFileURL(
-  path.join(process.env.TEMP || '/tmp', 'opencode', 'original_site', 'index.html')
+  path.join(process.env.TEMP || os.tmpdir(), 'opencode', 'original_site', 'index.html')
 ).href;
 const atual = pathToFileURL(path.join(raiz, 'index.html')).href;
 
 const TELAS = [
-  { nome: 'celular', largura: 412, altura: 915 },
-  { nome: 'desktop', largura: 1280, altura: 900 }
+  { nome: 'desktop', largura: 1280, coluna: 600 },
+  { nome: 'celular', largura: 412, coluna: 330 }
 ];
 
-async function abrir(navegador, tela, endereco) {
+async function capturarResultados(navegador, tela, endereco, arquivo) {
   const pagina = await navegador.newPage({
-    viewport: { width: tela.largura, height: tela.altura },
+    viewport: { width: tela.largura, height: 900 },
     deviceScaleFactor: 2
   });
   await pagina.goto(endereco);
-  return pagina;
+  await pagina.getByRole('button', { name: /exemplo/i }).click();
+  await pagina.locator('#calc').click();
+  await pagina.waitForTimeout(700);
+  await pagina.locator('#results').screenshot({ path: arquivo });
+  await pagina.close();
 }
 
-async function capturar(pagina, arquivo) {
-  await pagina.screenshot({ path: path.join(pasta, arquivo), fullPage: true });
-  console.log(arquivo);
+function paginaDeComparacao(tela, esquerda, direita) {
+  const html = '<!doctype html><meta charset="utf-8"><style>' +
+    'body{margin:0;background:#eef2f0;font:600 15px/1.4 "Segoe UI",Arial,sans-serif;color:#102a3a;padding:14px}' +
+    '.par{display:flex;gap:14px;align-items:flex-start}' +
+    'figure{margin:0;background:#fff;border:1px solid #cfdedd;border-radius:8px;overflow:hidden;width:' + tela.coluna + 'px}' +
+    'figcaption{padding:7px 10px;border-bottom:1px solid #cfdedd;background:#f6faf8;font-size:14px}' +
+    'img{display:block;width:100%}</style>' +
+    '<div class="par">' +
+    '<figure><figcaption>Original</figcaption><img src="' + esquerda + '"></figure>' +
+    '<figure><figcaption>Nova versão</figcaption><img src="' + direita + '"></figure>' +
+    '</div>';
+  const caminho = path.join(temporaria, 'comparacao-' + tela.nome + '.html');
+  fs.writeFileSync(caminho, html);
+  return caminho;
 }
 
 const navegador = await chromium.launch({ channel: 'chrome' });
 
 for (const tela of TELAS) {
-  const antes = await abrir(navegador, tela, original);
-  await capturar(antes, 'antes-' + tela.nome + '.png');
-  await antes.close();
+  const antes = path.join(temporaria, 'original-' + tela.nome + '.png');
+  const depois = path.join(temporaria, 'nova-' + tela.nome + '.png');
 
-  const depois = await abrir(navegador, tela, atual);
-  await capturar(depois, 'depois-' + tela.nome + '.png');
+  await capturarResultados(navegador, tela, original, antes);
+  await capturarResultados(navegador, tela, atual, depois);
 
-  await depois.close();
+  const comparacao = paginaDeComparacao(
+    tela,
+    'original-' + tela.nome + '.png',
+    'nova-' + tela.nome + '.png'
+  );
+  const pagina = await navegador.newPage({
+    viewport: { width: tela.coluna * 2 + 46, height: 900 }
+  });
+  await pagina.goto(pathToFileURL(comparacao).href);
+  await pagina.screenshot({
+    path: path.join(pasta, 'comparacao-' + tela.nome + '.png'),
+    fullPage: true
+  });
+  await pagina.close();
+  console.log('comparacao-' + tela.nome + '.png');
 }
 
 await navegador.close();
+fs.rmSync(temporaria, { recursive: true, force: true });
