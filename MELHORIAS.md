@@ -18,13 +18,15 @@ Depois do cálculo, a tabela vira cartões:
 
 ![Resultados no celular](prints/depois-resultados-celular.png)
 
-## Comparação
+## Com e sem Impeccable
 
-Refinamento de tipografia, ritmo e destaque, com a identidade mantida.
+A versão com Impeccable recebeu títulos e entrelinha maiores, mais espaço entre
+seções, campos de 46 px, valores sem quebra na tabela e caixa de destaque sem
+barra lateral. A identidade visual foi mantida.
 
-![Comparação no computador](prints/comparacao-desktop.png)
+![Comparação no computador, sem e com Impeccable](prints/comparacao-desktop.png)
 
-![Comparação no celular](prints/comparacao-celular.png)
+![Comparação no celular, sem e com Impeccable](prints/comparacao-celular.png)
 
 ## Alterações
 

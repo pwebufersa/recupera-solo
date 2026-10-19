@@ -45,8 +45,10 @@ GitHub Actions, o relatório de falha fica disponível por sete dias.
 
 ## Publicação
 
-A publicação do GitHub Pages sai da branch `main`. Os testes não entram no site
-publicado.
+O GitHub Pages publica a branch `main`. No Netlify, a mesma branch pode ser
+apontada sem comando de build e com o diretório de publicação na raiz, como
+registra `netlify.toml`. Só quatro arquivos são necessários em execução:
+`index.html`, `style.css`, `script.js` e `favicon.svg`.
 
 ## Documentos
 
