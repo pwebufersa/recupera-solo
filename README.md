@@ -10,6 +10,22 @@ Cópia do original com a interface ajustada. Conteúdo e cálculo iguais.
 O endereço acima abre no navegador. "Usar exemplo" preenche dados e preços;
 "Gerar diagnóstico e recomendação" calcula.
 
+## APK para Android
+
+O aplicativo Android é gerado a partir deste site. O script e os ícones ficam em
+[`apk/`](apk/). O APK não é versionado: é gravado localmente em `apk/dist/`, com
+o hash em `apk/dist/SHA256.txt`. A compilação é feita por `apk/gerar_apk.ps1`,
+que baixa sozinho o JDK 21, o Node.js 22 e o Android SDK, sempre na versão mais
+recente de cada linha.
+
+```powershell
+cd apk
+powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
+```
+
+O APK usa a WebView do Android e funciona sem internet, exceto nos links
+externos do rodapé.
+
 ## Teste de uso
 
 O protocolo está em [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>). Os casos usam dados fictícios e não substituem recomendação agronômica.

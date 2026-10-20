@@ -12,7 +12,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
 
 O script executa as três etapas em sequência:
 
-1. Baixa o JDK 21 e o Android SDK mínimo, se ainda não existirem.
+1. Baixa o JDK 21, o Node.js 22 e o Android SDK mínimo, se ainda não existirem.
 2. Cria o projeto Capacitor, copia o site, gera ícones e splash e sincroniza o Android.
 3. Compila, assina e verifica o APK.
 
@@ -32,7 +32,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Etapa Proje
 powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Etapa Apk
 ```
 
-- `Ferramentas`: apenas o JDK e o SDK.
+- `Ferramentas`: apenas o JDK, o Node.js e o SDK.
 - `Projeto`: apenas a cópia do site e o projeto Capacitor.
 - `Apk`: apenas a compilação, a assinatura e a verificação.
 - `Tudo`: as três etapas, que é o padrão.
@@ -43,11 +43,10 @@ Requisitos:
 
 - Windows 10 ou 11 de 64 bits.
 - PowerShell 5 ou superior.
-- Node.js 22 ou superior, com `npm` e `npx` no PATH.
 - Conexão com a internet na primeira execução.
 - Cerca de 2 GB livres.
 
-O JDK, o Android SDK, o Gradle e as dependências do projeto são baixados pelo próprio script. O Android Studio não é necessário.
+O JDK, o Node.js 22, o Android SDK, o Gradle e as dependências do projeto são baixados pelo próprio script. O Android Studio não é necessário. Node.js não precisa estar instalado: uma cópia própria é baixada para `ferramentas\node22` e usada por `node.exe`, `npm.cmd` e `npx.cmd` dessa pasta. O SHA-256 do pacote é conferido contra o `SHASUMS256.txt` oficial antes da extração.
 
 Em uma máquina limpa, o comando único é suficiente:
 
@@ -55,7 +54,22 @@ Em uma máquina limpa, o comando único é suficiente:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
 ```
 
-A primeira execução baixa o JDK 21, o Android SDK 36 e as dependências do Node. As execuções seguintes reaproveitam `ferramentas`, `app` e o cache do Gradle.
+A primeira execução baixa o JDK 21, o Node.js 22, o Android SDK 36 e as dependências do Node. As execuções seguintes reaproveitam `ferramentas`, `app` e o cache do Gradle.
+
+## Versões
+
+Nenhuma versão de ferramenta fica fixada no script. A cada execução, a mais recente de cada linha é resolvida nas fontes oficiais:
+
+- JDK 21: canal `latest/21/ga` da Adoptium.
+- Node.js: primeira versão da série 22 no `index.json` da nodejs.org, com SHA-256 conferido no `SHASUMS256.txt`.
+- cmdline-tools: pacote `cmdline-tools;latest` do `repository2-3.xml` do Google.
+- build-tools: maior versão oferecida pelo `sdkmanager`.
+- Capacitor e `@capacitor/assets`: `@latest` do npm.
+- Gradle e Android Gradle Plugin: os do modelo do Capacitor.
+
+A única versão fixa é a da API do Android (36), porque é decisão do projeto e acompanha o `compileSdk` e o `targetSdk`. Se o modelo do Capacitor exigir outra, a plataforma correspondente é instalada na hora.
+
+O hash só se repete enquanto as fontes não publicarem versões novas. O `SHA256.txt` vale para o build do dia.
 
 ## Site de origem
 
@@ -89,7 +103,7 @@ O `versionCode` deve ser incrementado a cada APK publicado. O `versionName` é o
 - `gerar_apk.ps1`: script único de geração.
 - `assets/`: ícone e splash usados pelo Android.
 - `README.md`: este roteiro.
-- `ferramentas/`: JDK e SDK baixados. Não versionar.
+- `ferramentas/`: JDK, Node.js 22 e SDK baixados. Não versionar.
 - `app/`: projeto Capacitor gerado. Não versionar.
 - `segredos/`: chave de assinatura e senhas. Não versionar.
 - `dist/`: APK e hash. Não versionar.
@@ -109,7 +123,11 @@ Em uma máquina limpa, uma chave nova é gerada. O APK gerado com essa chave nã
 
 ## Repositório
 
-Esta pasta fica em `recupera-solo/apk`. O site é encontrado em `..`.
+Esta pasta fica em `recupera-solo/apk`, no repositório
+https://github.com/pwebufersa/recupera-solo. O site é encontrado em `..`.
+
+O APK não é versionado. Cada pessoa gera o seu com o script; o arquivo fica em
+`dist/`, fora do Git.
 
 O arquivo `.gitignore` mantém fora do repositório:
 

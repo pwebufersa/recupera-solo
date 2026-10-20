@@ -21,14 +21,24 @@ $ErrorActionPreference = "Stop"
 $Raiz = $PSScriptRoot
 $Ferramentas = Join-Path $Raiz "ferramentas"
 $Jdk = Join-Path $Ferramentas "jdk21"
+$Node = Join-Path $Ferramentas "node22"
 $Sdk = Join-Path $Ferramentas "android-sdk"
-$BuildTools = Join-Path $Sdk "build-tools\36.0.0"
 $App = Join-Path $Raiz "app"
 $Assets = Join-Path $Raiz "assets"
 $Segredos = Join-Path $Raiz "segredos"
 $Dist = Join-Path $Raiz "dist"
 $Nome = "RECUPERA-SOLO"
 $Pacote = "br.edu.ufersa.recuperasolo"
+
+# As versoes das ferramentas nao sao fixadas: a mais recente de cada linha e
+# resolvida a cada execucao, a partir das fontes oficiais.
+$UrlNodeIndice = "https://nodejs.org/dist/index.json"
+$UrlRepoAndroid = "https://dl.google.com/android/repository/repository2-3.xml"
+$SerieNode = "22"
+
+# Nivel da API do Android e decisao do projeto, nao versao de ferramenta:
+# acompanha o compileSdk e o targetSdk declarados em app/android/variables.gradle.
+$AndroidApi = "36"
 
 function Escrever {
     param([string]$Texto)
@@ -52,18 +62,84 @@ function Verificar-Windows {
     if ($PSVersionTable.PSVersion.Major -lt 5) { Falhar "PowerShell 5 ou superior e necessario." }
 }
 
+function Resolver-Node {
+    $indice = Join-Path $Ferramentas "node-index.json"
+    Baixar $UrlNodeIndice $indice
+    try {
+        $lista = Get-Content -Raw $indice | ConvertFrom-Json
+    }
+    finally {
+        Remove-Item $indice -Force
+    }
+    $versao = $lista | Where-Object { $_.version -like "v$SerieNode.*" } |
+        Select-Object -First 1 -ExpandProperty version
+    if (-not $versao) { Falhar "Nenhuma versao da serie $SerieNode do Node.js em $UrlNodeIndice." }
+    return $versao
+}
+
+function Achar-NodeInstalado {
+    $nodeExe = Join-Path $Node "node.exe"
+    if (-not (Test-Path $nodeExe)) { return $null }
+    return (& $nodeExe -p "process.versions.node").Trim()
+}
+
+function Instalar-Node {
+    New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
+
+    $versao = Resolver-Node
+    $instalada = Achar-NodeInstalado
+    if (("v" + $instalada) -ne $versao) {
+        $nomeZip = "node-$versao-win-x64.zip"
+        $zip = Join-Path $Ferramentas "node22.zip"
+        $somas = Join-Path $Ferramentas "node22-SHASUMS256.txt"
+        $tmp = Join-Path $Ferramentas "node22_tmp"
+        $base = "https://nodejs.org/dist/$versao"
+
+        Baixar "$base/$nomeZip" $zip
+        Baixar "$base/SHASUMS256.txt" $somas
+
+        $esperado = $null
+        $padrao = "^([0-9a-fA-F]{64})\s+\*?" + [regex]::Escape($nomeZip) + "$"
+        foreach ($linha in Get-Content $somas) {
+            if ($linha -match $padrao) { $esperado = $Matches[1] }
+        }
+        if (-not $esperado) { Falhar "SHA-256 de $nomeZip ausente no SHASUMS256.txt oficial." }
+
+        $obtido = (Get-FileHash $zip -Algorithm SHA256).Hash
+        if ($obtido -ne $esperado.ToUpperInvariant()) {
+            Falhar "SHA-256 divergente para $nomeZip. Esperado: $esperado. Obtido: $obtido."
+        }
+
+        if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+        Expand-Archive -Path $zip -DestinationPath $tmp -Force
+        $pasta = Join-Path $tmp ("node-$versao-win-x64")
+        if (-not (Test-Path (Join-Path $pasta "node.exe"))) { Falhar "node.exe ausente no zip do Node.js." }
+        if (Test-Path $Node) { Remove-Item $Node -Recurse -Force }
+        Move-Item $pasta $Node
+        Remove-Item $tmp -Recurse -Force
+        Remove-Item $zip -Force
+        Remove-Item $somas -Force
+        Escrever "Node.js $versao instalado em $Node"
+    }
+    else {
+        Escrever "Node.js $versao ja instalado."
+    }
+
+    $partes = $env:PATH -split ';'
+    if (-not ($partes | Where-Object { $_ -ieq $Node })) { $env:PATH = "$Node;$env:PATH" }
+}
+
 function Verificar-Node {
-    $node = Get-Command node.exe -ErrorAction SilentlyContinue
-    if (-not $node) { Falhar "Node.js 22 ou superior nao encontrado no PATH." }
+    $nodeExe = Join-Path $Node "node.exe"
+    $npm = Join-Path $Node "npm.cmd"
+    $npx = Join-Path $Node "npx.cmd"
 
-    $maior = & $node.Source -p "process.versions.node.split('.')[0]"
+    if (-not (Test-Path $nodeExe)) { Falhar "Node.js ausente em $Node. Rode -Etapa Ferramentas." }
+    if (-not (Test-Path $npm)) { Falhar "npm.cmd ausente em $Node." }
+    if (-not (Test-Path $npx)) { Falhar "npx.cmd ausente em $Node." }
+
+    $maior = & $nodeExe -p "process.versions.node.split('.')[0]"
     if ([int]$maior -lt 22) { Falhar "Node.js 22 ou superior e necessario. Versao encontrada: $maior." }
-
-    $npm = Get-Command npm.cmd -ErrorAction SilentlyContinue
-    if (-not $npm) { Falhar "npm nao encontrado no PATH." }
-
-    $npx = Get-Command npx.cmd -ErrorAction SilentlyContinue
-    if (-not $npx) { Falhar "npx nao encontrado no PATH." }
 }
 
 function Achar-Site {
@@ -109,6 +185,50 @@ function Baixar {
     if (-not (Test-Path $Destino)) { Falhar "Arquivo nao baixado: $Destino" }
 }
 
+function Achar-BuildTools {
+    $pasta = Join-Path $Sdk "build-tools"
+    if (-not (Test-Path $pasta)) { return $null }
+
+    $dir = Get-ChildItem $pasta -Directory |
+        Where-Object { $_.Name -match '^\d+(\.\d+)*$' } |
+        Sort-Object { [version]$_.Name } -Descending |
+        Select-Object -First 1
+
+    if (-not $dir) { return $null }
+    return $dir.FullName
+}
+
+function Resolver-CmdlineTools {
+    $xml = Join-Path $Ferramentas "repository2-3.xml"
+    Baixar $UrlRepoAndroid $xml
+    $texto = Get-Content -Raw $xml
+    Remove-Item $xml -Force
+
+    $bloco = [regex]::Match($texto, 'path="cmdline-tools;latest".*?</remotePackage>', 'Singleline')
+    if (-not $bloco.Success) { Falhar "Pacote cmdline-tools;latest ausente em $UrlRepoAndroid." }
+
+    $arquivo = [regex]::Match($bloco.Value, '<url>(commandlinetools-win-[^<]+)</url>').Groups[1].Value
+    if (-not $arquivo) { Falhar "Pacote Windows do cmdline-tools ausente em $UrlRepoAndroid." }
+
+    return "https://dl.google.com/android/repository/$arquivo"
+}
+
+function Resolver-BuildTools {
+    param([string]$SdkManager)
+
+    Escrever "Consultando a versao mais recente do build-tools."
+    $saida = & $SdkManager --sdk_root=$Sdk --list 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) { Falhar "Falha ao listar os pacotes do SDK." }
+
+    $versoes = [regex]::Matches($saida, '(?m)^\s*build-tools;(\d+(?:\.\d+)*)') |
+        ForEach-Object { $_.Groups[1].Value } |
+        Sort-Object { [version]$_ } -Descending |
+        Select-Object -Unique
+
+    if (-not $versoes) { Falhar "Nenhum build-tools disponivel no sdkmanager." }
+    return ($versoes | Select-Object -First 1)
+}
+
 function Instalar-Ferramentas {
     New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
 
@@ -127,46 +247,72 @@ function Instalar-Ferramentas {
         Escrever "JDK 21 instalado em $Jdk"
     }
 
-    $sdkOk = (Test-Path (Join-Path $BuildTools "apksigner.bat")) -and
-             (Test-Path (Join-Path $Sdk "platforms\android-36\android.jar"))
+    $cmdToolsBin = Join-Path $Sdk "cmdline-tools\latest\bin"
+    $sdkManager = Join-Path $cmdToolsBin "sdkmanager.bat"
 
-    if (-not $sdkOk) {
-        $sdkManager = Join-Path $Sdk "cmdline-tools\latest\bin\sdkmanager.bat"
-        if (-not (Test-Path $sdkManager)) {
-            $zip = Join-Path $Ferramentas "cmdline-tools.zip"
-            $tmp = Join-Path $Ferramentas "cmdline-tools-tmp"
-            Baixar "https://dl.google.com/android/repository/commandlinetools-win-13114758_latest.zip" $zip
-            if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
-            Expand-Archive -Path $zip -DestinationPath $tmp -Force
-            $cmdTools = Join-Path $Sdk "cmdline-tools"
-            New-Item -ItemType Directory -Force -Path $cmdTools | Out-Null
-            $latest = Join-Path $cmdTools "latest"
-            if (Test-Path $latest) { Remove-Item $latest -Recurse -Force }
-            Move-Item (Join-Path $tmp "cmdline-tools") $latest
-            Remove-Item $tmp -Recurse -Force
-            Remove-Item $zip -Force
-        }
+    if (-not (Test-Path $sdkManager)) {
+        $url = Resolver-CmdlineTools
+        $zip = Join-Path $Ferramentas "cmdline-tools.zip"
+        $tmp = Join-Path $Ferramentas "cmdline-tools-tmp"
+        Baixar $url $zip
+        if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+        Expand-Archive -Path $zip -DestinationPath $tmp -Force
+        $cmdTools = Join-Path $Sdk "cmdline-tools"
+        New-Item -ItemType Directory -Force -Path $cmdTools | Out-Null
+        $latest = Join-Path $cmdTools "latest"
+        if (Test-Path $latest) { Remove-Item $latest -Recurse -Force }
+        Move-Item (Join-Path $tmp "cmdline-tools") $latest
+        Remove-Item $tmp -Recurse -Force
+        Remove-Item $zip -Force
+        Escrever "cmdline-tools instalado em $latest"
+    }
 
-        $env:JAVA_HOME = $Jdk
-        $env:ANDROID_HOME = $Sdk
-        $env:ANDROID_SDK_ROOT = $Sdk
-        $env:PATH = "$Jdk\bin;$Sdk\platform-tools;$Sdk\cmdline-tools\latest\bin;$BuildTools;$env:PATH"
+    $env:JAVA_HOME = $Jdk
+    $env:ANDROID_HOME = $Sdk
+    $env:ANDROID_SDK_ROOT = $Sdk
+    $env:PATH = "$Jdk\bin;$cmdToolsBin;$Sdk\platform-tools;$env:PATH"
 
+    $buildTools = Achar-BuildTools
+    $apiOk = Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar")
+    $versaoBuildTools = Resolver-BuildTools -SdkManager $sdkManager
+    $instaladaBuildTools = ""
+    if ($buildTools) { $instaladaBuildTools = Split-Path -Leaf $buildTools }
+
+    if (-not $apiOk -or $instaladaBuildTools -ne $versaoBuildTools) {
         Escrever "Aceitando licencas do SDK."
         1..40 | ForEach-Object { "y" } | & $sdkManager --sdk_root=$Sdk --licenses | Out-Null
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
 
-        Escrever "Instalando platform-tools, Android 36 e build-tools 36."
-        & $sdkManager --sdk_root=$Sdk "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+        Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
+        & $sdkManager --sdk_root=$Sdk "platform-tools" "platforms;android-$AndroidApi" "build-tools;$versaoBuildTools"
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar os pacotes do SDK." }
+        $buildTools = Achar-BuildTools
     }
     else {
-        Escrever "SDK ja instalado."
+        Escrever "SDK ja instalado: build-tools $instaladaBuildTools, Android $AndroidApi."
     }
 
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK 21 ausente." }
-    if (-not (Test-Path (Join-Path $BuildTools "apksigner.bat"))) { Falhar "build-tools 36 ausente." }
-    if (-not (Test-Path (Join-Path $Sdk "platforms\android-36\android.jar"))) { Falhar "Android 36 ausente." }
+    if (-not $buildTools -or -not (Test-Path (Join-Path $buildTools "apksigner.bat"))) { Falhar "build-tools ausente." }
+    if (-not (Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar"))) { Falhar "Android $AndroidApi ausente." }
+
+    Instalar-Node
+    Verificar-Node
+}
+
+function Garantir-Android {
+    param([string]$Api)
+
+    if (Test-Path (Join-Path $Sdk "platforms\android-$Api\android.jar")) { return }
+
+    $sdkManager = Join-Path $Sdk "cmdline-tools\latest\bin\sdkmanager.bat"
+    if (-not (Test-Path $sdkManager)) { Falhar "cmdline-tools ausente. Rode -Etapa Ferramentas." }
+
+    $env:JAVA_HOME = $Jdk
+    Escrever "Instalando a plataforma Android $Api exigida pelo projeto."
+    1..40 | ForEach-Object { "y" } | & $sdkManager --sdk_root=$Sdk --licenses | Out-Null
+    & $sdkManager --sdk_root=$Sdk "platforms;android-$Api"
+    if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar a plataforma Android $Api." }
 }
 
 function Atualizar-Versao {
@@ -186,7 +332,10 @@ function Atualizar-Versao {
 function Criar-Projeto {
     param([string]$SiteResolvido)
 
+    Instalar-Node
     Verificar-Node
+    $npm = Join-Path $Node "npm.cmd"
+    $npx = Join-Path $Node "npx.cmd"
 
     foreach ($arquivo in @("index.html", "style.css", "script.js", "favicon.svg")) {
         if (-not (Test-Path (Join-Path $SiteResolvido $arquivo))) {
@@ -219,15 +368,7 @@ function Criar-Projeto {
 {
   "name": "recupera-solo-app",
   "version": "$Versao",
-  "private": true,
-  "dependencies": {
-    "@capacitor/core": "8.5.3",
-    "@capacitor/cli": "8.5.3",
-    "@capacitor/android": "8.5.3"
-  },
-  "devDependencies": {
-    "@capacitor/assets": "3.0.5"
-  }
+  "private": true
 }
 "@
         Salvar-Texto $packageJson $json
@@ -247,28 +388,38 @@ function Criar-Projeto {
 
     Push-Location $App
     try {
-        & npm.cmd install --no-audit --no-fund
+        Escrever "Instalando as dependencias mais recentes do Capacitor."
+        & $npm install --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest"
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
+
+        & $npm install --no-audit --no-fund --save-dev "@capacitor/assets@latest"
+        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar o @capacitor/assets." }
 
         $android = Join-Path $App "android"
         if (-not (Test-Path (Join-Path $android "app\build.gradle"))) {
             if (Test-Path $android) {
                 Falhar "A pasta app\android existe mas esta incompleta. Remova-a e rode novamente."
             }
-            & npx.cmd cap add android
+            & $npx cap add android
             if ($LASTEXITCODE -ne 0) { Falhar "Falha ao adicionar a plataforma Android." }
         }
 
-        & npx.cmd cap sync android
+        & $npx cap sync android
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao sincronizar o projeto Android." }
 
         $gradle = Join-Path $App "android\app\build.gradle"
         Atualizar-Versao $gradle
 
+        $variaveis = Join-Path $App "android\variables.gradle"
+        if (Test-Path $variaveis) {
+            $texto = [IO.File]::ReadAllText($variaveis)
+            if ($texto -match 'compileSdkVersion\s*=\s*(\d+)') { Garantir-Android -Api $Matches[1] }
+        }
+
         $local = Join-Path $App "android\local.properties"
         Salvar-Texto $local ("sdk.dir=" + ($Sdk -replace '\\', '/') + "`n")
 
-        & npx.cmd capacitor-assets generate --android `
+        & $npx capacitor-assets generate --android `
             --iconBackgroundColor "#f1f5ed" `
             --iconBackgroundColorDark "#f1f5ed" `
             --splashBackgroundColor "#f1f5ed" `
@@ -284,8 +435,9 @@ function Criar-Projeto {
 
 function Gerar-Apk {
     $gradle = Join-Path $App "android\app\build.gradle"
+    $BuildTools = Achar-BuildTools
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK ausente. Rode -Etapa Ferramentas." }
-    if (-not (Test-Path (Join-Path $BuildTools "apksigner.bat"))) { Falhar "build-tools ausente. Rode -Etapa Ferramentas." }
+    if (-not $BuildTools) { Falhar "build-tools ausente. Rode -Etapa Ferramentas." }
     if (-not (Test-Path $gradle)) { Falhar "Projeto Android ausente. Rode -Etapa Projeto." }
 
     New-Item -ItemType Directory -Force -Path $Segredos | Out-Null
