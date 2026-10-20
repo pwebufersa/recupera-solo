@@ -10,6 +10,10 @@ Cópia do original com a interface ajustada. Conteúdo e cálculo iguais.
 O endereço acima abre no navegador. "Usar exemplo" preenche dados e preços;
 "Gerar diagnóstico e recomendação" calcula.
 
+## Teste de uso
+
+O protocolo está em [RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx](<RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx>). Os casos usam dados fictícios e não substituem recomendação agronômica.
+
 ## Comandos
 
 ```bash
@@ -33,4 +37,3 @@ Só quatro arquivos são usados: `index.html`, `style.css`, `script.js` e
 
 - [MELHORIAS.md](MELHORIAS.md): comparação e mudanças.
 - [PRECOS.md](PRECOS.md): preços usados nos testes.
-- [Protocolo de teste de uso](<RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx>): apêndices A a D, com roteiros, questionário e casos de teste.
