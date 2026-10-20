@@ -1,0 +1,15 @@
+ferramentas/
+segredos/
+dist/
+app/
+node_modules/
+
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.jks
+keystore.properties
+local.properties
+
+*.log
