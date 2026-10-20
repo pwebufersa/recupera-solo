@@ -12,7 +12,7 @@ O endereço acima abre no navegador. "Usar exemplo" preenche dados e preços;
 
 ## Teste de uso
 
-O protocolo está em [RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx](<RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx>). Os casos usam dados fictícios e não substituem recomendação agronômica.
+O protocolo está em [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>). Os casos usam dados fictícios e não substituem recomendação agronômica.
 
 ## Comandos
 
