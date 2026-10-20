@@ -33,3 +33,4 @@ Só quatro arquivos são usados: `index.html`, `style.css`, `script.js` e
 
 - [MELHORIAS.md](MELHORIAS.md): comparação e mudanças.
 - [PRECOS.md](PRECOS.md): preços usados nos testes.
+- [Protocolo de teste de uso](<RECUPERA-SOLO - Teste de uso - Apêndices A a D.docx>): apêndices A a D, com roteiros, questionário e casos de teste.
