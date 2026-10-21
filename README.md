@@ -56,7 +56,7 @@ Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
 ## Testes
 
 - 44 verificações de navegador (computador e celular) e 15 de unidade.
-- Teste humano para o que a máquina não vê: [USABILIDADE.md](USABILIDADE.md).
+- Teste humano para o que a máquina não vê: [USABILIDADE.md](USABILIDADE.md) e o roteiro em [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
 
 ```bash
 npm run servidor   # http://127.0.0.1:8099
