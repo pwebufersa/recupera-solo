@@ -311,3 +311,29 @@ test('a tabela de resultados tem legenda e cabeçalhos com escopo', async functi
 
   expect(escopos).toEqual(['col', 'col', 'col', 'col', 'col', 'col', 'col']);
 });
+
+test('o checkbox do corretivo não herda o estilo dos campos de texto', async function ({ page }) {
+  await page.goto('/');
+
+  const medida = await page.locator('#use0').evaluate(function (caixa) {
+    const estilo = getComputedStyle(caixa);
+    const topo = caixa.closest('.corretivo-topo').getBoundingClientRect();
+    const retangulo = caixa.getBoundingClientRect();
+    return {
+      altura: retangulo.height,
+      largura: retangulo.width,
+      minHeight: estilo.minHeight,
+      padding: estilo.paddingTop,
+      borda: estilo.borderTopWidth,
+      desvioAcima: Math.round(retangulo.top - topo.top)
+    };
+  });
+
+  expect(medida.altura).toBeLessThanOrEqual(24);
+  expect(medida.altura).toBeGreaterThanOrEqual(18);
+  expect(medida.largura).toBeLessThanOrEqual(24);
+  expect(medida.minHeight === '0px' || medida.minHeight === 'auto').toBe(true);
+  expect(medida.padding).toBe('0px');
+  expect(medida.borda).toBe('0px');
+  expect(medida.desvioAcima).toBeGreaterThanOrEqual(0);
+});
