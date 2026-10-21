@@ -19,7 +19,7 @@ O script executa as três etapas em sequência:
 O APK é gravado em:
 
 ```text
-dist\RECUPERA-SOLO-1.0.1.apk
+dist\RECUPERA-SOLO-1.0.2.apk
 ```
 
 O hash SHA-256 é gravado em `dist\SHA256.txt`.
@@ -152,7 +152,7 @@ O script copia novamente `index.html`, `style.css`, `script.js` e `favicon.svg`,
 
 - Nome: RECUPERA-SOLO
 - Pacote: `br.edu.ufersa.recuperasolo`
-- Versão: 1.0.1 (versionCode 2)
+- Versão: 1.0.2 (versionCode 3)
 - `minSdkVersion`: 24 (Android 7.0)
 - `targetSdkVersion`: 36 (Android 16)
 
@@ -163,7 +163,7 @@ O nome e o identificador ficam em `app/capacitor.config.json` e em `app/android/
 Com o cabo e a depuração USB ativada:
 
 ```powershell
-adb install -r dist\RECUPERA-SOLO-1.0.1.apk
+adb install -r dist\RECUPERA-SOLO-1.0.2.apk
 ```
 
 Sem cabo, o APK pode ser copiado para o aparelho e aberto pelo gerenciador de arquivos. A instalação de fontes desconhecidas precisa estar permitida.
