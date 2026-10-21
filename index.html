@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0c6b46">
 <title>RECUPERA-SOLO | Recuperação de solos sódicos</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <a class="pular" href="#conteudo">Ir para o conteúdo</a>
@@ -57,15 +57,15 @@
       </div>
     </div>
     <div class="grade-dados">
-      <label for="ph">pH (H₂O)<input id="ph" name="ph" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 9,2" required></label>
-      <label for="ce">CEes (dS m⁻¹)<input id="ce" name="ce" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 2,4" required></label>
-      <label for="ctc">CTC (cmolc kg⁻¹)<input id="ctc" name="ctc" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 8,6" required></label>
-      <label for="na">Na⁺ trocável (cmolc kg⁻¹)<input id="na" name="na" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 7,0" required></label>
-      <label for="caco3">CaCO₃ (%)<input id="caco3" name="caco3" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 1,5" required></label>
-      <label for="ds">Densidade do solo (g cm⁻³)<input id="ds" name="ds" type="number" inputmode="decimal" step="0.01" placeholder="Ex.: 1,40" required></label>
-      <label for="h">Profundidade a recuperar (cm)<input id="h" name="h" type="number" inputmode="numeric" step="1" placeholder="Ex.: 60" required></label>
-      <label for="pstf">PST final desejada (%)<input id="pstf" name="pstf" type="number" inputmode="decimal" step="0.1" placeholder="Ex.: 10" required></label>
-      <label for="area">Área (ha)<input id="area" name="area" type="number" inputmode="decimal" step="0.01" placeholder="Ex.: 1,0" required></label>
+      <label for="ph">pH (H₂O)<input id="ph" name="ph" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 9,2" aria-describedby="ph-dica" required><small class="dica" id="ph-dica">0 a 14 · ex.: 9,2</small></label>
+      <label for="ce">CEes (dS m⁻¹)<input id="ce" name="ce" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 2,4" aria-describedby="ce-dica" required><small class="dica" id="ce-dica">0 a 50 dS m⁻¹ · ex.: 2,4</small></label>
+      <label for="ctc">CTC (cmolc kg⁻¹)<input id="ctc" name="ctc" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 8,6" aria-describedby="ctc-dica" required><small class="dica" id="ctc-dica">0,1 a 100 cmolc kg⁻¹ · ex.: 8,6</small></label>
+      <label for="na">Na⁺ trocável (cmolc kg⁻¹)<input id="na" name="na" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 7,0" aria-describedby="na-dica" required><small class="dica" id="na-dica">até a CTC · ex.: 7,0</small></label>
+      <label for="caco3">CaCO₃ (%)<input id="caco3" name="caco3" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,5" aria-describedby="caco3-dica" required><small class="dica" id="caco3-dica">0 a 100% · ex.: 1,5</small></label>
+      <label for="ds">Densidade do solo (g cm⁻³)<input id="ds" name="ds" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,40" aria-describedby="ds-dica" required><small class="dica" id="ds-dica">0,10 a 3,00 g cm⁻³ · ex.: 1,40</small></label>
+      <label for="h">Profundidade a recuperar (cm)<input id="h" name="h" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 60" aria-describedby="h-dica" required><small class="dica" id="h-dica">1 a 300 cm, inteiro · ex.: 60</small></label>
+      <label for="pstf">PST final desejada (%)<input id="pstf" name="pstf" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 10" aria-describedby="pstf-dica" required><small class="dica" id="pstf-dica">0 a 100% · ex.: 10</small></label>
+      <label for="area">Área (ha)<input id="area" name="area" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,0" aria-describedby="area-dica" required><small class="dica" id="area-dica">0,01 a 10.000 ha · ex.: 1,0</small></label>
       <label for="texture">Textura
         <select id="texture" name="texture">
           <option value="">Selecione</option>

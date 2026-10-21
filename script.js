@@ -38,6 +38,24 @@ const ROTULOS_TABELA = [
   'Dose comercial', 'Custo/ha', 'Custo total'
 ];
 
+/* Faixas usuais de cada campo, usadas na validação e nas dicas da tela.
+   Os limites são de sanidade, não de recomendação agronômica: valores fora
+   deles indicam erro de digitação ou de unidade. */
+const CAMPOS_ESPEC = {
+  ph: { rotulo: 'pH (H₂O)', min: 0, max: 14, decimais: 1, dica: '0 a 14 · ex.: 9,2' },
+  ce: { rotulo: 'CEes', min: 0, max: 50, decimais: 1, dica: '0 a 50 dS m⁻¹ · ex.: 2,4' },
+  ctc: { rotulo: 'CTC', min: 0.1, max: 100, decimais: 1, dica: '0,1 a 100 cmolc kg⁻¹ · ex.: 8,6' },
+  na: { rotulo: 'Na⁺ trocável', min: 0, max: 100, decimais: 1, dica: 'até a CTC · ex.: 7,0' },
+  caco3: { rotulo: 'CaCO₃', min: 0, max: 100, decimais: 1, dica: '0 a 100% · ex.: 1,5' },
+  ds: { rotulo: 'Densidade do solo', min: 0.1, max: 3, decimais: 2, dica: '0,10 a 3,00 g cm⁻³ · ex.: 1,40' },
+  h: { rotulo: 'Profundidade', min: 1, max: 300, decimais: 0, dica: '1 a 300 cm, inteiro · ex.: 60' },
+  pstf: { rotulo: 'PST final desejada', min: 0, max: 100, decimais: 1, dica: '0 a 100% · ex.: 10' },
+  area: { rotulo: 'Área', min: 0.01, max: 10000, decimais: 2, dica: '0,01 a 10.000 ha · ex.: 1,0' }
+};
+
+const ESPEC_PUREZA = { rotulo: 'Pureza', min: 0.1, max: 100, decimais: 1, dica: '0,1 a 100%' };
+const ESPEC_PRECO = { rotulo: 'Preço', min: 0.01, max: 1000000, decimais: 2, dica: 'R$/t, maior que zero' };
+
 // 2. Regras de cálculo
 
 /** Classifica o solo pela saturação por sódio e pela condutividade elétrica. */
@@ -146,14 +164,37 @@ function elemento(id) {
   return document.getElementById(id);
 }
 
+/** Converte texto em número, aceitando vírgula ou ponto como decimal.
+ *  Devolve NaN quando há letra, sinal negativo, mais de um separador ou
+ *  separador sem dígitos dos dois lados. */
+function normalizarNumero(texto) {
+  if (typeof texto !== 'string') {
+    return NaN;
+  }
+  const limpo = texto.trim().replace(/\s+/g, '');
+  if (limpo === '' || limpo === '-' || limpo === '+' || limpo === ',' || limpo === '.') {
+    return NaN;
+  }
+  const partes = /^(\d+)(?:[.,](\d+))?$/.exec(limpo);
+  if (!partes) {
+    return NaN;
+  }
+  return partes[2] === undefined ? Number(partes[1]) : Number(partes[1] + '.' + partes[2]);
+}
+
+/** Conta as casas decimais digitadas, para conferir a precisão do campo. */
+function casasDecimais(texto) {
+  const partes = String(texto).trim().replace(/\s+/g, '').split(/[.,]/);
+  return partes.length === 2 ? partes[1].length : 0;
+}
+
 /** Lê um campo numérico, aceitando vírgula como separador decimal. */
 function valorDoCampo(id) {
   const campo = elemento(id);
   if (!campo) {
     return NaN;
   }
-  const texto = campo.value.trim().replace(',', '.');
-  return texto === '' ? NaN : Number(texto);
+  return normalizarNumero(campo.value);
 }
 
 function formatarNumero(valor, casas) {
@@ -182,14 +223,109 @@ function limparErros() {
   resumo.innerHTML = '';
 }
 
+/** Mostra a mensagem de um campo e registra no resumo. */
 function registrarErro(campo, mensagem, mensagens) {
+  const lista = mensagens || [];
   campo.setAttribute('aria-invalid', 'true');
   const marca = document.createElement('span');
   marca.className = 'erro-campo';
   marca.id = campo.id + '-erro';
   marca.textContent = mensagem;
   campo.insertAdjacentElement('afterend', marca);
-  mensagens.push({ campo: campo, mensagem: mensagem });
+  const dica = campo.getAttribute('aria-describedby');
+  if (dica && dica.indexOf(campo.id + '-erro') === -1) {
+    campo.setAttribute('aria-describedby', dica + ' ' + campo.id + '-erro');
+  } else if (!dica) {
+    campo.setAttribute('aria-describedby', campo.id + '-erro');
+  }
+  lista.push({ campo: campo, mensagem: mensagem });
+  return lista;
+}
+
+/** Remove a mensagem de um campo assim que ele é corrigido. */
+function limparErroDoCampo(campo) {
+  if (campo.hasAttribute('aria-invalid')) {
+    campo.removeAttribute('aria-invalid');
+  }
+  const irmao = campo.nextElementSibling;
+  if (irmao && irmao.classList.contains('erro-campo')) {
+    irmao.remove();
+  }
+  const resumo = elemento('legenda-erros');
+  if (resumo) {
+    resumo.classList.add('oculto');
+    resumo.innerHTML = '';
+  }
+}
+
+/** Confere um campo contra a especificação e devolve verdadeiro quando passa. */
+function conferirCampo(campo, espec, mensagens) {
+  const texto = campo.value.trim();
+
+  if (texto === '') {
+    registrarErro(campo, 'Informe ' + espec.rotulo + '.', mensagens);
+    return false;
+  }
+
+  const valor = normalizarNumero(texto);
+  if (!Number.isFinite(valor)) {
+    registrarErro(campo, espec.rotulo + ': use apenas números, com vírgula para os decimais.', mensagens);
+    return false;
+  }
+
+  if (casasDecimais(texto) > espec.decimais) {
+    registrarErro(campo, espec.rotulo + ': no máximo ' + espec.decimais +
+      (espec.decimais === 1 ? ' casa decimal.' : ' casas decimais.'), mensagens);
+    return false;
+  }
+
+  if (valor < espec.min || valor > espec.max) {
+    registrarErro(campo, espec.rotulo + ' deve ficar entre ' + formatarNumero(espec.min, espec.decimais) +
+      ' e ' + formatarNumero(espec.max, espec.decimais) + '.', mensagens);
+    return false;
+  }
+
+  return true;
+}
+
+/** Confere todos os campos e devolve falso quando há erro. */
+function validar() {
+  limparErros();
+  const mensagens = [];
+
+  CAMPOS.forEach(function (id) {
+    conferirCampo(elemento(id), CAMPOS_ESPEC[id], mensagens);
+  });
+
+  if (mensagens.length === 0) {
+    const na = valorDoCampo('na');
+    const ctc = valorDoCampo('ctc');
+    if (na > ctc) {
+      registrarErro(elemento('na'), 'O Na⁺ trocável não pode ser maior que a CTC (' +
+        formatarNumero(ctc, 1) + ').', mensagens);
+    }
+  }
+
+  const escolhidos = CORRETIVOS.filter(function (_, indice) {
+    return elemento('use' + indice).checked;
+  });
+  if (escolhidos.length === 0) {
+    registrarErro(elemento('amendGrid'), 'Selecione pelo menos um corretivo.', mensagens);
+  }
+
+  CORRETIVOS.forEach(function (_, indice) {
+    if (!elemento('use' + indice).checked) {
+      return;
+    }
+    conferirCampo(elemento('purity' + indice), ESPEC_PUREZA, mensagens);
+    conferirCampo(elemento('price' + indice), ESPEC_PRECO, mensagens);
+  });
+
+  if (mensagens.length > 0) {
+    mostrarResumoDeErros(mensagens);
+    return false;
+  }
+  return true;
 }
 
 function mostrarResumoDeErros(mensagens) {
@@ -205,68 +341,38 @@ function mostrarResumoDeErros(mensagens) {
 }
 
 /** Confere todos os campos e devolve falso quando há erro. */
-function validar() {
-  limparErros();
-  const mensagens = [];
-  CAMPOS.forEach(function (id) {
-    const campo = elemento(id);
-    if (!Number.isFinite(valorDoCampo(id))) {
-      registrarErro(campo, 'Informe ' + NOMES[id] + '.', mensagens);
+// 4b. Digitação e colagem nos campos numéricos
+
+const CARACTERES_INVALIDOS = /[^0-9.,]/;
+
+/** Impede letras e símbolos, limpa colagem e apaga o erro ao corrigir. */
+function prepararCampoNumerico(campo) {
+  if (!campo) {
+    return;
+  }
+
+  campo.addEventListener('beforeinput', function (evento) {
+    if (evento.data && CARACTERES_INVALIDOS.test(evento.data)) {
+      evento.preventDefault();
     }
   });
 
-  const limites = { ph: [0, 14], ce: [0, 50], pstf: [0, 100] };
-  Object.keys(limites).forEach(function (id) {
-    const campo = elemento(id);
-    if (campo.hasAttribute('aria-invalid')) {
+  campo.addEventListener('paste', function (evento) {
+    const area = evento.clipboardData || window.clipboardData;
+    if (!area) {
       return;
     }
-    const valor = valorDoCampo(id);
-    if (valor < limites[id][0] || valor > limites[id][1]) {
-      registrarErro(campo, NOMES[id] + ' deve ficar entre ' + limites[id][0] +
-        ' e ' + limites[id][1] + '.', mensagens);
-    }
-  });
-
-  ['ctc', 'ds', 'h', 'area'].forEach(function (id) {
-    const campo = elemento(id);
-    if (!campo.hasAttribute('aria-invalid') && valorDoCampo(id) <= 0) {
-      registrarErro(campo, NOMES[id] + ' deve ser maior que zero.', mensagens);
-    }
-  });
-
-  if (!elemento('na').hasAttribute('aria-invalid') &&
-      !elemento('ctc').hasAttribute('aria-invalid') &&
-      valorDoCampo('na') > valorDoCampo('ctc')) {
-    registrarErro(elemento('na'), 'O Na⁺ trocável não pode ser maior que a CTC.', mensagens);
-  }
-
-  const escolhidos = CORRETIVOS.filter(function (_, indice) {
-    return elemento('use' + indice).checked;
-  });
-  if (escolhidos.length === 0) {
-    registrarErro(elemento('amendGrid'), 'Selecione pelo menos um corretivo.', mensagens);
-  }
-
-  CORRETIVOS.forEach(function (_, indice) {
-    if (!elemento('use' + indice).checked) {
+    const bruto = area.getData('text').trim();
+    if (bruto === '' || /^\d+([.,]\d+)?$/.test(bruto)) {
       return;
     }
-    const pureza = valorDoCampo('purity' + indice);
-    const preco = valorDoCampo('price' + indice);
-    if (Number.isFinite(pureza) && (pureza <= 0 || pureza > 100)) {
-      registrarErro(elemento('purity' + indice), 'A pureza deve ficar entre 0 e 100.', mensagens);
-    }
-    if (Number.isFinite(preco) && preco <= 0) {
-      registrarErro(elemento('price' + indice), 'O preço deve ser maior que zero.', mensagens);
-    }
+    evento.preventDefault();
+    registrarErro(campo, 'Cole apenas números, sem letras nem sinais.', []);
   });
 
-  if (mensagens.length > 0) {
-    mostrarResumoDeErros(mensagens);
-    return false;
-  }
-  return true;
+  campo.addEventListener('input', function () {
+    limparErroDoCampo(campo);
+  });
 }
 
 // 5. Montagem da página
@@ -284,9 +390,13 @@ function montarCorretivos() {
       '</div>' +
       '<div class="dupla">' +
       '<label for="purity' + indice + '">Pureza (%)' +
-      '<input id="purity' + indice + '" type="number" inputmode="decimal" step="0.1" placeholder="Informe"></label>' +
+      '<input id="purity' + indice + '" type="text" inputmode="decimal" autocomplete="off" ' +
+      'placeholder="Ex.: 80" aria-describedby="pureza-dica' + indice + '">' +
+      '<small class="dica" id="pureza-dica' + indice + '">' + ESPEC_PUREZA.dica + '</small></label>' +
       '<label for="price' + indice + '">Preço (R$/t)' +
-      '<input id="price' + indice + '" type="number" inputmode="decimal" step="0.01" placeholder="Informe"></label>' +
+      '<input id="price' + indice + '" type="text" inputmode="decimal" autocomplete="off" ' +
+      'placeholder="Ex.: 425,00" aria-describedby="preco-dica' + indice + '">' +
+      '<small class="dica" id="preco-dica' + indice + '">' + ESPEC_PRECO.dica + '</small></label>' +
       '</div></article>';
   }).join('');
 }
@@ -413,7 +523,7 @@ function definirModo(botao, texto) {
 
 function carregarExemplo() {
   limparCampos();
-  const valores = { ph: 9.2, ce: 2.4, ctc: 8.6, na: 7, caco3: 1.5, ds: 1.4, h: 60, pstf: 10, area: 1 };
+  const valores = { ph: '9,2', ce: '2,4', ctc: '8,6', na: '7,0', caco3: '1,5', ds: '1,40', h: '60', pstf: '10', area: '1,0' };
   Object.keys(valores).forEach(function (id) {
     elemento(id).value = valores[id];
   });
@@ -441,6 +551,13 @@ function novaAnalise() {
 
 function iniciarPagina() {
   montarCorretivos();
+  CAMPOS.forEach(function (id) {
+    prepararCampoNumerico(elemento(id));
+  });
+  CORRETIVOS.forEach(function (_, indice) {
+    prepararCampoNumerico(elemento('purity' + indice));
+    prepararCampoNumerico(elemento('price' + indice));
+  });
   elemento('exampleMode').addEventListener('click', carregarExemplo);
   elemento('customMode').addEventListener('click', novaAnalise);
   elemento('calc').addEventListener('click', calcular);
@@ -457,6 +574,11 @@ globalThis.RecuperaSolo = {
   CAMPOS: CAMPOS,
   NOMES: NOMES,
   ROTULOS_TABELA: ROTULOS_TABELA,
+  CAMPOS_ESPEC: CAMPOS_ESPEC,
+  ESPEC_PUREZA: ESPEC_PUREZA,
+  ESPEC_PRECO: ESPEC_PRECO,
+  normalizarNumero: normalizarNumero,
+  casasDecimais: casasDecimais,
   classificar: classificar,
   adequacao: adequacao,
   calcularDoses: calcularDoses

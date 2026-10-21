@@ -296,16 +296,26 @@ code {
 input,
 select {
   width: 100%;
-  margin-top: 6px;
-  min-height: 46px;
-  padding: 12px 14px;
-  border: 1px solid #c3d3d3;
-  border-radius: var(--raio-pequeno);
+  margin-top: 7px;
+  min-height: 54px;
+  padding: 13px 15px;
+  border: 1.5px solid #b7cbc9;
+  border-radius: 12px;
   background: #fff;
   color: var(--tinta);
   font: inherit;
-  font-size: 1rem;
+  font-size: 1.06rem;
+  font-variant-numeric: tabular-nums;
   transition: border-color var(--transicao), box-shadow var(--transicao);
+}
+
+.dica {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #5b6f78;
 }
 
 input::placeholder {
@@ -314,19 +324,20 @@ input::placeholder {
 
 input:hover,
 select:hover {
-  border-color: #a8bebd;
+  border-color: #8fb0ad;
 }
 
 input:focus,
 select:focus {
-  border-color: var(--verde);
-  box-shadow: 0 0 0 3px rgba(12, 107, 70, 0.14);
+  border-color: var(--verde-escuro);
+  box-shadow: 0 0 0 4px rgba(12, 107, 70, 0.22);
   outline: none;
 }
 
 input[aria-invalid="true"],
 select[aria-invalid="true"] {
   border-color: var(--alerta);
+  border-width: 2px;
   background: var(--alerta-fundo);
 }
 

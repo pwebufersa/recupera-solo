@@ -9,10 +9,33 @@ const GESSO = 0;
 const ENXOFRE = 2;
 const ARQUIVO = pathToFileURL(path.resolve('index.html')).href;
 
+const DADOS = {
+  ph: '9,2',
+  ce: '2,4',
+  ctc: '8,6',
+  na: '7,0',
+  caco3: '1,5',
+  ds: '1,40',
+  h: '60',
+  pstf: '10',
+  area: '1,0'
+};
+
 async function carregarExemplo(pagina) {
   await pagina.goto('/');
   await pagina.getByRole('button', { name: /exemplo/i }).click();
   await pagina.locator('#calc').click();
+}
+
+async function preencherValido(pagina, alteracoes) {
+  const valores = Object.assign({}, DADOS, alteracoes || {});
+  await pagina.goto('/');
+  for (const id of Object.keys(valores)) {
+    await pagina.locator('#' + id).fill(valores[id]);
+  }
+  await pagina.locator('#use' + GESSO).check();
+  await pagina.locator('#purity' + GESSO).fill('80');
+  await pagina.locator('#price' + GESSO).fill('425');
 }
 
 test('a página abre com o formulário e sem resultados', async function ({ page }) {
@@ -29,12 +52,13 @@ test('a página abre com o formulário e sem resultados', async function ({ page
   expect(erros).toEqual([]);
 });
 
-test('o botão Usar exemplo preenche os campos', async function ({ page }) {
+test('o botão Usar exemplo preenche os campos com vírgula', async function ({ page }) {
   await page.goto('/');
   await page.getByRole('button', { name: /exemplo/i }).click();
 
-  await expect(page.locator('#ph')).toHaveValue('9.2');
-  await expect(page.locator('#na')).toHaveValue('7');
+  await expect(page.locator('#ph')).toHaveValue('9,2');
+  await expect(page.locator('#na')).toHaveValue('7,0');
+  await expect(page.locator('#ds')).toHaveValue('1,40');
   await expect(page.locator('#use' + GESSO)).toBeChecked();
   await expect(page.locator('#use' + ENXOFRE)).toBeChecked();
   await expect(page.locator('#price' + GESSO)).toHaveValue(String(PRECOS.gessoGranelEntregue));
@@ -45,7 +69,7 @@ test('a página funciona aberta direto do arquivo', async function ({ page }) {
   await page.goto(ARQUIVO);
   await page.getByRole('button', { name: /exemplo/i }).click();
 
-  await expect(page.locator('#ph')).toHaveValue('9.2');
+  await expect(page.locator('#ph')).toHaveValue('9,2');
 });
 
 test('o exemplo com preços de mercado indica o gesso como menor custo', async function ({ page }) {
@@ -71,6 +95,157 @@ test('o formulário vazio aponta dez campos e leva ao primeiro', async function 
   await expect(page.locator('#results')).toBeHidden();
 });
 
+test('letras não entram em nenhum campo numérico', async function ({ page }) {
+  await page.goto('/');
+
+  const ids = ['ph', 'ce', 'ctc', 'na', 'caco3', 'ds', 'h', 'pstf', 'area'];
+  for (const id of ids) {
+    const campo = page.locator('#' + id);
+    await campo.click();
+    await campo.pressSequentially('abcXYZ');
+    await expect(campo).toHaveValue('');
+  }
+
+  await page.locator('#use' + GESSO).check();
+  for (const id of ['purity' + GESSO, 'price' + GESSO]) {
+    const campo = page.locator('#' + id);
+    await campo.click();
+    await campo.pressSequentially('abc');
+    await expect(campo).toHaveValue('');
+  }
+});
+
+test('colagem com letras é recusada e sinalizada', async function ({ page }) {
+  await page.goto('/');
+  const campo = page.locator('#ph');
+
+  await campo.evaluate(function (elemento) {
+    const dados = new DataTransfer();
+    dados.setData('text/plain', '9,2abc');
+    elemento.dispatchEvent(new ClipboardEvent('paste', {
+      clipboardData: dados,
+      bubbles: true,
+      cancelable: true
+    }));
+  });
+
+  await expect(campo).toHaveValue('');
+  await expect(campo).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#ph-erro')).toContainText('Cole apenas números');
+});
+
+test('texto inválido gravado por programa falha na validação', async function ({ page }) {
+  await preencherValido(page);
+  await page.evaluate(function () {
+    document.getElementById('ph').value = '9,2abc';
+  });
+  await page.locator('#calc').click();
+
+  await expect(page.locator('#legenda-erros')).toBeVisible();
+  await expect(page.locator('#ph')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#ph-erro')).toContainText('apenas números');
+  await expect(page.locator('#results')).toBeHidden();
+});
+
+test('vírgula e ponto produzem o mesmo resultado', async function ({ page }) {
+  await preencherValido(page, { ph: '9,2', ds: '1,40' });
+  await page.locator('#calc').click();
+  const comVirgula = await page.locator('#diagnosis').textContent();
+
+  await preencherValido(page, { ph: '9.2', ds: '1.40' });
+  await page.locator('#calc').click();
+  const comPonto = await page.locator('#diagnosis').textContent();
+
+  expect(comPonto).toBe(comVirgula);
+});
+
+test('casas decimais acima do permitido são recusadas', async function ({ page }) {
+  await preencherValido(page, { ds: '1,405' });
+  await page.locator('#calc').click();
+  await expect(page.locator('#ds-erro')).toContainText('no máximo 2 casas');
+
+  await preencherValido(page, { ph: '9,25' });
+  await page.locator('#calc').click();
+  await expect(page.locator('#ph-erro')).toContainText('no máximo 1 casa');
+});
+
+test('limites de sanidade de cada campo são respeitados', async function ({ page }) {
+  const casos = [
+    ['ph', '14,1', 'entre 0,0 e 14,0'],
+    ['ce', '50,1', 'entre 0,0 e 50,0'],
+    ['ctc', '0,0', 'entre 0,1 e 100,0'],
+    ['ds', '3,01', 'entre 0,10 e 3,00'],
+    ['h', '0', 'entre 1 e 300'],
+    ['pstf', '100,1', 'entre 0,0 e 100,0'],
+    ['area', '0,00', 'entre 0,01 e 10.000,00']
+  ];
+
+  for (const [id, valor, mensagem] of casos) {
+    await preencherValido(page, { [id]: valor });
+    await page.locator('#calc').click();
+    await expect(page.locator('#' + id)).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('#' + id + '-erro')).toContainText(mensagem);
+  }
+});
+
+test('valores no limite superior são aceitos', async function ({ page }) {
+  await preencherValido(page, { ph: '14', ce: '50', pstf: '100', h: '300', area: '10000' });
+  await page.locator('#calc').click();
+
+  await expect(page.locator('#results')).toBeVisible();
+  await expect(page.locator('#ph')).not.toHaveAttribute('aria-invalid', 'true');
+});
+
+test('Na trocável maior que a CTC é recusado', async function ({ page }) {
+  await preencherValido(page, { na: '9,0', ctc: '8,6' });
+  await page.locator('#calc').click();
+
+  await expect(page.locator('#na-erro')).toContainText('não pode ser maior que a CTC');
+  await expect(page.locator('#results')).toBeHidden();
+});
+
+test('pureza e preço fora da faixa são recusados', async function ({ page }) {
+  await preencherValido(page, {});
+  await page.locator('#purity' + GESSO).fill('0');
+  await page.locator('#calc').click();
+  await expect(page.locator('#purity' + GESSO + '-erro')).toContainText('entre 0,1 e 100,0');
+
+  await preencherValido(page, {});
+  await page.locator('#price' + GESSO).fill('0');
+  await page.locator('#calc').click();
+  await expect(page.locator('#price' + GESSO + '-erro')).toContainText('entre 0,01 e 1.000.000,00');
+});
+
+test('corretivo marcado sem pureza e preço exige preenchimento', async function ({ page }) {
+  await preencherValido(page, {});
+  await page.locator('#purity' + GESSO).fill('');
+  await page.locator('#price' + GESSO).fill('');
+  await page.locator('#calc').click();
+
+  await expect(page.locator('#purity' + GESSO + '-erro')).toContainText('Informe Pureza');
+  await expect(page.locator('#price' + GESSO + '-erro')).toContainText('Informe Preço');
+});
+
+test('o erro desaparece quando o campo é corrigido', async function ({ page }) {
+  await preencherValido(page, { ph: '99' });
+  await page.locator('#calc').click();
+  await expect(page.locator('#ph')).toHaveAttribute('aria-invalid', 'true');
+
+  await page.locator('#ph').fill('9,2');
+  await expect(page.locator('#ph')).not.toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#ph-erro')).toHaveCount(0);
+});
+
+test('o botão Limpar restaura o formulário', async function ({ page }) {
+  await carregarExemplo(page);
+  await page.locator('#clear').click();
+
+  await expect(page.locator('#ph')).toHaveValue('');
+  await expect(page.locator('#use' + GESSO)).not.toBeChecked();
+  await expect(page.locator('#results')).toBeHidden();
+  await expect(page.locator('.erro-campo')).toHaveCount(0);
+});
+
 test('o cálculo não cria rolagem lateral em tela estreita', async function ({ page }) {
   await page.setViewportSize({ width: 320, height: 800 });
   await carregarExemplo(page);
@@ -81,6 +256,20 @@ test('o cálculo não cria rolagem lateral em tela estreita', async function ({ 
   });
 
   expect(medida.conteudo).toBeLessThanOrEqual(medida.janela + 1);
+});
+
+test('os campos têm alvo de toque de pelo menos 44 px no celular', async function ({ page }) {
+  await page.goto('/');
+  const alturas = await page.locator('#ph, #ce, #ctc, #na, #caco3, #ds, #h, #pstf, #area')
+    .evaluateAll(function (campos) {
+      return campos.map(function (campo) {
+        return Math.round(campo.getBoundingClientRect().height);
+      });
+    });
+
+  for (const altura of alturas) {
+    expect(altura).toBeGreaterThanOrEqual(44);
+  }
 });
 
 test('todos os campos têm nome acessível', async function ({ page }) {
@@ -99,6 +288,15 @@ test('todos os campos têm nome acessível', async function ({ page }) {
   });
 
   expect(semNome).toEqual([]);
+});
+
+test('a dica e o erro são anunciados junto do campo', async function ({ page }) {
+  await page.goto('/');
+  await expect(page.locator('#ph')).toHaveAttribute('aria-describedby', /ph-dica/);
+
+  await page.locator('#calc').click();
+  const descrito = await page.locator('#ph').getAttribute('aria-describedby');
+  expect(descrito).toContain('ph-erro');
 });
 
 test('a tabela de resultados tem legenda e cabeçalhos com escopo', async function ({ page }) {

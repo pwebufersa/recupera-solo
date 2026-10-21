@@ -22,16 +22,21 @@ const TELAS = [
   { nome: 'celular', largura: 412, coluna: 330 }
 ];
 
-async function capturarResultados(navegador, tela, endereco, arquivo) {
+async function capturar(navegador, tela, endereco, arquivo, alvo) {
   const pagina = await navegador.newPage({
     viewport: { width: tela.largura, height: 900 },
     deviceScaleFactor: 2
   });
   await pagina.goto(endereco);
   await pagina.getByRole('button', { name: /exemplo/i }).click();
-  await pagina.locator('#calc').click();
-  await pagina.waitForTimeout(700);
-  await pagina.locator('#results').screenshot({ path: arquivo });
+  if (alvo === 'resultados') {
+    await pagina.locator('#calc').click();
+    await pagina.waitForTimeout(700);
+  }
+  const elemento = alvo === 'formulario'
+    ? pagina.locator('.cartao, .card').nth(1)
+    : pagina.locator('#results');
+  await elemento.screenshot({ path: arquivo });
   await pagina.close();
 }
 
@@ -43,8 +48,8 @@ function paginaDeComparacao(tela, esquerda, direita) {
     'figcaption{padding:7px 10px;border-bottom:1px solid #cfdedd;background:#f6faf8;font-size:14px}' +
     'img{display:block;width:100%}</style>' +
     '<div class="par">' +
-    '<figure><figcaption>Original</figcaption><img src="' + esquerda + '"></figure>' +
-    '<figure><figcaption>Nova versão</figcaption><img src="' + direita + '"></figure>' +
+     '<figure><figcaption>Original</figcaption><img src="' + esquerda + '"></figure>' +
+    '<figure><figcaption>Atual</figcaption><img src="' + direita + '"></figure>' +
     '</div>';
   const caminho = path.join(temporaria, 'comparacao-' + tela.nome + '.html');
   fs.writeFileSync(caminho, html);
@@ -54,27 +59,29 @@ function paginaDeComparacao(tela, esquerda, direita) {
 const navegador = await chromium.launch({ channel: 'chrome' });
 
 for (const tela of TELAS) {
-  const antes = path.join(temporaria, 'original-' + tela.nome + '.png');
-  const depois = path.join(temporaria, 'nova-' + tela.nome + '.png');
+  for (const alvo of ['resultados', 'formulario']) {
+    const antes = path.join(temporaria, 'original-' + alvo + '-' + tela.nome + '.png');
+    const depois = path.join(temporaria, 'atual-' + alvo + '-' + tela.nome + '.png');
 
-  await capturarResultados(navegador, tela, original, antes);
-  await capturarResultados(navegador, tela, atual, depois);
+    await capturar(navegador, tela, original, antes, alvo);
+    await capturar(navegador, tela, atual, depois, alvo);
 
-  const comparacao = paginaDeComparacao(
-    tela,
-    'original-' + tela.nome + '.png',
-    'nova-' + tela.nome + '.png'
-  );
-  const pagina = await navegador.newPage({
-    viewport: { width: tela.coluna * 2 + 46, height: 900 }
-  });
-  await pagina.goto(pathToFileURL(comparacao).href);
-  await pagina.screenshot({
-    path: path.join(pasta, 'comparacao-' + tela.nome + '.png'),
-    fullPage: true
-  });
-  await pagina.close();
-  console.log('comparacao-' + tela.nome + '.png');
+    const comparacao = paginaDeComparacao(
+      tela,
+      'original-' + alvo + '-' + tela.nome + '.png',
+      'atual-' + alvo + '-' + tela.nome + '.png'
+    );
+    const pagina = await navegador.newPage({
+      viewport: { width: tela.coluna * 2 + 46, height: 900 }
+    });
+    await pagina.goto(pathToFileURL(comparacao).href);
+    const nome = alvo === 'resultados'
+      ? 'comparacao-' + tela.nome + '.png'
+      : 'comparacao-formulario-' + tela.nome + '.png';
+    await pagina.locator('.par').screenshot({ path: path.join(pasta, nome) });
+    await pagina.close();
+    console.log(nome);
+  }
 }
 
 await navegador.close();

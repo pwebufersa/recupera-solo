@@ -140,3 +140,39 @@ test('a adequação depende do tipo, do pH e dos carbonatos', function () {
   assert.equal(adequacao(corretivo('Calcário'), 6.5, 0).ok, true);
   assert.equal(adequacao(corretivo('Calcário'), 8.0, 0).ok, false);
 });
+
+// Validação numérica unificada
+
+const {
+  CAMPOS_ESPEC,
+  normalizarNumero,
+  casasDecimais
+} = contexto.RecuperaSolo;
+
+test('normalizarNumero aceita vírgula e ponto', function () {
+  assert.equal(normalizarNumero('9,2'), 9.2);
+  assert.equal(normalizarNumero('9.2'), 9.2);
+  assert.equal(normalizarNumero(' 1,40 '), 1.4);
+  assert.equal(normalizarNumero('60'), 60);
+});
+
+test('normalizarNumero recusa letras, sinais e separadores soltos', function () {
+  ['abc', '9,2abc', '1e5', '-3', '+3', ',', '.', '1,2,3', '1.2.3', '--', '', '  '].forEach(function (entrada) {
+    assert.ok(Number.isNaN(normalizarNumero(entrada)), 'deveria recusar: ' + entrada);
+  });
+});
+
+test('casasDecimais conta apenas um separador', function () {
+  assert.equal(casasDecimais('9,2'), 1);
+  assert.equal(casasDecimais('1,40'), 2);
+  assert.equal(casasDecimais('60'), 0);
+});
+
+test('as faixas de cada campo são coerentes', function () {
+  ['ph', 'ce', 'ctc', 'na', 'caco3', 'ds', 'h', 'pstf', 'area'].forEach(function (id) {
+    const espec = CAMPOS_ESPEC[id];
+    assert.ok(espec.min < espec.max, id + ' tem faixa invertida');
+    assert.ok(espec.decimais >= 0, id + ' tem casas negativas');
+  });
+  assert.equal(CAMPOS_ESPEC.h.decimais, 0);
+});
