@@ -104,34 +104,3 @@ jobs:
             apk/dist/SHA256.txt
             apk/dist/INFO.txt
           retention-days: 30
-
-  emulador:
-    name: Teste no emulador
-    needs: apk
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: recupera-solo-apk
-          path: dist
-
-      - name: Iniciar emulador e abrir o aplicativo
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          disable-animations: true
-          script: |
-            adb install -r dist/*.apk
-            adb shell am start -n br.edu.ufersa.recuperasolo/.MainActivity
-            sleep 8
-            adb shell dumpsys window | grep -i mCurrentFocus
-            adb exec-out screencap -p > tela.png
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: tela-emulador
-          path: tela.png
-          if-no-files-found: ignore
