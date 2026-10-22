@@ -1,10 +1,9 @@
 # RECUPERA-SOLO
 
 Apoio à decisão para recuperação de solos sódicos: diagnóstico, corretivo, dose,
-custo e procedimento a partir da análise de solo. Cálculo e orientação do
-professor Nildo Dias, preservados.
+custo e procedimento. Cálculo e orientação do professor Nildo Dias, preservados.
 
-Duas formas, mesmo conteúdo: site e aplicativo Android (APK) que funciona sem
+Site e aplicativo Android (APK) com o mesmo conteúdo; o APK funciona sem
 internet.
 
 ## Abrir
@@ -14,9 +13,9 @@ internet.
 
 ## Usar
 
-1. "Usar exemplo" preenche um caso pronto; "Nova análise" limpa os campos.
-2. Informe os dados do solo. Vírgula ou ponto nos decimais.
-3. Marque os corretivos e informe a pureza. O preço é opcional.
+1. "Usar exemplo" carrega um caso pronto; "Nova análise" limpa os campos.
+2. Informe os dados do solo; vírgula ou ponto nos decimais.
+3. Marque os corretivos e informe a pureza. Preço é opcional.
 4. "Gerar diagnóstico" mostra classificação, dose, custo e procedimento.
 
 ## Campos
@@ -35,18 +34,14 @@ internet.
 | Pureza | % | 0,1 a 100 | 80 |
 | Preço | R$/t | maior que zero | 425,00 |
 
-Letras não entram nos campos numéricos. Valor fora da faixa avisa durante a
-digitação e é recusado no envio.
+Valor fora da faixa avisa durante a digitação e é recusado no envio. Letras não
+entram nos campos numéricos.
 
-## Resultado
+## Resultado e limites
 
-PST inicial, classificação do solo, adequação de cada corretivo, dose teórica,
-prática e comercial, custo e procedimento.
-
-A comparação de menor custo só aparece quando todos os corretivos selecionados
-têm pureza e preço.
-
-## Limites
+PST inicial, classificação, adequação de cada corretivo, dose teórica, prática e
+comercial, custo e procedimento. A comparação de menor custo exige pureza e
+preço em todos os corretivos selecionados.
 
 Textura, drenagem e qualidade da água não entram no cálculo, como no original.
 O programa não substitui recomendação agronômica.
@@ -67,9 +62,7 @@ de 22/09/2026.
 | Enxofre elementar 99% | R$ 6.200,00/t | MF Rural, anúncios de São Paulo |
 | Enxofre importado, CFR | US$ 1.200,00/t | Forbes Agro, julho de 2026 |
 
-O botão "Usar exemplo" preenche o gesso a R$ 425,00/t, granel entregue, e o
-enxofre a R$ 6.200,00/t. No exemplo: gesso R$ 29.454,73/ha e enxofre
-R$ 67.320,25/ha.
+No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
 
 ## Testes
 
@@ -78,15 +71,13 @@ R$ 67.320,25/ha.
 
 ## Estrutura
 
-- `index.html`, `style.css`, `script.js` (cálculo, validação e tela em um único
-  arquivo, para upload direto).
+- `index.html`, `style.css`, `script.js`: cálculo, validação e tela em um único
+  arquivo, para upload direto.
 - `apk/`: gerador e instruções do aplicativo.
-- GitHub Actions roda os testes e gera o APK; `scripts/vigia-todo.ps1` executa o
-  `TODO.md` a cada 5 minutos.
-- Publicação no Netlify: branch `main`, sem build, diretório `.`. iOS exige
-  macOS com Xcode.
+- CI gera o APK; `scripts/vigia-todo.ps1` executa o `TODO.md` a cada 5 minutos.
+- Netlify: branch `main`, sem build, diretório `.`. iOS exige macOS com Xcode.
 
-## Comparação com o original
+## Comparação
 
 [COMPARACAO.md](COMPARACAO.md), com imagens do original e do atual.
 
