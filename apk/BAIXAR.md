@@ -1,6 +1,11 @@
 # Baixar o APK
 
-O APK mais recente é gerado pelo GitHub Actions e fica nos artefatos:
+O APK mais recente fica direto nesta pasta:
+
+<https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk>
+
+O GitHub Actions substitui esse arquivo a cada build. Os artefatos de cada
+execução, com hash e versão, ficam em:
 
 <https://github.com/pwebufersa/recupera-solo/actions/workflows/apk.yml>
 

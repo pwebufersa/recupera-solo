@@ -2,6 +2,13 @@ name: Aplicativo Android
 
 run-name: Aplicativo Android · ${{ github.ref_name }}
 
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-main
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
@@ -104,3 +111,14 @@ jobs:
             apk/dist/SHA256.txt
             apk/dist/INFO.txt
           retention-days: 30
+      - name: Publicar o APK na pasta apk
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem apk/dist -Filter "*.apk" | Select-Object -First 1
+          Copy-Item $apk.FullName "apk/RECUPERA-SOLO.apk" -Force
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apk/RECUPERA-SOLO.apk
+          git commit -m "Publica o APK $env:VERSAO (versionCode $env:CODIGO) [skip ci]"
+          git push

@@ -10,8 +10,7 @@ internet.
 ## Abrir
 
 - Site: <https://pwebufersa.github.io/recupera-solo/>
-- APK: `apk/dist/RECUPERA-SOLO-1.0.3.apk` (instalação exige permitir fontes
-  desconhecidas)
+- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
 
 ## Usar
 
