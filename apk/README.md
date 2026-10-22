@@ -121,6 +121,21 @@ O APK é assinado com os esquemas v2 e v3. A verificação é feita pelo própri
 
 Em uma máquina limpa, uma chave nova é gerada. O APK gerado com essa chave não atualiza uma instalação anterior feita com outra chave. Para atualizar a instalação existente, a pasta `segredos` original deve ser restaurada antes da compilação.
 
+## Integração contínua
+
+O fluxo `.github/workflows/apk.yml` roda os testes e gera o APK no GitHub, em
+execução separada. O artefato `recupera-solo-apk` traz o APK, o `SHA256.txt` e o
+`INFO.txt` com versão, `versionCode`, commit e resultado dos testes.
+
+Para assinar com a mesma chave, dois segredos devem existir no repositório:
+
+- `KEYSTORE_BASE64`: conteúdo do keystore em base64.
+- `KEYSTORE_PROPERTIES`: conteúdo do `keystore.properties`.
+
+Sem os segredos, uma chave nova é gerada e o APK não atualiza instalações
+anteriores. O fluxo também tenta abrir o aplicativo em emulador Android e
+publicar a captura de tela.
+
 ## Repositório
 
 Esta pasta fica em `recupera-solo/apk`, no repositório

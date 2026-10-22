@@ -1,0 +1,128 @@
+name: APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "versionName do APK"
+        required: false
+        default: "1.0.3"
+      version_code:
+        description: "versionCode (inteiro, maior que o anterior)"
+        required: false
+        default: "4"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "style.css"
+      - "script.js"
+      - "favicon.svg"
+      - "apk/**"
+      - ".github/workflows/apk.yml"
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+
+  apk:
+    needs: testes
+    runs-on: windows-latest
+    env:
+      VERSAO: ${{ inputs.versao || '1.0.3' }}
+      VERSION_CODE: ${{ inputs.version_code || github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar a chave de assinatura
+        shell: pwsh
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
+        run: |
+          $destino = "apk/segredos"
+          New-Item -ItemType Directory -Force -Path $destino | Out-Null
+          if ($env:KEYSTORE_BASE64) {
+            [IO.File]::WriteAllBytes("$destino/recupera-solo.keystore", [Convert]::FromBase64String($env:KEYSTORE_BASE64))
+          }
+          if ($env:KEYSTORE_PROPERTIES) {
+            [IO.File]::WriteAllText("$destino/keystore.properties", $env:KEYSTORE_PROPERTIES)
+          }
+          if (-not $env:KEYSTORE_BASE64) {
+            Write-Host "Sem segredo de chave: uma chave nova sera gerada e o APK nao atualizara instalacoes anteriores."
+          }
+
+      - name: Gerar o APK
+        shell: pwsh
+        working-directory: apk
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao $env:VERSAO -VersionCode $env:VERSION_CODE
+
+      - name: Registrar versão e testes
+        shell: pwsh
+        working-directory: apk
+        run: |
+          $apk = Get-ChildItem dist -Filter "*.apk" | Select-Object -First 1
+          $hash = (Get-FileHash $apk.FullName -Algorithm SHA256).Hash
+          @(
+            "aplicativo: $($apk.Name)",
+            "versao: $env:VERSAO",
+            "versionCode: $env:VERSION_CODE",
+            "commit: $env:GITHUB_SHA",
+            "execucao: $env:GITHUB_RUN_NUMBER",
+            "testes: unidade e navegador aprovados na etapa anterior",
+            "sha256: $hash"
+          ) | Set-Content -Encoding UTF8 dist/INFO.txt
+          Get-Content dist/INFO.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recupera-solo-apk
+          path: |
+            apk/dist/*.apk
+            apk/dist/SHA256.txt
+            apk/dist/INFO.txt
+          retention-days: 30
+
+  emulador:
+    needs: apk
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: recupera-solo-apk
+          path: dist
+
+      - name: Iniciar emulador e abrir o aplicativo
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          disable-animations: true
+          script: |
+            adb install -r dist/*.apk
+            adb shell am start -n br.edu.ufersa.recuperasolo/.MainActivity
+            sleep 8
+            adb shell dumpsys window | grep -i mCurrentFocus
+            adb exec-out screencap -p > tela.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tela-emulador
+          path: tela.png
+          if-no-files-found: ignore

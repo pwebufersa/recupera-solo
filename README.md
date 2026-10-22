@@ -17,7 +17,8 @@ internet.
 
 1. "Usar exemplo" preenche um caso pronto; "Nova análise" limpa os campos.
 2. Informe os dados do solo. Vírgula ou ponto nos decimais.
-3. Marque os corretivos e informe pureza e preço.
+3. Marque os corretivos e informe a pureza. O preço é opcional; sem ele, o
+   custo não é calculado.
 4. "Gerar diagnóstico" mostra classificação, dose, custo e procedimento.
 
 ## Campos
@@ -36,8 +37,8 @@ internet.
 | Pureza | % | 0,1 a 100 | 80 |
 | Preço | R$/t | maior que zero | 425,00 |
 
-Letras não entram nos campos numéricos. Valor fora da faixa é recusado com
-mensagem no campo.
+Letras não entram nos campos numéricos. Valor fora da faixa avisa durante a
+digitação e é recusado no envio, com rolagem até o primeiro erro.
 
 ## Resultado
 
@@ -55,7 +56,7 @@ Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
 
 ## Testes
 
-- 44 verificações de navegador (computador e celular) e 15 de unidade.
+- 48 verificações de navegador (computador e celular) e 15 de unidade.
 - Teste humano para o que a máquina não vê: [USABILIDADE.md](USABILIDADE.md) e o roteiro em [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
 
 ```bash
@@ -70,6 +71,21 @@ npm run prints     # refaz as comparações
   arquivo, para upload direto).
 - `apk/`: gerador e instruções do aplicativo.
 - Publicação no Netlify: branch `main`, sem build, diretório `.`.
+- GitHub Actions: `Testes` roda a bateria; `APK` gera o aplicativo, publica o
+  artefato com versão, hash e resultado dos testes, e tenta abrir o app em
+  emulador.
+- iOS: a compilação exige macOS com Xcode e conta Apple Developer. No Windows, a
+  alternativa é usar a versão web como PWA no Safari.`.
+
+## Automação
+
+`scripts/vigia-todo.ps1` roda a cada 5 minutos pelo Agendador de Tarefas, atualiza
+o repositório e executa o que estiver em `TODO.md` quando o arquivo muda. O
+registro fica em `.vigia/registro.log`.
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/instalar-vigia.ps1
+```
 
 ## Comparação com o original
 

@@ -258,6 +258,43 @@ function limparErroDoCampo(campo) {
   }
 }
 
+/** Texto padrão de faixa, usado na validação e na digitação. */
+function mensagemFaixa(espec) {
+  return espec.rotulo + ' deve ficar entre ' + formatarNumero(espec.min, espec.decimais) +
+    ' e ' + formatarNumero(espec.max, espec.decimais) + '.';
+}
+
+/** Avisa enquanto se digita, sem interromper valor ainda incompleto. */
+function conferirAoVivo(campo, espec) {
+  const texto = campo.value.trim();
+  if (texto === '') {
+    limparErroDoCampo(campo);
+    return;
+  }
+
+  const valor = normalizarNumero(texto);
+  if (!Number.isFinite(valor)) {
+    return;
+  }
+
+  if (casasDecimais(texto) > espec.decimais) {
+    if (!campo.hasAttribute('aria-invalid')) {
+      registrarErro(campo, espec.rotulo + ': no máximo ' + espec.decimais +
+        (espec.decimais === 1 ? ' casa decimal.' : ' casas decimais.'), []);
+    }
+    return;
+  }
+
+  if (valor < espec.min || valor > espec.max) {
+    if (!campo.hasAttribute('aria-invalid')) {
+      registrarErro(campo, mensagemFaixa(espec), []);
+    }
+    return;
+  }
+
+  limparErroDoCampo(campo);
+}
+
 /** Confere um campo contra a especificação e devolve verdadeiro quando passa. */
 function conferirCampo(campo, espec, mensagens) {
   const texto = campo.value.trim();
@@ -280,8 +317,7 @@ function conferirCampo(campo, espec, mensagens) {
   }
 
   if (valor < espec.min || valor > espec.max) {
-    registrarErro(campo, espec.rotulo + ' deve ficar entre ' + formatarNumero(espec.min, espec.decimais) +
-      ' e ' + formatarNumero(espec.max, espec.decimais) + '.', mensagens);
+    registrarErro(campo, mensagemFaixa(espec), mensagens);
     return false;
   }
 
@@ -318,7 +354,10 @@ function validar() {
       return;
     }
     conferirCampo(elemento('purity' + indice), ESPEC_PUREZA, mensagens);
-    conferirCampo(elemento('price' + indice), ESPEC_PRECO, mensagens);
+    const preco = elemento('price' + indice);
+    if (preco.value.trim() !== '') {
+      conferirCampo(preco, ESPEC_PRECO, mensagens);
+    }
   });
 
   if (mensagens.length > 0) {
@@ -337,7 +376,8 @@ function mostrarResumoDeErros(mensagens) {
       return '<li><a href="#' + item.campo.id + '">' + item.mensagem + '</a></li>';
     }).join('') + '</ul>';
   resumo.classList.remove('oculto');
-  mensagens[0].campo.focus();
+  mensagens[0].campo.focus({ preventScroll: true });
+  mensagens[0].campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 /** Confere todos os campos e devolve falso quando há erro. */
@@ -346,7 +386,7 @@ function mostrarResumoDeErros(mensagens) {
 const CARACTERES_INVALIDOS = /[^0-9.,]/;
 
 /** Impede letras e símbolos, limpa colagem e apaga o erro ao corrigir. */
-function prepararCampoNumerico(campo) {
+function prepararCampoNumerico(campo, espec) {
   if (!campo) {
     return;
   }
@@ -371,7 +411,17 @@ function prepararCampoNumerico(campo) {
   });
 
   campo.addEventListener('input', function () {
-    limparErroDoCampo(campo);
+    if (espec) {
+      conferirAoVivo(campo, espec);
+    } else {
+      limparErroDoCampo(campo);
+    }
+  });
+
+  campo.addEventListener('blur', function () {
+    if (espec && campo.value.trim() !== '') {
+      conferirAoVivo(campo, espec);
+    }
   });
 }
 
@@ -552,11 +602,11 @@ function novaAnalise() {
 function iniciarPagina() {
   montarCorretivos();
   CAMPOS.forEach(function (id) {
-    prepararCampoNumerico(elemento(id));
+    prepararCampoNumerico(elemento(id), CAMPOS_ESPEC[id]);
   });
   CORRETIVOS.forEach(function (_, indice) {
-    prepararCampoNumerico(elemento('purity' + indice));
-    prepararCampoNumerico(elemento('price' + indice));
+    prepararCampoNumerico(elemento('purity' + indice), ESPEC_PUREZA);
+    prepararCampoNumerico(elemento('price' + indice), ESPEC_PRECO);
   });
   elemento('exampleMode').addEventListener('click', carregarExemplo);
   elemento('customMode').addEventListener('click', novaAnalise);

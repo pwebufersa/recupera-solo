@@ -216,14 +216,31 @@ test('pureza e preço fora da faixa são recusados', async function ({ page }) {
   await expect(page.locator('#price' + GESSO + '-erro')).toContainText('entre 0,01 e 1.000.000,00');
 });
 
-test('corretivo marcado sem pureza e preço exige preenchimento', async function ({ page }) {
+test('pureza é obrigatória e preço é opcional', async function ({ page }) {
   await preencherValido(page, {});
   await page.locator('#purity' + GESSO).fill('');
   await page.locator('#price' + GESSO).fill('');
   await page.locator('#calc').click();
-
   await expect(page.locator('#purity' + GESSO + '-erro')).toContainText('Informe Pureza');
-  await expect(page.locator('#price' + GESSO + '-erro')).toContainText('Informe Preço');
+
+  await page.locator('#purity' + GESSO).fill('80');
+  await page.locator('#calc').click();
+  await expect(page.locator('#results')).toBeVisible();
+  await expect(page.locator('#out tbody')).toContainText('Informe o preço');
+  await expect(page.locator('#best')).toContainText('Informe pureza e preço');
+});
+
+test('valor fora da faixa avisa enquanto é digitado', async function ({ page }) {
+  await page.goto('/');
+  const ph = page.locator('#ph');
+
+  await ph.click();
+  await ph.pressSequentially('15');
+  await expect(ph).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#ph-erro')).toContainText('entre 0,0 e 14,0');
+
+  await ph.fill('9,2');
+  await expect(ph).not.toHaveAttribute('aria-invalid', 'true');
 });
 
 test('o erro desaparece quando o campo é corrigido', async function ({ page }) {
