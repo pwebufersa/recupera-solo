@@ -51,9 +51,10 @@ têm pureza e preço.
 Textura, drenagem e qualidade da água não entram no cálculo, como no original.
 O programa não substitui recomendação agronômica.
 
-## Preços do exemplo
+## Preços
 
-Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
+Cotações de mercado, fontes e os valores usados no exemplo estão em
+[PRECOS.md](PRECOS.md).
 
 ## Testes
 
