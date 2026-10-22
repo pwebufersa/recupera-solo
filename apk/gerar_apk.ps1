@@ -217,8 +217,9 @@ function Resolver-BuildTools {
     param([string]$SdkManager)
 
     Escrever "Consultando a versao mais recente do build-tools."
-    $saida = & $SdkManager --sdk_root=$Sdk --list 2>&1 | Out-String
-    if ($LASTEXITCODE -ne 0) { Falhar "Falha ao listar os pacotes do SDK." }
+    $listagem = Chamar-SdkManager -Caminho $SdkManager -Argumentos @("--sdk_root=$Sdk", "--list")
+    if ($listagem.Codigo -ne 0) { Falhar "Falha ao listar os pacotes do SDK." }
+    $saida = $listagem.Texto
 
     $versoes = [regex]::Matches($saida, '(?m)^\s*build-tools;(\d+(?:\.\d+)*)') |
         ForEach-Object { $_.Groups[1].Value } |
@@ -227,6 +228,25 @@ function Resolver-BuildTools {
 
     if (-not $versoes) { Falhar "Nenhum build-tools disponivel no sdkmanager." }
     return ($versoes | Select-Object -First 1)
+}
+
+# O sdkmanager escreve avisos em stderr. No PowerShell 5.1, com
+# ErrorActionPreference = Stop, isso vira erro. A funcao abaixo captura a saida
+# sem derrubar o script e devolve texto e codigo de saida.
+function Chamar-SdkManager {
+    param([string]$Caminho, [string[]]$Argumentos)
+
+    $anterior = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $texto = (& $Caminho @Argumentos 2>&1 | ForEach-Object { "$_" }) -join "`n"
+        $codigo = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $anterior
+    }
+
+    return [pscustomobject]@{ Texto = $texto; Codigo = $codigo }
 }
 
 function Instalar-Ferramentas {
@@ -280,12 +300,13 @@ function Instalar-Ferramentas {
 
     if (-not $apiOk -or $instaladaBuildTools -ne $versaoBuildTools) {
         Escrever "Aceitando licencas do SDK."
-        1..40 | ForEach-Object { "y" } | & $sdkManager --sdk_root=$Sdk --licenses | Out-Null
-        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
+        $licencas = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "--licenses")
+        if ($licencas.Codigo -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
-        & $sdkManager --sdk_root=$Sdk "platform-tools" "platforms;android-$AndroidApi" "build-tools;$versaoBuildTools"
-        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar os pacotes do SDK." }
+        $instalacao = Chamar-SdkManager -Caminho $sdkManager `
+            -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms;android-$AndroidApi", "build-tools;$versaoBuildTools")
+        if ($instalacao.Codigo -ne 0) { Falhar "Falha ao instalar os pacotes do SDK." }
         $buildTools = Achar-BuildTools
     }
     else {
@@ -310,9 +331,10 @@ function Garantir-Android {
 
     $env:JAVA_HOME = $Jdk
     Escrever "Instalando a plataforma Android $Api exigida pelo projeto."
-    1..40 | ForEach-Object { "y" } | & $sdkManager --sdk_root=$Sdk --licenses | Out-Null
-    & $sdkManager --sdk_root=$Sdk "platforms;android-$Api"
-    if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar a plataforma Android $Api." }
+    $licencas = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "--licenses")
+    if ($licencas.Codigo -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
+    $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms;android-$Api")
+    if ($plataforma.Codigo -ne 0) { Falhar "Falha ao instalar a plataforma Android $Api." }
 }
 
 function Atualizar-Versao {

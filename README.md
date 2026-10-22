@@ -45,6 +45,9 @@ digitação e é recusado no envio, com rolagem até o primeiro erro.
 PST inicial, classificação do solo, adequação de cada corretivo, dose teórica,
 prática e comercial, custo por hectare e total, e o procedimento de recuperação.
 
+A comparação de menor custo só aparece quando todos os corretivos selecionados
+têm pureza e preço. Com apenas um preço, não há comparação.
+
 ## Limites
 
 Textura, drenagem e qualidade da água não entram no cálculo, como no original.

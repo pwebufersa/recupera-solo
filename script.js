@@ -148,12 +148,19 @@ function calcularDoses(dados, selecionados) {
     return a.custo - b.custo;
   });
 
+  // A comparação de custo só vale quando todos os corretivos selecionados têm
+  // pureza e preço. Com apenas um preço, o escolhido seria sempre ele.
+  const comparacaoCompleta = linhas.length > 0 && linhas.every(function (linha) {
+    return Number.isFinite(linha.custo);
+  });
+
   return {
     pstInicial: pstInicial,
     delta: delta,
     classe: classe,
     linhas: linhas,
-    melhor: candidatos[0] || null
+    comparacaoCompleta: comparacaoCompleta,
+    melhor: comparacaoCompleta ? (candidatos[0] || null) : null
   };
 }
 
@@ -518,11 +525,19 @@ function calcular() {
 
   const melhor = resultado.melhor;
 
-  elemento('best').innerHTML = melhor
-    ? '<strong>Menor custo entre as alternativas tecnicamente adequadas:</strong> ' +
+  if (melhor) {
+    elemento('best').innerHTML =
+      '<strong>Menor custo entre as alternativas tecnicamente adequadas:</strong> ' +
       melhor.nome + ', <b>' + formatarDinheiro(melhor.custo) + '/ha</b> (' +
-      formatarDinheiro(melhor.total) + ' para ' + formatarNumero(dados.area) + ' ha).'
-    : 'Informe pureza e preço dos corretivos selecionados para realizar a comparação econômica.';
+      formatarDinheiro(melhor.total) + ' para ' + formatarNumero(dados.area) + ' ha).';
+  } else if (!resultado.comparacaoCompleta) {
+    elemento('best').innerHTML = resultado.linhas.length > 1
+      ? 'Para comparar custos, informe a pureza e o preço de todos os corretivos selecionados.'
+      : 'Informe a pureza e o preço do corretivo selecionado para calcular o custo.';
+  } else {
+    elemento('best').innerHTML =
+      'Nenhum dos corretivos selecionados foi classificado como tecnicamente adequado.';
+  }
 
   elemento('recommendation').innerHTML = corretivosSelecionados().map(function (item) {
     return '<p><b>' + item.corretivo.nome + ':</b> ' +

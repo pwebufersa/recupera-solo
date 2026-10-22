@@ -21,6 +21,7 @@ $Raiz = Split-Path -Parent $PSScriptRoot
 $Todo = Join-Path $Raiz "TODO.md"
 $Estado = Join-Path $Raiz ".vigia"
 $HashArquivo = Join-Path $Estado "ultimo-hash.txt"
+$Tentativas = Join-Path $Estado "tentativas.txt"
 $Trava = Join-Path $Estado "trava.txt"
 $Log = Join-Path $Estado "registro.log"
 
@@ -72,9 +73,21 @@ try {
         exit 0
     }
 
-    $sujeira = git status --porcelain
+    $sujeira = git status --porcelain --untracked-files=no
     if ($sujeira) {
-        Registrar "Repositorio com alteracoes locais. Execucao adiada para nao sobrescrever trabalho."
+        Registrar "Arquivos versionados com alteracao local. Execucao adiada para nao sobrescrever trabalho."
+        exit 0
+    }
+
+    $registroTentativas = @{}
+    if (Test-Path $Tentativas) {
+        Get-Content $Tentativas | ForEach-Object {
+            $partes = $_ -split " ", 2
+            if ($partes.Count -eq 2) { $registroTentativas[$partes[0]] = [int]$partes[1] }
+        }
+    }
+    if ($registroTentativas.ContainsKey($hash) -and $registroTentativas[$hash] -ge 3) {
+        Registrar "Tres tentativas falharam para este conteudo. Aguardando nova alteracao no TODO.md."
         exit 0
     }
 
@@ -115,11 +128,14 @@ Se alguma instrucao for ambigua ou exigir decisao que nao possa ser tomada com s
 
     if (-not $processo.WaitForExit($LimiteMinutos * 60 * 1000)) {
         $processo.Kill()
+        $codigo = 1
         Registrar "Tempo limite de $LimiteMinutos minutos atingido. Processo encerrado."
     } else {
-        Registrar "OpenCode terminou com codigo $($processo.ExitCode)."
+        $codigo = $processo.ExitCode
+        Registrar "OpenCode terminou com codigo $codigo."
     }
 
+    $codigo = if ($processo.HasExited) { $processo.ExitCode } else { 1 }
     Get-Content $saida -Tail 40 -ErrorAction SilentlyContinue | ForEach-Object { Registrar "saida: $_" }
     Get-Content $erro -Tail 20 -ErrorAction SilentlyContinue | ForEach-Object { Registrar "erro: $_" }
 
@@ -133,8 +149,16 @@ Se alguma instrucao for ambigua ou exigir decisao que nao possa ser tomada com s
         Registrar "Nenhuma alteracao para commit."
     }
 
-    Set-Content -Path $HashArquivo -Value $hash -Encoding ASCII
-    Registrar "Execucao concluida."
+    if ($codigo -eq 0) {
+        Set-Content -Path $HashArquivo -Value $hash -Encoding ASCII
+        if (Test-Path $Tentativas) { Remove-Item $Tentativas -Force }
+        Registrar "Execucao concluida."
+    } else {
+        $registroTentativas[$hash] = 1 + $(if ($registroTentativas.ContainsKey($hash)) { $registroTentativas[$hash] } else { 0 })
+        $registroTentativas.GetEnumerator() | ForEach-Object { "$($_.Key) $($_.Value)" } |
+            Set-Content -Path $Tentativas -Encoding ASCII
+        Registrar "Execucao terminou com falha. Nova tentativa na proxima janela."
+    }
 }
 finally {
     Pop-Location

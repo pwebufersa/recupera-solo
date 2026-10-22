@@ -227,7 +227,7 @@ test('pureza é obrigatória e preço é opcional', async function ({ page }) {
   await page.locator('#calc').click();
   await expect(page.locator('#results')).toBeVisible();
   await expect(page.locator('#out tbody')).toContainText('Informe o preço');
-  await expect(page.locator('#best')).toContainText('Informe pureza e preço');
+  await expect(page.locator('#best')).toContainText('Informe a pureza e o preço do corretivo');
 });
 
 test('valor fora da faixa avisa enquanto é digitado', async function ({ page }) {
@@ -353,4 +353,25 @@ test('o checkbox do corretivo não herda o estilo dos campos de texto', async fu
   expect(medida.padding).toBe('0px');
   expect(medida.borda).toBe('0px');
   expect(medida.desvioAcima).toBeGreaterThanOrEqual(0);
+});
+
+test('a comparação de custo exige preço de todos os selecionados', async function ({ page }) {
+  await page.goto('/');
+  for (const id of Object.keys(DADOS)) {
+    await page.locator('#' + id).fill(DADOS[id]);
+  }
+  await page.locator('#use' + GESSO).check();
+  await page.locator('#purity' + GESSO).fill('80');
+  await page.locator('#price' + GESSO).fill('425');
+  await page.locator('#use' + ENXOFRE).check();
+  await page.locator('#purity' + ENXOFRE).fill('95');
+  await page.locator('#calc').click();
+
+  await expect(page.locator('#results')).toBeVisible();
+  await expect(page.locator('#best')).toContainText('todos os corretivos selecionados');
+  await expect(page.locator('#best')).not.toContainText('Gesso agrícola');
+
+  await page.locator('#price' + ENXOFRE).fill('6200');
+  await page.locator('#calc').click();
+  await expect(page.locator('#best')).toContainText('Gesso agrícola');
 });

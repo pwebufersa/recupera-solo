@@ -29,6 +29,7 @@
 | Decimais | sem limite | 0, 1 ou 2 casas por campo |
 | Aviso | só no envio | imediato ao digitar valor fora da faixa |
 | Preço | obrigatório para calcular | opcional; sem preço, custo não aparece |
+| Comparação de custo | qualquer item com preço | exige preço em todos os selecionados |
 | Faixas | parciais | todos os campos |
 | Erro | genérico | campo, faixa e correção |
 | Dicas | ausentes | faixa e exemplo por campo |
