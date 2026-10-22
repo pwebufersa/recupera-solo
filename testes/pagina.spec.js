@@ -351,7 +351,7 @@ test('o checkbox do corretivo não herda o estilo dos campos de texto', async fu
   expect(medida.largura).toBeLessThanOrEqual(24);
   expect(medida.minHeight === '0px' || medida.minHeight === 'auto').toBe(true);
   expect(medida.padding).toBe('0px');
-  expect(medida.borda).toBe('0px');
+  expect(medida.borda).toBe('2px');
   expect(medida.desvioAcima).toBeGreaterThanOrEqual(0);
 });
 

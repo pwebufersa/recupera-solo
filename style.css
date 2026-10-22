@@ -217,7 +217,7 @@ code {
 
 .cartao {
   background: var(--papel);
-  border: 1px solid var(--linha);
+  border: 2px solid #bfd3d0;
   border-radius: var(--raio);
   padding: clamp(20px, 3vw, 34px);
   box-shadow: var(--sombra);
@@ -274,7 +274,7 @@ code {
   border-radius: var(--raio-pequeno);
   background: var(--verde-claro);
   color: var(--verde-escuro);
-  border: 1px solid #cfe4d9;
+  border: 2px solid #cfe4d9;
 }
 
 /* Formulário */
@@ -299,7 +299,7 @@ select {
   margin-top: 7px;
   min-height: 54px;
   padding: 13px 15px;
-  border: 1.5px solid #b7cbc9;
+  border: 2px solid #a8c0bd;
   border-radius: 12px;
   background: #fff;
   color: var(--tinta);
@@ -358,7 +358,7 @@ select[aria-invalid="true"] {
 }
 
 .corretivo {
-  border: 1px solid var(--linha);
+  border: 2px solid #cbdcda;
   border-radius: 12px;
   padding: 18px;
   background: var(--papel);
@@ -389,11 +389,34 @@ select[aria-invalid="true"] {
   min-height: 0;
   margin: 0;
   padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: none;
+  border: 2px solid #6f8b88;
+  border-radius: 5px;
+  background: #fff;
   box-shadow: none;
-  accent-color: var(--verde);
+  appearance: none;
+  -webkit-appearance: none;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.corretivo-topo input[type="checkbox"]::after {
+  content: "";
+  width: 11px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+  opacity: 0;
+}
+
+.corretivo-topo input[type="checkbox"]:checked {
+  background: var(--verde);
+  border-color: var(--verde-escuro);
+}
+
+.corretivo-topo input[type="checkbox"]:checked::after {
+  opacity: 1;
 }
 
 .corretivo-topo input[type="checkbox"]:focus-visible {
@@ -465,7 +488,7 @@ button[aria-pressed="true"] {
 /* Erros resumidos */
 
 .resumo-erros {
-  border: 1px solid #e7c4ad;
+  border: 2px solid #e7c4ad;
   background: var(--alerta-fundo);
   color: #6d2c05;
   border-radius: var(--raio);
@@ -509,7 +532,7 @@ button[aria-pressed="true"] {
 }
 
 .caixa-resultado {
-  border: 1px solid var(--linha);
+  border: 2px solid #bfd3d0;
   border-radius: var(--raio-pequeno);
   padding: 18px;
   background: #fafcfb;
@@ -546,7 +569,7 @@ button[aria-pressed="true"] {
 
 .tabela-rolagem {
   overflow-x: auto;
-  border: 1px solid var(--linha);
+  border: 2px solid #bfd3d0;
   border-radius: var(--raio-pequeno);
 }
 
@@ -594,7 +617,7 @@ td.atencao {
   margin-top: 16px;
   padding: 14px 16px;
   border-radius: var(--raio-pequeno);
-  border: 1px solid var(--dourado-linha);
+  border: 2px solid var(--dourado-linha);
   background: var(--dourado-claro);
   color: #55400f;
   font-variant-numeric: tabular-nums;

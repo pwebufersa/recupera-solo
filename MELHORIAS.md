@@ -14,6 +14,13 @@
 
 ![Celular](prints/comparacao-formulario-celular.png)
 
+## Validação em ação
+
+Com pH 15, a versão atual recusa o valor e explica a faixa; o original aceitava
+e seguia para o cálculo.
+
+![Validação do pH 15](prints/validacao-ph15.png)
+
 ## Resultados
 
 ![Computador](prints/comparacao-desktop.png)

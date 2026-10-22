@@ -237,6 +237,21 @@ function Resolver-BuildTools {
 # O sdkmanager escreve avisos em stderr. No PowerShell 5.1, com
 # ErrorActionPreference = Stop, isso vira erro. A funcao abaixo captura a saida
 # sem derrubar o script e devolve texto e codigo de saida.
+# O sdkmanager 19 exige a confirmacao das licencas pela entrada padrao.
+function Aceitar-Licencas {
+    param([string]$Caminho)
+
+    $anterior = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        1..40 | ForEach-Object { "y" } | & $Caminho --sdk_root=$Sdk --licenses 2>&1 | Out-Null
+        return $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $anterior
+    }
+}
+
 function Chamar-SdkManager {
     param([string]$Caminho, [string[]]$Argumentos)
 
@@ -304,17 +319,18 @@ function Instalar-Ferramentas {
 
     if (-not $apiOk -or $instaladaBuildTools -ne $versaoBuildTools) {
         Escrever "Aceitando licencas do SDK."
-        $licencas = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "--licenses")
-        if ($licencas.Codigo -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
+        if ((Aceitar-Licencas -Caminho $sdkManager) -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
+        # O cmdline-tools 19 usa ponto e virgula; o 20 em diante usa barra.
         $instalacao = Chamar-SdkManager -Caminho $sdkManager `
-            -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms/android-$AndroidApi", "build-tools/$versaoBuildTools")
-        if ($instalacao.Codigo -ne 0) {
-            Escrever $instalacao.Texto
-            Falhar "Falha ao instalar os pacotes do SDK."
-        }
+            -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms;android-$AndroidApi", "build-tools;$versaoBuildTools")
         $buildTools = Achar-BuildTools
+        if (-not $buildTools) {
+            $instalacao = Chamar-SdkManager -Caminho $sdkManager `
+                -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms/android-$AndroidApi", "build-tools/$versaoBuildTools")
+            $buildTools = Achar-BuildTools
+        }
         if (-not $buildTools) {
             Escrever $instalacao.Texto
             Falhar "O sdkmanager terminou sem instalar o build-tools."
@@ -342,10 +358,15 @@ function Garantir-Android {
 
     $env:JAVA_HOME = $Jdk
     Escrever "Instalando a plataforma Android $Api exigida pelo projeto."
-    $licencas = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "--licenses")
-    if ($licencas.Codigo -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
-    $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms/android-$Api")
-    if ($plataforma.Codigo -ne 0) { Falhar "Falha ao instalar a plataforma Android $Api." }
+    if ((Aceitar-Licencas -Caminho $sdkManager) -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
+    $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms;android-$Api")
+    if (-not (Test-Path (Join-Path $Sdk "platformsndroid-$Apindroid.jar"))) {
+        $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms/android-$Api")
+    }
+    if (-not (Test-Path (Join-Path $Sdk "platformsndroid-$Apindroid.jar"))) {
+        Escrever $plataforma.Texto
+        Falhar "Falha ao instalar a plataforma Android $Api."
+    }
 }
 
 function Atualizar-Versao {

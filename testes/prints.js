@@ -56,7 +56,25 @@ function paginaDeComparacao(tela, esquerda, direita) {
   return caminho;
 }
 
+async function capturarValidacao(navegador) {
+  const pagina = await navegador.newPage({
+    viewport: { width: 900, height: 1200 },
+    deviceScaleFactor: 2
+  });
+  await pagina.goto(atual);
+  await pagina.getByRole('button', { name: /exemplo/i }).click();
+  await pagina.locator('#ph').fill('15');
+  await pagina.locator('#calc').click();
+  await pagina.waitForTimeout(500);
+  await pagina.locator('.cartao, .card').nth(1).screenshot({
+    path: path.join(pasta, 'validacao-ph15.png')
+  });
+  await pagina.close();
+  console.log('validacao-ph15.png');
+}
+
 const navegador = await chromium.launch({ channel: 'chrome' });
+
 
 for (const tela of TELAS) {
   for (const alvo of ['resultados', 'formulario']) {
@@ -83,6 +101,8 @@ for (const tela of TELAS) {
     console.log(nome);
   }
 }
+
+await capturarValidacao(navegador);
 
 await navegador.close();
 fs.rmSync(temporaria, { recursive: true, force: true });
