@@ -39,7 +39,8 @@ jobs:
     runs-on: windows-latest
     env:
       VERSAO: ${{ inputs.versao || '1.0.3' }}
-      VERSION_CODE: ${{ inputs.version_code || github.run_number + 100 }}
+      CODIGO_INFORMADO: ${{ inputs.version_code }}
+      CODIGO_BASE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v5
 
