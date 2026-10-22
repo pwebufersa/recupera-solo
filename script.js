@@ -603,7 +603,7 @@ function carregarExemplo() {
     elemento('price' + indice).value = corretivo.precoExemplo;
     elemento('use' + indice).checked = true;
   });
-  definirModo('exemplo', '<b>Modo exemplo:</b> dados do exercício carregados. ');
+  definirModo('exemplo', '<b>Modo exemplo:</b> dados de exemplo carregados. ');
 }
 
 function novaAnalise() {
