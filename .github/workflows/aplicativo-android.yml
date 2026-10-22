@@ -42,9 +42,31 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v5
+      - name: Cache das ferramentas
+        uses: actions/cache@v4
         with:
-          node-version: 22
+          path: apk/ferramentas
+          key: ferramentas-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          restore-keys: |
+            ferramentas-${{ runner.os }}-
+
+      - name: Cache do Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Cache das dependencias do Node
+        uses: actions/cache@v4
+        with:
+          path: apk/app/node_modules
+          key: node_modules-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          restore-keys: |
+            node_modules-${{ runner.os }}-
 
       - name: Preparar a chave de assinatura
         shell: pwsh
