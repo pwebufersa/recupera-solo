@@ -74,7 +74,7 @@ No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
 - `index.html`, `style.css`, `script.js`: cálculo, validação e tela em um único
   arquivo, para upload direto.
 - `apk/`: gerador e instruções do aplicativo.
-- CI gera o APK; `scripts/vigia-todo.ps1` executa o `TODO.md` a cada 5 minutos.
+- CI gera o APK.
 - Netlify: branch `main`, sem build, diretório `.`. iOS exige macOS com Xcode.
 
 ## Comparação
