@@ -174,7 +174,7 @@ function Baixar {
     Escrever "Baixando $Url"
     $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
     if ($curl) {
-        & $curl.Source -L --fail --retry 3 $Url -o $Destino
+        & $curl.Source -sS -L --fail --retry 3 $Url -o $Destino
         if ($LASTEXITCODE -ne 0) { Falhar "Falha no download: $Url" }
     }
     else {
