@@ -60,13 +60,21 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Cache das dependencias do Node
+      - name: Cache do projeto gerado
         uses: actions/cache@v4
         with:
-          path: apk/app/node_modules
-          key: node_modules-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          path: apk/app
+          key: app-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
           restore-keys: |
-            node_modules-${{ runner.os }}-
+            app-${{ runner.os }}-
+
+      - name: Cache do npm
+        uses: actions/cache@v4
+        with:
+          path: ~/AppData/Local/npm-cache
+          key: npm-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
 
       - name: Preparar a chave de assinatura
         shell: pwsh

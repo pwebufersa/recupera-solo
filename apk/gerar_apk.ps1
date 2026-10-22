@@ -1,14 +1,10 @@
 # Gera o APK do RECUPERA-SOLO em uma maquina limpa.
 # Uso:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
-#   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Etapa Ferramentas
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao 1.0.1 -VersionCode 2
 
 [CmdletBinding()]
 param(
-    [ValidateSet("Tudo", "Ferramentas", "Projeto", "Apk")]
-    [string]$Etapa = "Tudo",
-
     [string]$Site = "",
 
     [string]$Versao = "1.0.0",
@@ -86,9 +82,13 @@ function Achar-NodeInstalado {
 function Instalar-Node {
     New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
 
-    $versao = Resolver-Node
     $instalada = Achar-NodeInstalado
-    if (("v" + $instalada) -ne $versao) {
+    $versao = $null
+    if (-not $instalada -or $instalada.Split('.')[0] -ne $SerieNode) {
+        $versao = Resolver-Node
+    }
+
+    if ($versao) {
         $nomeZip = "node-$versao-win-x64.zip"
         $zip = Join-Path $Ferramentas "node22.zip"
         $somas = Join-Path $Ferramentas "node22-SHASUMS256.txt"
@@ -122,7 +122,7 @@ function Instalar-Node {
         Escrever "Node.js $versao instalado em $Node"
     }
     else {
-        Escrever "Node.js $versao ja instalado."
+        Escrever "Node.js $instalada ja instalado."
     }
 
     $partes = $env:PATH -split ';'
@@ -310,11 +310,11 @@ function Instalar-Ferramentas {
 
     $buildTools = Achar-BuildTools
     $apiOk = Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar")
-    $versaoBuildTools = Resolver-BuildTools
     $instaladaBuildTools = ""
     if ($buildTools) { $instaladaBuildTools = Split-Path -Leaf $buildTools }
 
-    if (-not $apiOk -or $instaladaBuildTools -ne $versaoBuildTools) {
+    if (-not $apiOk -or -not $buildTools) {
+        $versaoBuildTools = Resolver-BuildTools
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
         # O cmdline-tools 19 usa ponto e virgula; o 20 em diante usa barra.
@@ -438,10 +438,10 @@ function Criar-Projeto {
     Push-Location $App
     try {
         Escrever "Instalando as dependencias mais recentes do Capacitor."
-        & $npm install --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest"
+        & $npm install --prefer-offline --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest"
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
 
-        & $npm install --no-audit --no-fund --save-dev "@capacitor/assets@latest"
+        & $npm install --prefer-offline --no-audit --no-fund --save-dev "@capacitor/assets@latest"
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar o @capacitor/assets." }
 
         $android = Join-Path $App "android"
@@ -548,7 +548,7 @@ function Gerar-Apk {
 
     Push-Location (Join-Path $App "android")
     try {
-        & .\gradlew.bat assembleRelease --no-daemon
+        & .\gradlew.bat assembleRelease --no-daemon --build-cache
         if ($LASTEXITCODE -ne 0) { Falhar "Falha na compilacao do APK." }
     }
     finally {
@@ -590,22 +590,11 @@ function Gerar-Apk {
 
 Verificar-Windows
 
-$siteResolvido = $null
-if ($Etapa -eq "Tudo" -or $Etapa -eq "Projeto") {
-    $siteResolvido = Achar-Site -Caminho $Site
-    Escrever "Site: $siteResolvido"
-}
+$siteResolvido = Achar-Site -Caminho $Site
+Escrever "Site: $siteResolvido"
 
-if ($Etapa -eq "Tudo" -or $Etapa -eq "Ferramentas") {
-    Instalar-Ferramentas
-}
-
-if ($Etapa -eq "Tudo" -or $Etapa -eq "Projeto") {
-    Criar-Projeto -SiteResolvido $siteResolvido
-}
-
-if ($Etapa -eq "Tudo" -or $Etapa -eq "Apk") {
-    Gerar-Apk
-}
+Instalar-Ferramentas
+Criar-Projeto -SiteResolvido $siteResolvido
+Gerar-Apk
 
 Escrever "Concluido."
