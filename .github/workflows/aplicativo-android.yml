@@ -29,7 +29,7 @@ on:
       - "favicon.svg"
       - "apk/gerar_apk.ps1"
       - "apk/assets/**"
-      - ".github/workflows/apk.yml"
+      - ".github/workflows/aplicativo-android.yml"
 
 jobs:
   testes:
