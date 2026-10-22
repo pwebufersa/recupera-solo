@@ -30,7 +30,7 @@ O fluxo `.github/workflows/apk.yml` roda os testes e gera o APK, com artefato
 ## Instalar
 
 ```powershell
-adb install -r dist\RECUPERA-SOLO-1.0.2.apk
+adb install -r dist\RECUPERA-SOLO-1.0.3.apk
 ```
 
 Sem cabo, o APK pode ser copiado para o aparelho e aberto pelo gerenciador de
