@@ -1,5 +1,7 @@
 # APK do RECUPERA-SOLO
 
+APK pronto: [artefatos do GitHub Actions](https://github.com/pwebufersa/recupera-solo/actions/workflows/apk.yml) · instruções em [BAIXAR.md](BAIXAR.md).
+
 Aplicativo Android do site, com o conteúdo empacotado. Funciona sem internet.
 
 ## Gerar
