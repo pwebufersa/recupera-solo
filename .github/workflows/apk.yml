@@ -1,4 +1,6 @@
-name: APK
+name: Aplicativo Android
+
+run-name: Aplicativo Android · ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
@@ -23,6 +25,7 @@ on:
 
 jobs:
   testes:
+    name: Testes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -35,6 +38,7 @@ jobs:
       - run: npm test
 
   apk:
+    name: Gerar APK
     needs: testes
     runs-on: windows-latest
     env:
@@ -102,6 +106,7 @@ jobs:
           retention-days: 30
 
   emulador:
+    name: Teste no emulador
     needs: apk
     runs-on: ubuntu-latest
     continue-on-error: true

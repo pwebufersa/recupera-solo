@@ -1,4 +1,6 @@
-name: Testes
+name: Testes automáticos
+
+run-name: Testes automáticos · ${{ github.ref_name }}
 
 on:
   push:
@@ -7,6 +9,7 @@ on:
 
 jobs:
   testes:
+    name: Cálculo e navegador
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
