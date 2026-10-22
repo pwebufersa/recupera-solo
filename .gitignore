@@ -1,9 +1,4 @@
-servidor.log
-detect.json
-css_formatado.txt
 node_modules/
 test-results/
 playwright-report/
-
-
 *.log
