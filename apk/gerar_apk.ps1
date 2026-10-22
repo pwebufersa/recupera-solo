@@ -204,8 +204,13 @@ function Resolver-CmdlineTools {
     $texto = Get-Content -Raw $xml
     Remove-Item $xml -Force
 
-    $bloco = [regex]::Match($texto, 'path="cmdline-tools;latest".*?</remotePackage>', 'Singleline')
-    if (-not $bloco.Success) { Falhar "Pacote cmdline-tools;latest ausente em $UrlRepoAndroid." }
+    # A versao 20 em diante troca o sdkmanager por um wrapper experimental que
+    # falha no download e ainda devolve codigo 0. A 19.0 e a ultima estavel.
+    $bloco = [regex]::Match($texto, 'path="cmdline-tools;19\.0".*?</remotePackage>', 'Singleline')
+    if (-not $bloco.Success) {
+        $bloco = [regex]::Match($texto, 'path="cmdline-tools;latest".*?</remotePackage>', 'Singleline')
+    }
+    if (-not $bloco.Success) { Falhar "Pacote cmdline-tools ausente em $UrlRepoAndroid." }
 
     $arquivo = [regex]::Match($bloco.Value, '<url>(commandlinetools-win-[^<]+)</url>').Groups[1].Value
     if (-not $arquivo) { Falhar "Pacote Windows do cmdline-tools ausente em $UrlRepoAndroid." }
@@ -304,9 +309,16 @@ function Instalar-Ferramentas {
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
         $instalacao = Chamar-SdkManager -Caminho $sdkManager `
-            -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms;android-$AndroidApi", "build-tools;$versaoBuildTools")
-        if ($instalacao.Codigo -ne 0) { Falhar "Falha ao instalar os pacotes do SDK." }
+            -Argumentos @("--sdk_root=$Sdk", "platform-tools", "platforms/android-$AndroidApi", "build-tools/$versaoBuildTools")
+        if ($instalacao.Codigo -ne 0) {
+            Escrever $instalacao.Texto
+            Falhar "Falha ao instalar os pacotes do SDK."
+        }
         $buildTools = Achar-BuildTools
+        if (-not $buildTools) {
+            Escrever $instalacao.Texto
+            Falhar "O sdkmanager terminou sem instalar o build-tools."
+        }
     }
     else {
         Escrever "SDK ja instalado: build-tools $instaladaBuildTools, Android $AndroidApi."
@@ -332,7 +344,7 @@ function Garantir-Android {
     Escrever "Instalando a plataforma Android $Api exigida pelo projeto."
     $licencas = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "--licenses")
     if ($licencas.Codigo -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
-    $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms;android-$Api")
+    $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms/android-$Api")
     if ($plataforma.Codigo -ne 0) { Falhar "Falha ao instalar a plataforma Android $Api." }
 }
 
