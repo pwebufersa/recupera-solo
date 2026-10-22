@@ -17,8 +17,7 @@ internet.
 
 1. "Usar exemplo" preenche um caso pronto; "Nova análise" limpa os campos.
 2. Informe os dados do solo. Vírgula ou ponto nos decimais.
-3. Marque os corretivos e informe a pureza. O preço é opcional; sem ele, o
-   custo não é calculado.
+3. Marque os corretivos e informe a pureza. O preço é opcional.
 4. "Gerar diagnóstico" mostra classificação, dose, custo e procedimento.
 
 ## Campos
@@ -38,15 +37,15 @@ internet.
 | Preço | R$/t | maior que zero | 425,00 |
 
 Letras não entram nos campos numéricos. Valor fora da faixa avisa durante a
-digitação e é recusado no envio, com rolagem até o primeiro erro.
+digitação e é recusado no envio.
 
 ## Resultado
 
 PST inicial, classificação do solo, adequação de cada corretivo, dose teórica,
-prática e comercial, custo por hectare e total, e o procedimento de recuperação.
+prática e comercial, custo e procedimento.
 
 A comparação de menor custo só aparece quando todos os corretivos selecionados
-têm pureza e preço. Com apenas um preço, não há comparação.
+têm pureza e preço.
 
 ## Limites
 
@@ -59,36 +58,19 @@ Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
 
 ## Testes
 
-- 48 verificações de navegador (computador e celular) e 15 de unidade.
-- Teste humano para o que a máquina não vê: [USABILIDADE.md](USABILIDADE.md) e o roteiro em [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
-
-```bash
-npm run servidor   # http://127.0.0.1:8099
-npm test           # unidade e navegador
-npm run prints     # refaz as comparações
-```
+`npm test` roda cálculo e navegador. O que depende de pessoa está em
+[USABILIDADE.md](USABILIDADE.md) e no roteiro
+[RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
 
 ## Estrutura
 
 - `index.html`, `style.css`, `script.js` (cálculo, validação e tela em um único
   arquivo, para upload direto).
 - `apk/`: gerador e instruções do aplicativo.
-- Publicação no Netlify: branch `main`, sem build, diretório `.`.
-- GitHub Actions: `Testes` roda a bateria; `APK` gera o aplicativo, publica o
-  artefato com versão, hash e resultado dos testes, e tenta abrir o app em
-  emulador.
-- iOS: a compilação exige macOS com Xcode e conta Apple Developer. No Windows, a
-  alternativa é usar a versão web como PWA no Safari.`.
-
-## Automação
-
-`scripts/vigia-todo.ps1` roda a cada 5 minutos pelo Agendador de Tarefas, atualiza
-o repositório e executa o que estiver em `TODO.md` quando o arquivo muda. O
-registro fica em `.vigia/registro.log`.
-
-```bash
-powershell -ExecutionPolicy Bypass -File scripts/instalar-vigia.ps1
-```
+- GitHub Actions roda os testes e gera o APK; `scripts/vigia-todo.ps1` executa o
+  `TODO.md` a cada 5 minutos.
+- Publicação no Netlify: branch `main`, sem build, diretório `.`. iOS exige
+  macOS com Xcode.
 
 ## Comparação com o original
 
