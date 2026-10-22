@@ -75,7 +75,7 @@ No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
   arquivo, para upload direto.
 - `apk/`: gerador e instruções do aplicativo.
 - CI gera o APK.
-- Netlify: branch `main`, sem build, diretório `.`. iOS exige macOS com Xcode.
+- Publicação: GitHub Pages, a partir da branch `main`. iOS exige macOS com Xcode.
 
 ## Comparação
 
