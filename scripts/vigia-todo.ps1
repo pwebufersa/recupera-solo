@@ -101,10 +101,13 @@ Regras obrigatorias:
 Se alguma instrucao for ambigua ou exigir decisao que nao possa ser tomada com seguranca, registre a duvida em TODO.md e pare.
 "@
 
+    $arquivoInstrucao = Join-Path $Estado "instrucao.txt"
+    Set-Content -Path $arquivoInstrucao -Value $instrucao -Encoding UTF8
+
     $saida = Join-Path $Estado "saida.txt"
     $erro = Join-Path $Estado "erro.txt"
     $processo = Start-Process -FilePath $Cli `
-        -ArgumentList @("run", "--auto", $instrucao) `
+        -ArgumentList @("run", "--auto", "--file", $arquivoInstrucao, "Siga as instrucoes do arquivo anexado e execute o TODO.md.") `
         -WorkingDirectory $Raiz `
         -NoNewWindow -PassThru `
         -RedirectStandardOutput $saida `
