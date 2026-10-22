@@ -10,6 +10,7 @@ internet.
 
 - Site: <https://pwebufersa.github.io/recupera-solo/>
 - APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
+- Original, por registro histórico: <https://dapper-flan-955869.netlify.app/>
 
 ## Usar
 
