@@ -214,19 +214,18 @@ function Resolver-CmdlineTools {
 }
 
 function Resolver-BuildTools {
-    param([string]$SdkManager)
+    # A versao vem do repositorio oficial do Android, e nao da saida do
+    # sdkmanager, que muda de formato entre versoes do cmdline-tools.
+    $xml = Join-Path $Ferramentas "repository2-3-buildtools.xml"
+    Baixar $UrlRepoAndroid $xml
+    $texto = Get-Content -Raw $xml
+    Remove-Item $xml -Force
 
-    Escrever "Consultando a versao mais recente do build-tools."
-    $listagem = Chamar-SdkManager -Caminho $SdkManager -Argumentos @("--sdk_root=$Sdk", "--list")
-    if ($listagem.Codigo -ne 0) { Falhar "Falha ao listar os pacotes do SDK." }
-    $saida = $listagem.Texto
-
-    $versoes = [regex]::Matches($saida, '(?m)^\s*build-tools;(\d+(?:\.\d+)*)') |
+    $versoes = [regex]::Matches($texto, 'path="build-tools;(\d+(?:\.\d+)*)"') |
         ForEach-Object { $_.Groups[1].Value } |
-        Sort-Object { [version]$_ } -Descending |
-        Select-Object -Unique
+        Sort-Object { [version]$_ } -Descending -Unique
 
-    if (-not $versoes) { Falhar "Nenhum build-tools disponivel no sdkmanager." }
+    if (-not $versoes) { Falhar "Nenhum build-tools no repositorio do Android." }
     return ($versoes | Select-Object -First 1)
 }
 
@@ -294,7 +293,7 @@ function Instalar-Ferramentas {
 
     $buildTools = Achar-BuildTools
     $apiOk = Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar")
-    $versaoBuildTools = Resolver-BuildTools -SdkManager $sdkManager
+    $versaoBuildTools = Resolver-BuildTools
     $instaladaBuildTools = ""
     if ($buildTools) { $instaladaBuildTools = Split-Path -Leaf $buildTools }
 
