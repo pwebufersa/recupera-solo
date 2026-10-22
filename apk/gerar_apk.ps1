@@ -237,18 +237,14 @@ function Resolver-BuildTools {
 # O sdkmanager escreve avisos em stderr. No PowerShell 5.1, com
 # ErrorActionPreference = Stop, isso vira erro. A funcao abaixo captura a saida
 # sem derrubar o script e devolve texto e codigo de saida.
-# O sdkmanager 19 exige a confirmacao das licencas pela entrada padrao.
-function Aceitar-Licencas {
-    param([string]$Caminho)
-
-    $anterior = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    try {
-        1..40 | ForEach-Object { "y" } | & $Caminho --sdk_root=$Sdk --licenses 2>&1 | Out-Null
-        return $LASTEXITCODE
-    }
-    finally {
-        $ErrorActionPreference = $anterior
+# As licencas sao gravadas direto no SDK. A confirmacao pela entrada padrao
+# nao e confiavel em runner sem console.
+function Gravar-Licencas {
+    $dir = Join-Path $Sdk "licenses"
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    $hash = "24333f8a63b6825ea9c5514f83c2829b004d1fee"
+    foreach ($nome in @("android-sdk-license", "android-sdk-preview-license")) {
+        Salvar-Texto (Join-Path $dir $nome) ($hash + "`n")
     }
 }
 
@@ -270,6 +266,7 @@ function Chamar-SdkManager {
 
 function Instalar-Ferramentas {
     New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
+    Gravar-Licencas
 
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) {
         $zip = Join-Path $Ferramentas "jdk21.zip"
@@ -318,8 +315,6 @@ function Instalar-Ferramentas {
     if ($buildTools) { $instaladaBuildTools = Split-Path -Leaf $buildTools }
 
     if (-not $apiOk -or $instaladaBuildTools -ne $versaoBuildTools) {
-        Escrever "Aceitando licencas do SDK."
-        if ((Aceitar-Licencas -Caminho $sdkManager) -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
         # O cmdline-tools 19 usa ponto e virgula; o 20 em diante usa barra.
@@ -357,8 +352,8 @@ function Garantir-Android {
     if (-not (Test-Path $sdkManager)) { Falhar "cmdline-tools ausente. Rode -Etapa Ferramentas." }
 
     $env:JAVA_HOME = $Jdk
+    Gravar-Licencas
     Escrever "Instalando a plataforma Android $Api exigida pelo projeto."
-    if ((Aceitar-Licencas -Caminho $sdkManager) -ne 0) { Falhar "Falha ao aceitar as licencas do SDK." }
     $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms;android-$Api")
     if (-not (Test-Path (Join-Path $Sdk "platformsndroid-$Apindroid.jar"))) {
         $plataforma = Chamar-SdkManager -Caminho $sdkManager -Argumentos @("--sdk_root=$Sdk", "platforms/android-$Api")

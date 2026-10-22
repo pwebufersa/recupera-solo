@@ -217,7 +217,7 @@ code {
 
 .cartao {
   background: var(--papel);
-  border: 2px solid #bfd3d0;
+  border: 1.5px solid #cfdedc;
   border-radius: var(--raio);
   padding: clamp(20px, 3vw, 34px);
   box-shadow: var(--sombra);
@@ -274,7 +274,7 @@ code {
   border-radius: var(--raio-pequeno);
   background: var(--verde-claro);
   color: var(--verde-escuro);
-  border: 2px solid #cfe4d9;
+  border: 1.5px solid #d7e8e0;
 }
 
 /* Formulário */
@@ -358,7 +358,7 @@ select[aria-invalid="true"] {
 }
 
 .corretivo {
-  border: 2px solid #cbdcda;
+  border: 1.5px solid #d3e2df;
   border-radius: 12px;
   padding: 18px;
   background: var(--papel);
@@ -488,7 +488,7 @@ button[aria-pressed="true"] {
 /* Erros resumidos */
 
 .resumo-erros {
-  border: 2px solid #e7c4ad;
+  border: 1.5px solid #e7c4ad;
   background: var(--alerta-fundo);
   color: #6d2c05;
   border-radius: var(--raio);
@@ -532,7 +532,7 @@ button[aria-pressed="true"] {
 }
 
 .caixa-resultado {
-  border: 2px solid #bfd3d0;
+  border: 1.5px solid #cfdedc;
   border-radius: var(--raio-pequeno);
   padding: 18px;
   background: #fafcfb;
@@ -569,7 +569,7 @@ button[aria-pressed="true"] {
 
 .tabela-rolagem {
   overflow-x: auto;
-  border: 2px solid #bfd3d0;
+  border: 1.5px solid #cfdedc;
   border-radius: var(--raio-pequeno);
 }
 
@@ -617,7 +617,7 @@ td.atencao {
   margin-top: 16px;
   padding: 14px 16px;
   border-radius: var(--raio-pequeno);
-  border: 2px solid var(--dourado-linha);
+  border: 1.5px solid var(--dourado-linha);
   background: var(--dourado-claro);
   color: #55400f;
   font-variant-numeric: tabular-nums;
