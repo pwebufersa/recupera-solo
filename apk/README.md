@@ -29,8 +29,9 @@ APK novo não atualiza uma instalação anterior. A pasta não deve ser publicad
 
 ## CI
 
-O fluxo roda quando muda `index.html`, `style.css`, `script.js`, `favicon.svg`,
-o gerador ou os ícones. Documentação não dispara. Para assinar com a mesma
+O fluxo gera o APK quando muda `index.html`, `style.css`, `script.js`,
+`favicon.svg`, o gerador ou os ícones. Documentação não dispara. Os testes ficam
+no fluxo separado **Testes automáticos**. Para assinar com a mesma
 chave, os segredos `KEYSTORE_BASE64` e `KEYSTORE_PROPERTIES` devem existir.
 
 ## Instalar

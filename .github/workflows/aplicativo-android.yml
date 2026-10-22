@@ -32,22 +32,8 @@ on:
       - ".github/workflows/aplicativo-android.yml"
 
 jobs:
-  testes:
-    name: Testes
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm test
-
   apk:
     name: Gerar APK
-    needs: testes
     runs-on: windows-latest
     env:
       VERSAO: ${{ inputs.versao || '1.0.3' }}
@@ -99,7 +85,7 @@ jobs:
             "versionCode: $env:CODIGO",
             "commit: $env:GITHUB_SHA",
             "execucao: $env:GITHUB_RUN_NUMBER",
-            "testes: unidade e navegador aprovados na etapa anterior",
+            "testes: fluxo Testes automaticos",
             "sha256: $hash"
           ) | Set-Content -Encoding UTF8 dist/INFO.txt
           Get-Content dist/INFO.txt
