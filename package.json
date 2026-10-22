@@ -9,7 +9,7 @@
     "test:unidade": "node --test testes/calc.test.js",
     "test:navegador": "playwright test",
     "servidor": "node testes/servidor.js",
-    "prints": "node testes/prints.js"
+    "prints": "node testes/comparacoes.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"

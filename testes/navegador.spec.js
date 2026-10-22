@@ -180,11 +180,14 @@ test('limites de sanidade de cada campo são respeitados', async function ({ pag
     ['area', '0,00', 'entre 0,01 e 10.000,00']
   ];
 
+  await preencherValido(page);
+
   for (const [id, valor, mensagem] of casos) {
-    await preencherValido(page, { [id]: valor });
+    await page.locator('#' + id).fill(valor);
     await page.locator('#calc').click();
     await expect(page.locator('#' + id)).toHaveAttribute('aria-invalid', 'true');
     await expect(page.locator('#' + id + '-erro')).toContainText(mensagem);
+    await page.locator('#' + id).fill(DADOS[id]);
   }
 });
 

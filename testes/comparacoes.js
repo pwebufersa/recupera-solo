@@ -5,12 +5,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { chromium } from '@playwright/test';
 
-/* Refaz as comparações de MELHORIAS.md entre o site original e esta versão.
+/* Refaz as comparações de COMPARACAO.md entre o site original e esta versão.
    As capturas mostram a seção de resultados, onde a diferença é maior.
    Execução: npm run prints */
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pasta = path.join(raiz, 'prints');
+const pasta = path.join(raiz, 'imagens');
 const temporaria = fs.mkdtempSync(path.join(os.tmpdir(), 'recupera-prints-'));
 const original = pathToFileURL(
   path.join(process.env.TEMP || os.tmpdir(), 'opencode', 'original_site', 'index.html')
@@ -36,7 +36,7 @@ async function capturar(navegador, tela, endereco, arquivo, alvo) {
   const elemento = alvo === 'formulario'
     ? pagina.locator('.cartao, .card').nth(1)
     : pagina.locator('#results');
-  await elemento.screenshot({ path: arquivo });
+  await elemento.screenshot({ path: arquivo, type: 'jpeg', quality: 85 });
   await pagina.close();
 }
 
@@ -67,10 +67,10 @@ async function capturarValidacao(navegador) {
   await pagina.locator('#calc').click();
   await pagina.waitForTimeout(500);
   await pagina.locator('.cartao, .card').nth(1).screenshot({
-    path: path.join(pasta, 'validacao-ph15.png')
+    path: path.join(pasta, 'validacao-ph15.jpg')
   });
   await pagina.close();
-  console.log('validacao-ph15.png');
+  console.log('validacao-ph15.jpg');
 }
 
 const navegador = await chromium.launch({ channel: 'chrome' });
@@ -78,25 +78,25 @@ const navegador = await chromium.launch({ channel: 'chrome' });
 
 for (const tela of TELAS) {
   for (const alvo of ['resultados', 'formulario']) {
-    const antes = path.join(temporaria, 'original-' + alvo + '-' + tela.nome + '.png');
-    const depois = path.join(temporaria, 'atual-' + alvo + '-' + tela.nome + '.png');
+    const antes = path.join(temporaria, 'original-' + alvo + '-' + tela.nome + '.jpg');
+    const depois = path.join(temporaria, 'atual-' + alvo + '-' + tela.nome + '.jpg');
 
     await capturar(navegador, tela, original, antes, alvo);
     await capturar(navegador, tela, atual, depois, alvo);
 
     const comparacao = paginaDeComparacao(
       tela,
-      'original-' + alvo + '-' + tela.nome + '.png',
-      'atual-' + alvo + '-' + tela.nome + '.png'
+      'original-' + alvo + '-' + tela.nome + '.jpg',
+      'atual-' + alvo + '-' + tela.nome + '.jpg'
     );
     const pagina = await navegador.newPage({
       viewport: { width: tela.coluna * 2 + 46, height: 900 }
     });
     await pagina.goto(pathToFileURL(comparacao).href);
     const nome = alvo === 'resultados'
-      ? 'comparacao-' + tela.nome + '.png'
-      : 'comparacao-formulario-' + tela.nome + '.png';
-    await pagina.locator('.par').screenshot({ path: path.join(pasta, nome) });
+      ? 'comparacao-' + tela.nome + '.jpg'
+      : 'comparacao-formulario-' + tela.nome + '.jpg';
+    await pagina.locator('.par').screenshot({ path: path.join(pasta, nome), type: 'jpeg', quality: 85 });
     await pagina.close();
     console.log(nome);
   }

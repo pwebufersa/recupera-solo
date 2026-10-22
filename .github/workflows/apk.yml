@@ -27,7 +27,8 @@ on:
       - "style.css"
       - "script.js"
       - "favicon.svg"
-      - "apk/**"
+      - "apk/gerar_apk.ps1"
+      - "apk/assets/**"
       - ".github/workflows/apk.yml"
 
 jobs:

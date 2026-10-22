@@ -57,8 +57,7 @@ Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
 
 ## Testes
 
-`npm test` roda cálculo e navegador. O que depende de pessoa está em
-[USABILIDADE.md](USABILIDADE.md) e no roteiro
+`npm test` roda cálculo e navegador. O roteiro do teste com pessoas está em
 [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
 
 ## Estrutura
@@ -73,7 +72,7 @@ Gesso R$ 425,00/t e enxofre R$ 6.200,00/t. Origem em [PRECOS.md](PRECOS.md).
 
 ## Comparação com o original
 
-[MELHORIAS.md](MELHORIAS.md), com prints do original e do atual.
+[COMPARACAO.md](COMPARACAO.md), com imagens do original e do atual.
 
 ## Autoria
 

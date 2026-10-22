@@ -28,7 +28,9 @@ APK novo não atualiza uma instalação anterior.
 ## Integração contínua
 
 O fluxo `.github/workflows/apk.yml` roda os testes e gera o APK, com artefato
-`recupera-solo-apk` (APK, hash e versão). O teste no aparelho é manual. Para
+`recupera-solo-apk` (APK, hash e versão). Ele só dispara quando muda o código da
+aplicação (`index.html`, `style.css`, `script.js`, `favicon.svg`), o gerador ou
+os ícones; documentação não dispara. O teste no aparelho é manual. Para
 usar a mesma chave, os segredos `KEYSTORE_BASE64` e `KEYSTORE_PROPERTIES` devem
 existir no repositório.
 
