@@ -1,9 +1,9 @@
 # APK do RECUPERA-SOLO
 
-[![Aplicativo Android](https://github.com/pwebufersa/recupera-solo/actions/workflows/apk.yml/badge.svg?branch=main)](https://github.com/pwebufersa/recupera-solo/actions/workflows/apk.yml)
+[![Aplicativo Android](https://github.com/pwebufersa/recupera-solo/actions/workflows/aplicativo-android.yml/badge.svg?branch=main)](https://github.com/pwebufersa/recupera-solo/actions/workflows/aplicativo-android.yml)
 
 **Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
-· [execuções do CI](https://github.com/pwebufersa/recupera-solo/actions/workflows/apk.yml)
+· [execuções do CI](https://github.com/pwebufersa/recupera-solo/actions/workflows/aplicativo-android.yml)
 
 O arquivo da pasta é substituído a cada build. Cada execução também publica o
 artefato `recupera-solo-apk`, com hash e versão.
