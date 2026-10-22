@@ -9,8 +9,9 @@ artefato `recupera-solo-apk`, com hash e versão.
 
 ## Gerar
 
-Dois cliques em `gerar_apk.cmd`. O script baixa JDK, Node.js e Android SDK,
-compila, assina e verifica; leva cerca de 10 minutos e ocupa cerca de 2 GB.
+Dois cliques em `gerar_apk.cmd`. O script confere o que já existe e baixa só o
+que falta: JDK, Node.js, Android SDK, depois compila, assina e verifica. Leva
+cerca de 10 minutos na primeira vez e ocupa cerca de 2 GB.
 
 Pelo terminal:
 
@@ -30,7 +31,10 @@ APK novo não atualiza uma instalação anterior. A pasta não deve ser publicad
 
 O fluxo gera o APK quando muda `index.html`, `style.css`, `script.js`,
 `favicon.svg`, o gerador ou os ícones. Documentação não dispara. Os testes ficam
-no fluxo separado **Testes automáticos**. Para assinar com a mesma
+no fluxo separado **Testes automáticos**.
+
+Ferramentas, projeto gerado, Gradle e npm ficam em cache: o primeiro build baixa
+tudo, os seguintes reaproveitam. Para assinar com a mesma
 chave, os segredos `KEYSTORE_BASE64` e `KEYSTORE_PROPERTIES` devem existir.
 
 ## Instalar
