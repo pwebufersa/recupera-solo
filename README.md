@@ -23,7 +23,7 @@ internet.
 
 | Campo | Unidade | Faixa | Exemplo |
 |---|---|---|---|
-| pH (H₂O) | — | 0 a 14 | 9,2 |
+| pH (H₂O) | - | 0 a 14 | 9,2 |
 | CEes | dS m⁻¹ | 0 a 50 | 2,4 |
 | CTC | cmolc kg⁻¹ | 0,1 a 100 | 8,6 |
 | Na⁺ trocável | cmolc kg⁻¹ | até a CTC | 7,0 |
