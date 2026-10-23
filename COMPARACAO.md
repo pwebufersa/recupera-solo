@@ -40,7 +40,7 @@ e seguia para o cálculo.
 | Faixas | parciais | todos os campos |
 | Erro | genérico | campo, faixa e correção |
 | Dicas | ausentes | faixa e exemplo por campo |
-| Altura do campo | 46 px | 54 px |
+| Altura do campo | 46 px | 56 px |
 | Borda | 1 px clara | 1,5 px escura |
 | Foco | 3 px | 4 px |
 | Exemplo | ponto decimal | vírgula |

@@ -80,12 +80,11 @@ No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
 
 ## Modernização
 
-A atualização visual do site e do APK reúne paleta em tokens, superfícies,
-tipografia revisada e cabeçalho compacto. O registro completo está em
-[MODERNIZACAO.md](MODERNIZACAO.md).
+Paleta em tokens, superfícies, tipografia revisada e cabeçalho compacto. O
+registro está em [MODERNIZACAO.md](MODERNIZACAO.md).
 
-Cada compilação por `apk/gerar_apk.cmd` grava o APK em `apk/dist` e uma cópia
-idêntica em `apk/RECUPERA-SOLO.apk`.
+`apk/gerar_apk.cmd` grava o APK em `apk/dist` e copia para
+`apk/RECUPERA-SOLO.apk`.
 
 ## Comparação
 
