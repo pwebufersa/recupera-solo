@@ -57,7 +57,7 @@ e seguia para o cálculo.
 | Cabeçalho | alto | compacto, 94 px no computador e 129 px no celular |
 | Paleta | cores soltas | tokens semânticos |
 | Superfícies | raio de 16 px | raio de 20 px, borda de 1 px e sombra leve |
-| Campos | 46 px, label acima | 60 px, label flutuante, ícone e texto de apoio |
+| Campos | 46 px, label acima | 54 px, label flutuante, ícone e texto de apoio |
 | Botões | padding de 13 px | 48 px de altura mínima, raio de 12 px e onda de toque |
 | Tabela | linhas finas | cabeçalho em caixa alta e cartões abaixo de 620 px |
 | Tipografia | tamanhos pontuais | escala Material 3 |

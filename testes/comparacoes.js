@@ -26,6 +26,7 @@ async function capturar(navegador, tela, endereco, arquivo, alvo) {
     deviceScaleFactor: 2
   });
   await pagina.goto(endereco);
+  await pagina.addStyleTag({ content: '.barra-mobile { display: none !important; }' });
   await pagina.getByRole('button', { name: /exemplo/i }).click();
   if (alvo === 'resultados') {
     await pagina.locator('#calc').click();

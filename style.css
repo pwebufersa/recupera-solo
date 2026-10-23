@@ -17,6 +17,7 @@
   --dourado-linha: #e3d3a6;
   --azul: #123d68;
   --tinta: #102a3a;
+  --tinta-forte: #071a24;
   --tinta-suave: #4b6270;
   --linha: #d6e2e1;
   --fundo: #f3f7f5;
@@ -348,14 +349,14 @@ code {
 
 .campo-icone {
   position: absolute;
-  left: 14px;
+  left: 13px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: var(--tinta-suave);
-  stroke-width: 1.8;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
@@ -364,22 +365,25 @@ code {
 .campo input:not([type="checkbox"]),
 .campo select {
   margin: 0;
-  min-height: 60px;
-  padding: 20px 16px 8px 44px;
+  min-height: 54px;
+  padding: 21px 14px 7px 48px;
+  color: var(--tinta-forte);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .campo select {
-  padding-right: 44px;
+  padding-right: 42px;
 }
 
 .campo label {
   position: absolute;
-  left: 44px;
+  left: 48px;
   top: 50%;
   transform: translateY(-50%);
-  max-width: calc(100% - 60px);
+  max-width: calc(100% - 64px);
   overflow: hidden;
-  font-size: 1rem;
+  font-size: 0.97rem;
   font-weight: 600;
   color: var(--tinta-suave);
   white-space: nowrap;
@@ -393,9 +397,10 @@ code {
 .campo input:not(:placeholder-shown) + label,
 .campo select:focus + label,
 .campo select:valid + label {
-  top: 9px;
+  top: 6px;
   transform: none;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  line-height: 1;
   font-weight: 650;
   letter-spacing: 0.02em;
   color: var(--verde-escuro);
