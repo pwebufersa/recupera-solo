@@ -8,10 +8,27 @@
 <meta name="theme-color" content="#0c6b46">
 <title>RECUPERA-SOLO | Recuperação de solos sódicos</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <a class="pular" href="#conteudo">Ir para o conteúdo</a>
+
+<svg class="oculto-visual" aria-hidden="true" focusable="false">
+  <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3c3.2 4 6 7.1 6 10a6 6 0 0 1-12 0c0-2.9 2.8-6 6-10z"/></symbol>
+  <symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></symbol>
+  <symbol id="i-camadas" viewBox="0 0 24 24"><path d="m12 3-9 5 9 5 9-5-9-5zM3 13l9 5 9-5"/></symbol>
+  <symbol id="i-sal" viewBox="0 0 24 24"><path d="M7 7h.01M12 7h.01M17 7h.01M7 12h.01M12 12h.01M17 12h.01M7 17h.01M12 17h.01M17 17h.01"/></symbol>
+  <symbol id="i-cubo" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7l-8-4zM4 7l8 4 8-4M12 11v10"/></symbol>
+  <symbol id="i-peso" viewBox="0 0 24 24"><path d="M6 8h12l2 12H4L6 8zM9 8a3 3 0 0 1 6 0"/></symbol>
+  <symbol id="i-regua" viewBox="0 0 24 24"><path d="M3 9h18v6H3zM7 9v3M11 9v3M15 9v3M19 9v3"/></symbol>
+  <symbol id="i-alvo" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></symbol>
+  <symbol id="i-mapa" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6zM9 3v15M15 6v15"/></symbol>
+  <symbol id="i-textura" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M4 14h16M9 4v16M14 4v16"/></symbol>
+  <symbol id="i-drenagem" viewBox="0 0 24 24"><path d="M3 8c3-3 6 3 9 0s6 3 9 0M3 14c3-3 6 3 9 0s6 3 9 0"/></symbol>
+  <symbol id="i-pureza" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3M7 15h10"/></symbol>
+  <symbol id="i-preco" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8L3 12zM7 8h.01"/></symbol>
+  <symbol id="i-compartilhar" viewBox="0 0 24 24"><path d="M12 3v13M8 7l4-4 4 4M5 13v7h14v-7"/></symbol>
+</svg>
 
 <header class="topbar">
   <div class="marca">
@@ -49,69 +66,166 @@
     <p id="modeNote" class="nota-modo" role="status">Nenhum modo selecionado.</p>
   </section>
 
-  <section class="cartao" aria-labelledby="titulo-dados">
-    <div class="titulo-secao">
-      <span aria-hidden="true">2</span>
-      <div>
-        <h2 id="titulo-dados">Dados de entrada</h2>
-        <p>Informe os dados da análise do solo e a meta de recuperação.</p>
-      </div>
-    </div>
-    <div class="grade-dados">
-      <label for="ph">pH (H₂O)<input id="ph" name="ph" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 9,2" aria-describedby="ph-dica" required><small class="dica" id="ph-dica">0 a 14 · ex.: 9,2</small></label>
-      <label for="ce">CEes (dS m⁻¹)<input id="ce" name="ce" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 2,4" aria-describedby="ce-dica" required><small class="dica" id="ce-dica">0 a 50 dS m⁻¹ · ex.: 2,4</small></label>
-      <label for="ctc">CTC (cmolc kg⁻¹)<input id="ctc" name="ctc" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 8,6" aria-describedby="ctc-dica" required><small class="dica" id="ctc-dica">0,1 a 100 cmolc kg⁻¹ · ex.: 8,6</small></label>
-      <label for="na">Na⁺ trocável (cmolc kg⁻¹)<input id="na" name="na" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 7,0" aria-describedby="na-dica" required><small class="dica" id="na-dica">até a CTC · ex.: 7,0</small></label>
-      <label for="caco3">CaCO₃ (%)<input id="caco3" name="caco3" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,5" aria-describedby="caco3-dica" required><small class="dica" id="caco3-dica">0 a 100% · ex.: 1,5</small></label>
-      <label for="ds">Densidade do solo (g cm⁻³)<input id="ds" name="ds" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,40" aria-describedby="ds-dica" required><small class="dica" id="ds-dica">0,10 a 3,00 g cm⁻³ · ex.: 1,40</small></label>
-      <label for="h">Profundidade a recuperar (cm)<input id="h" name="h" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 60" aria-describedby="h-dica" required><small class="dica" id="h-dica">1 a 300 cm, inteiro · ex.: 60</small></label>
-      <label for="pstf">PST final desejada (%)<input id="pstf" name="pstf" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 10" aria-describedby="pstf-dica" required><small class="dica" id="pstf-dica">0 a 100% · ex.: 10</small></label>
-      <label for="area">Área (ha)<input id="area" name="area" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1,0" aria-describedby="area-dica" required><small class="dica" id="area-dica">0,01 a 10.000 ha · ex.: 1,0</small></label>
-      <label for="texture">Textura
-        <select id="texture" name="texture">
-          <option value="">Selecione</option>
-          <option>Arenosa</option>
-          <option>Média</option>
-          <option>Argilosa</option>
-        </select>
-      </label>
-      <label for="drain">Drenagem
-        <select id="drain" name="drain">
-          <option value="">Selecione</option>
-          <option>Adequada</option>
-          <option>Deficiente</option>
-          <option>Inexistente</option>
-        </select>
-      </label>
-      <label for="water">Qualidade da água
-        <select id="water" name="water">
-          <option value="">Selecione</option>
-          <option>Baixa salinidade</option>
-          <option>Moderada salinidade</option>
-          <option>Alta salinidade</option>
-        </select>
-      </label>
-    </div>
-  </section>
+  <form id="formulario" class="formulario" novalidate>
 
-  <section class="cartao" aria-labelledby="titulo-corretivos">
-    <div class="titulo-secao">
-      <span aria-hidden="true">3</span>
-      <div>
-        <h2 id="titulo-corretivos">Corretivos e custos</h2>
-        <p>Selecione os corretivos que deseja avaliar. PE e coeficiente C já estão cadastrados no sistema.</p>
+    <section class="cartao" aria-labelledby="titulo-dados">
+      <div class="titulo-secao">
+        <span aria-hidden="true">2</span>
+        <div>
+          <h2 id="titulo-dados">Dados de entrada</h2>
+          <p>Informe os dados da análise do solo e a meta de recuperação.</p>
+        </div>
       </div>
-    </div>
-    <div id="amendGrid" class="grade-corretivos"></div>
-    <div class="acoes">
-      <button type="button" id="clear" class="secundario">Limpar</button>
-      <button type="button" id="calc">Gerar diagnóstico e recomendação</button>
-    </div>
+      <div class="grade-dados">
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-gota"/></svg>
+            <input id="ph" name="ph" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="ph-dica" required>
+            <label for="ph">pH (H₂O)</label>
+          </div>
+          <small class="dica" id="ph-dica">0 a 14 · ex.: 9,2</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-raio"/></svg>
+            <input id="ce" name="ce" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="ce-dica" required>
+            <label for="ce">CEes (dS m⁻¹)</label>
+          </div>
+          <small class="dica" id="ce-dica">0 a 50 dS m⁻¹ · ex.: 2,4</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-camadas"/></svg>
+            <input id="ctc" name="ctc" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="ctc-dica" required>
+            <label for="ctc">CTC (cmolc kg⁻¹)</label>
+          </div>
+          <small class="dica" id="ctc-dica">0,1 a 100 cmolc kg⁻¹ · ex.: 8,6</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-sal"/></svg>
+            <input id="na" name="na" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="na-dica" required>
+            <label for="na">Na⁺ trocável (cmolc kg⁻¹)</label>
+          </div>
+          <small class="dica" id="na-dica">até a CTC · ex.: 7,0</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-cubo"/></svg>
+            <input id="caco3" name="caco3" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="caco3-dica" required>
+            <label for="caco3">CaCO₃ (%)</label>
+          </div>
+          <small class="dica" id="caco3-dica">0 a 100% · ex.: 1,5</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-peso"/></svg>
+            <input id="ds" name="ds" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="ds-dica" required>
+            <label for="ds">Densidade do solo (g cm⁻³)</label>
+          </div>
+          <small class="dica" id="ds-dica">0,10 a 3,00 g cm⁻³ · ex.: 1,40</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-regua"/></svg>
+            <input id="h" name="h" type="text" inputmode="numeric" autocomplete="off" placeholder=" " aria-describedby="h-dica" required>
+            <label for="h">Profundidade (cm)</label>
+          </div>
+          <small class="dica" id="h-dica">1 a 300 cm, inteiro · ex.: 60</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-alvo"/></svg>
+            <input id="pstf" name="pstf" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="pstf-dica" required>
+            <label for="pstf">PST final desejada (%)</label>
+          </div>
+          <small class="dica" id="pstf-dica">0 a 100% · ex.: 10</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-mapa"/></svg>
+            <input id="area" name="area" type="text" inputmode="decimal" autocomplete="off" placeholder=" " aria-describedby="area-dica" required>
+            <label for="area">Área (ha)</label>
+          </div>
+          <small class="dica" id="area-dica">0,01 a 10.000 ha · ex.: 1,0</small>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-textura"/></svg>
+            <select id="texture" name="texture" required>
+              <option value="">Selecione</option>
+              <option>Arenosa</option>
+              <option>Média</option>
+              <option>Argilosa</option>
+            </select>
+            <label for="texture">Textura</label>
+          </div>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-drenagem"/></svg>
+            <select id="drain" name="drain" required>
+              <option value="">Selecione</option>
+              <option>Adequada</option>
+              <option>Deficiente</option>
+              <option>Inexistente</option>
+            </select>
+            <label for="drain">Drenagem</label>
+          </div>
+        </div>
+        <div class="campo">
+          <div class="campo-caixa">
+            <svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-gota"/></svg>
+            <select id="water" name="water" required>
+              <option value="">Selecione</option>
+              <option>Baixa salinidade</option>
+              <option>Moderada salinidade</option>
+              <option>Alta salinidade</option>
+            </select>
+            <label for="water">Qualidade da água</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-corretivos">
+      <div class="titulo-secao">
+        <span aria-hidden="true">3</span>
+        <div>
+          <h2 id="titulo-corretivos">Corretivos e custos</h2>
+          <p>Selecione os corretivos que deseja avaliar. PE e coeficiente C já estão cadastrados no sistema.</p>
+        </div>
+      </div>
+      <div id="amendGrid" class="grade-corretivos"></div>
+      <div class="acoes">
+        <button type="button" id="clear" class="secundario">Limpar</button>
+        <button type="submit" id="calc">Gerar diagnóstico e recomendação</button>
+      </div>
+    </section>
+
+  </form>
+
+  <section class="cartao ajuda" aria-labelledby="titulo-calculo">
+    <h2 id="titulo-calculo">Como o cálculo funciona</h2>
+    <details>
+      <summary>Fórmulas, coeficientes e fontes</summary>
+      <div class="ajuda-conteudo">
+        <p>A saturação por sódio inicial é a razão entre o sódio trocável e a CTC:</p>
+        <p class="formula">PST (%) = (Na⁺ ÷ CTC) × 100</p>
+        <p>A dose teórica parte do déficit de saturação e corrige pela CTC, pelo poder de neutralização (PE), pela profundidade e pela densidade:</p>
+        <p class="formula">Dose teórica = ((PST inicial − PST final) ÷ 100) × CTC × PE × profundidade × densidade</p>
+        <p>A dose prática aplica o coeficiente de eficiência (C) do corretivo e a dose comercial considera a pureza informada. O custo por hectare é a dose comercial em toneladas multiplicada pelo preço da tonelada.</p>
+        <p>PE e C são fixos por corretivo. A adequação considera o tipo de corretivo, o pH e a presença de carbonatos. Textura, drenagem e qualidade da água não entram no cálculo.</p>
+        <p>Modelo de cálculo do professor Nildo Dias, preservado da versão original do sistema.</p>
+      </div>
+    </details>
   </section>
 
   <div id="legenda-erros" class="resumo-erros oculto" role="alert" tabindex="-1"></div>
 
-  <section id="results" class="resultados oculto" aria-labelledby="titulo-resultados">
+  <p id="anuncio" class="oculto-visual" role="status" aria-live="polite"></p>
+
+  <section id="results" class="resultados oculto" aria-label="Resultados do diagnóstico">
     <section class="cartao" aria-labelledby="titulo-resultados">
       <div class="titulo-secao">
         <span aria-hidden="true">4</span>
@@ -152,6 +266,12 @@
         </table>
       </div>
       <div id="best" class="destaque" role="status"></div>
+      <div class="acoes-resultado">
+        <button type="button" id="share" class="secundario com-icone">
+          <svg aria-hidden="true" focusable="false"><use href="#i-compartilhar"/></svg>
+          Compartilhar resumo
+        </button>
+      </div>
     </section>
 
     <section class="cartao" aria-labelledby="titulo-procedimento">
@@ -165,6 +285,20 @@
   <p>RECUPERA-SOLO · Sistema de apoio à decisão para recuperação de solos sódicos · UFERSA</p>
   <p class="autoria">Orientação: <a href="https://sigaa.ufersa.edu.br/sigaa/public/docente/portal.jsf?siape=1505717">Nildo Dias</a> · Apoio: <a href="https://sigaa.ufersa.edu.br/sigaa/public/docente/portal.jsf?siape=1817174">Francisco de Assis P. V. de Arruda</a></p>
 </footer>
+
+<dialog id="dialogo-limpeza" class="dialogo" aria-labelledby="dialogo-titulo">
+  <h2 id="dialogo-titulo">Limpar os dados?</h2>
+  <p>Os campos preenchidos e os resultados serão apagados.</p>
+  <div class="dialogo-acoes">
+    <button type="button" id="cancelar-limpeza" class="secundario">Cancelar</button>
+    <button type="button" id="confirmar-limpeza">Limpar</button>
+  </div>
+</dialog>
+
+<nav class="barra-mobile" aria-label="Ações do diagnóstico">
+  <button type="submit" form="formulario" class="barra-principal">Gerar diagnóstico</button>
+  <a id="ir-resultados" class="barra-secundaria" href="#results" hidden>Resultados</a>
+</nav>
 
 <script src="script.js"></script>
 </body>

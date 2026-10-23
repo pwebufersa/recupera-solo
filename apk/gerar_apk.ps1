@@ -438,21 +438,27 @@ function Criar-Projeto {
     }
 
     $config = Join-Path $App "capacitor.config.json"
-    if (-not (Test-Path $config)) {
-        $json = @"
+    $json = @"
 {
   "appId": "$Pacote",
   "appName": "$Nome",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 700,
+      "backgroundColor": "#f3f7f5",
+      "showSpinner": false,
+      "launchAutoHide": true
+    }
+  }
 }
 "@
-        Salvar-Texto $config $json
-    }
+    Salvar-Texto $config $json
 
     Push-Location $App
     try {
         Escrever "Instalando as dependencias mais recentes do Capacitor."
-        & $npm install --prefer-offline --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest"
+        & $npm install --prefer-offline --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest" "@capacitor/status-bar@latest" "@capacitor/share@latest" "@capacitor/splash-screen@latest"
         if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
 
         & $npm install --prefer-offline --no-audit --no-fund --save-dev "@capacitor/assets@latest"

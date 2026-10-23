@@ -224,6 +224,7 @@ function limparErros() {
   });
   document.querySelectorAll('[aria-invalid="true"]').forEach(function (campo) {
     campo.removeAttribute('aria-invalid');
+    campo.removeAttribute('aria-errormessage');
   });
   const resumo = elemento('legenda-erros');
   resumo.classList.add('oculto');
@@ -234,29 +235,24 @@ function limparErros() {
 function registrarErro(campo, mensagem, mensagens) {
   const lista = mensagens || [];
   campo.setAttribute('aria-invalid', 'true');
+  campo.setAttribute('aria-errormessage', campo.id + '-erro');
   const marca = document.createElement('span');
   marca.className = 'erro-campo';
   marca.id = campo.id + '-erro';
   marca.textContent = mensagem;
-  campo.insertAdjacentElement('afterend', marca);
-  const dica = campo.getAttribute('aria-describedby');
-  if (dica && dica.indexOf(campo.id + '-erro') === -1) {
-    campo.setAttribute('aria-describedby', dica + ' ' + campo.id + '-erro');
-  } else if (!dica) {
-    campo.setAttribute('aria-describedby', campo.id + '-erro');
-  }
+  const caixa = campo.closest('.campo-caixa');
+  (caixa || campo).insertAdjacentElement('afterend', marca);
   lista.push({ campo: campo, mensagem: mensagem });
   return lista;
 }
 
 /** Remove a mensagem de um campo assim que ele é corrigido. */
 function limparErroDoCampo(campo) {
-  if (campo.hasAttribute('aria-invalid')) {
-    campo.removeAttribute('aria-invalid');
-  }
-  const irmao = campo.nextElementSibling;
-  if (irmao && irmao.classList.contains('erro-campo')) {
-    irmao.remove();
+  campo.removeAttribute('aria-invalid');
+  campo.removeAttribute('aria-errormessage');
+  const marca = document.getElementById(campo.id + '-erro');
+  if (marca) {
+    marca.remove();
   }
   const resumo = elemento('legenda-erros');
   if (resumo) {
@@ -446,19 +442,25 @@ function montarCorretivos() {
       String(corretivo.c).replace('.', ',') + '</small></div>' +
       '</div>' +
       '<div class="dupla">' +
-      '<label for="purity' + indice + '">Pureza (%)' +
+      '<div class="campo"><div class="campo-caixa">' +
+      '<svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-pureza"/></svg>' +
       '<input id="purity' + indice + '" type="text" inputmode="decimal" autocomplete="off" ' +
-      'placeholder="Ex.: 80" aria-describedby="pureza-dica' + indice + '">' +
-      '<small class="dica" id="pureza-dica' + indice + '">' + ESPEC_PUREZA.dica + '</small></label>' +
-      '<label for="price' + indice + '">Preço (R$/t)' +
+      'placeholder=" " aria-describedby="pureza-dica' + indice + '">' +
+      '<label for="purity' + indice + '">Pureza (%)</label></div>' +
+      '<small class="dica" id="pureza-dica' + indice + '">' + ESPEC_PUREZA.dica + '</small></div>' +
+      '<div class="campo"><div class="campo-caixa">' +
+      '<svg class="campo-icone" aria-hidden="true" focusable="false"><use href="#i-preco"/></svg>' +
       '<input id="price' + indice + '" type="text" inputmode="decimal" autocomplete="off" ' +
-      'placeholder="Ex.: 425,00" aria-describedby="preco-dica' + indice + '">' +
-      '<small class="dica" id="preco-dica' + indice + '">' + ESPEC_PRECO.dica + '</small></label>' +
+      'placeholder=" " aria-describedby="preco-dica' + indice + '">' +
+      '<label for="price' + indice + '">Preço (R$/t)</label></div>' +
+      '<small class="dica" id="preco-dica' + indice + '">' + ESPEC_PRECO.dica + '</small></div>' +
       '</div></article>';
   }).join('');
 }
 
 // 6. Cálculo na tela
+
+let ultimoCalculo = null;
 
 function dadosDoFormulario() {
   return {
@@ -560,6 +562,15 @@ function calcular() {
   titulo.setAttribute('tabindex', '-1');
   titulo.focus({ preventScroll: true });
   resultados.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  ultimoCalculo = { dados: dados, resultado: resultado };
+  const melhorTexto = resultado.melhor
+    ? ' Menor custo: ' + resultado.melhor.nome + ', ' +
+      formatarDinheiro(resultado.melhor.custo) + ' por hectare.'
+    : '';
+  anunciar('Diagnóstico gerado. PST inicial de ' +
+    formatarNumero(resultado.pstInicial) + '%.' + melhorTexto);
+  elemento('ir-resultados').hidden = false;
 }
 
 // 7. Ações dos botões
@@ -577,6 +588,11 @@ function limparCampos() {
     elemento('use' + indice).checked = false;
   });
   elemento('results').classList.add('oculto');
+  ultimoCalculo = null;
+  const atalho = elemento('ir-resultados');
+  if (atalho) {
+    atalho.hidden = true;
+  }
   limparErros();
 }
 
@@ -612,6 +628,146 @@ function novaAnalise() {
     'corretivos. Pureza e preço são editáveis.');
 }
 
+
+// 7b. Limpeza com confirmação, compartilhamento e anúncio
+
+/** Anuncia uma mensagem curta na região viva da página. */
+function anunciar(texto) {
+  const alvo = elemento('anuncio');
+  if (alvo) {
+    alvo.textContent = texto;
+  }
+}
+
+/** Diz se há dados suficientes para justificar a confirmação de limpeza. */
+function temDados() {
+  const campos = CAMPOS.some(function (id) {
+    return elemento(id).value.trim() !== '';
+  });
+  const corretivos = CORRETIVOS.some(function (_, indice) {
+    return elemento('use' + indice).checked;
+  });
+  return campos || corretivos;
+}
+
+function confirmarLimpeza() {
+  limparCampos();
+  definirModo('', 'Nenhum modo selecionado.');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/** Pede confirmação antes de apagar uma análise preenchida. */
+function pedirLimpeza() {
+  if (!temDados()) {
+    confirmarLimpeza();
+    return;
+  }
+
+  const dialogo = elemento('dialogo-limpeza');
+  if (dialogo && typeof dialogo.showModal === 'function') {
+    dialogo.showModal();
+    return;
+  }
+
+  if (window.confirm('Limpar os dados preenchidos?')) {
+    confirmarLimpeza();
+  }
+}
+
+/** Resume o último cálculo em texto próprio para compartilhamento. */
+function resumoCompartilhavel() {
+  if (!ultimoCalculo) {
+    return '';
+  }
+
+  const dados = ultimoCalculo.dados;
+  const resultado = ultimoCalculo.resultado;
+  const linhas = [
+    'RECUPERA-SOLO',
+    'PST inicial: ' + formatarNumero(resultado.pstInicial) + '% (' + resultado.classe + ')',
+    'Meta: PST ' + formatarNumero(dados.pstf) + '% em ' + formatarNumero(dados.h, 0) + ' cm'
+  ];
+
+  if (resultado.melhor) {
+    linhas.push('Menor custo: ' + resultado.melhor.nome + ', ' +
+      formatarDinheiro(resultado.melhor.custo) + '/ha (' +
+      formatarDinheiro(resultado.melhor.total) + ' para ' +
+      formatarNumero(dados.area) + ' ha).');
+  }
+
+  return linhas.join(String.fromCharCode(10));
+}
+
+/** Compartilha pelo aplicativo nativo, pela Web Share API ou pela área de transferência. */
+async function compartilharResumo() {
+  const texto = resumoCompartilhavel();
+  if (texto === '') {
+    return;
+  }
+
+  const cap = window.Capacitor;
+  try {
+    if (cap && cap.Plugins && cap.Plugins.Share) {
+      await cap.Plugins.Share.share({
+        title: 'RECUPERA-SOLO',
+        text: texto,
+        dialogTitle: 'Compartilhar resumo'
+      });
+      return;
+    }
+    if (navigator.share) {
+      await navigator.share({ title: 'RECUPERA-SOLO', text: texto });
+      return;
+    }
+    await navigator.clipboard.writeText(texto);
+    anunciar('Resumo copiado para a área de transferência.');
+  } catch (erro) {
+    anunciar('Não foi possível compartilhar o resumo.');
+  }
+}
+
+/** Desenha a onda de toque dos botões, quando o movimento é permitido. */
+function prepararOndas() {
+  const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.addEventListener('pointerdown', function (evento) {
+    if (semMovimento.matches || !(evento.target instanceof Element)) {
+      return;
+    }
+    const botao = evento.target.closest('button');
+    if (!botao) {
+      return;
+    }
+    const caixa = botao.getBoundingClientRect();
+    const tamanho = Math.max(caixa.width, caixa.height) * 2;
+    const onda = document.createElement('span');
+    onda.className = 'onda';
+    onda.style.width = tamanho + 'px';
+    onda.style.height = tamanho + 'px';
+    onda.style.left = (evento.clientX - caixa.left - tamanho / 2) + 'px';
+    onda.style.top = (evento.clientY - caixa.top - tamanho / 2) + 'px';
+    botao.appendChild(onda);
+    onda.addEventListener('animationend', function () {
+      onda.remove();
+    });
+  });
+}
+
+/** Ajusta a barra de status quando a página roda dentro do APK. */
+async function prepararAplicativo() {
+  const cap = window.Capacitor;
+  if (!cap || typeof cap.isNativePlatform !== 'function' || !cap.isNativePlatform()) {
+    return;
+  }
+
+  try {
+    if (cap.Plugins.StatusBar) {
+      await cap.Plugins.StatusBar.setStyle({ style: 'DARK' });
+      await cap.Plugins.StatusBar.setBackgroundColor({ color: '#f3f7f5' });
+    }
+  } catch (erro) {}
+}
+
 // 8. Início
 
 function iniciarPagina() {
@@ -625,12 +781,26 @@ function iniciarPagina() {
   });
   elemento('exampleMode').addEventListener('click', carregarExemplo);
   elemento('customMode').addEventListener('click', novaAnalise);
-  elemento('calc').addEventListener('click', calcular);
-  elemento('clear').addEventListener('click', function () {
-    limparCampos();
-    definirModo('', 'Nenhum modo selecionado.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  elemento('formulario').addEventListener('submit', function (evento) {
+    evento.preventDefault();
+    calcular();
   });
+  elemento('clear').addEventListener('click', pedirLimpeza);
+  elemento('cancelar-limpeza').addEventListener('click', function () {
+    elemento('dialogo-limpeza').close();
+  });
+  elemento('confirmar-limpeza').addEventListener('click', function () {
+    elemento('dialogo-limpeza').close();
+    confirmarLimpeza();
+  });
+  elemento('dialogo-limpeza').addEventListener('click', function (evento) {
+    if (evento.target === this) {
+      this.close();
+    }
+  });
+  elemento('share').addEventListener('click', compartilharResumo);
+  prepararOndas();
+  prepararAplicativo();
 }
 
 /* A API abaixo serve aos testes de cálculo e ao console do navegador. */

@@ -43,6 +43,10 @@
   --transicao: 160ms cubic-bezier(0.2, 0.7, 0.3, 1);
   --largura-max: 1480px;
   --toque: 48px;
+  --texto-titulo: clamp(1.2rem, 1.8vw, 1.45rem);
+  --texto-secao: clamp(1.28rem, 2.1vw, 1.75rem);
+  --texto-rotulo: 0.92rem;
+  --texto-apoio: 0.8rem;
   --anel-foco: 0 0 0 4px rgba(12, 107, 70, 0.22);
 }
 
@@ -264,7 +268,7 @@ code {
 }
 
 .cartao > h2 {
-  font-size: clamp(1.2rem, 1.8vw, 1.45rem);
+  font-size: var(--texto-titulo);
   margin-bottom: 16px;
 }
 
@@ -292,7 +296,7 @@ code {
 }
 
 .titulo-secao h2 {
-  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+  font-size: var(--texto-secao);
 }
 
 .titulo-secao p {
@@ -326,12 +330,91 @@ code {
   gap: 18px 20px;
 }
 
-.grade-dados label,
-.corretivo label {
-  display: block;
+.formulario {
+  display: grid;
+  gap: clamp(18px, 2.4vw, 28px);
+}
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.campo-caixa {
+  position: relative;
+}
+
+.campo-icone {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--tinta-suave);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.campo input:not([type="checkbox"]),
+.campo select {
+  margin: 0;
+  min-height: 60px;
+  padding: 20px 16px 8px 44px;
+}
+
+.campo select {
+  padding-right: 44px;
+}
+
+.campo label {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: calc(100% - 60px);
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transition: top var(--transicao), transform var(--transicao),
+    font-size var(--transicao), color var(--transicao);
+}
+
+.campo input:focus + label,
+.campo input:not(:placeholder-shown) + label,
+.campo select:focus + label,
+.campo select:valid + label {
+  top: 9px;
+  transform: none;
+  font-size: 0.72rem;
   font-weight: 650;
-  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  color: var(--verde-escuro);
+}
+
+.campo input[aria-invalid="true"] + label {
+  color: var(--alerta);
+}
+
+.campo select:invalid {
+  color: transparent;
+}
+
+.campo select:invalid:focus {
   color: var(--tinta);
+}
+
+.corretivo-topo label {
+  display: block;
 }
 
 input:not([type="checkbox"]),
@@ -363,7 +446,7 @@ select {
 .dica {
   display: block;
   margin-top: 5px;
-  font-size: 0.8rem;
+  font-size: var(--texto-apoio);
   font-weight: 500;
   line-height: 1.4;
   color: var(--tinta-suave);
@@ -505,6 +588,8 @@ select[aria-invalid="true"] {
 }
 
 button {
+  position: relative;
+  overflow: hidden;
   min-height: var(--toque);
   border: 1px solid transparent;
   border-radius: 12px;
@@ -727,6 +812,127 @@ footer a:hover {
   color: var(--verde);
 }
 
+
+/* Ajuda do cálculo */
+
+.ajuda summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  color: var(--verde-escuro);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ajuda summary::-webkit-details-marker {
+  display: none;
+}
+
+.ajuda summary::after {
+  content: "+";
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.ajuda[open] summary::after {
+  content: "−";
+}
+
+.ajuda-conteudo {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.formula {
+  padding: 10px 12px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie-2);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* Ações do resultado */
+
+.acoes-resultado {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.com-icone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.com-icone svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Diálogo de confirmação */
+
+.dialogo {
+  width: min(420px, calc(100% - 32px));
+  padding: 24px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--papel);
+  color: var(--tinta);
+  box-shadow: var(--sombra-2);
+}
+
+.dialogo::backdrop {
+  background: rgba(16, 42, 58, 0.42);
+}
+
+.dialogo h2 {
+  margin-bottom: 8px;
+  font-size: 1.15rem;
+}
+
+.dialogo-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Onda dos botões */
+
+.onda {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.22;
+  transform: scale(0);
+  pointer-events: none;
+  animation: onda 480ms ease-out;
+}
+
+@keyframes onda {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Barra inferior do celular */
+
+.barra-mobile {
+  display: none;
+}
+
 /* Telas largas: barra superior fixa e desfoque de fundo */
 
 @media (min-width: 901px) {
@@ -772,6 +978,48 @@ footer a:hover {
 }
 
 @media (max-width: 620px) {
+  body {
+    padding-bottom: 78px;
+  }
+
+  .barra-mobile {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--papel);
+    border-top: 1px solid var(--linha);
+    box-shadow: 0 -8px 24px rgba(16, 42, 58, 0.08);
+  }
+
+  .barra-mobile button,
+  .barra-mobile a {
+    min-height: 48px;
+  }
+
+  .barra-principal {
+    flex: 1;
+  }
+
+  .barra-secundaria {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    background: var(--superficie-3);
+    color: var(--tinta);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .barra-secundaria[hidden] {
+    display: none;
+  }
+
   .topbar {
     flex-direction: column;
     align-items: flex-start;

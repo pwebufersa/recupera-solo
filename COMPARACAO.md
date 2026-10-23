@@ -45,6 +45,10 @@ e seguia para o cálculo.
 | Erro | genérico | campo, faixa e correção |
 | Dicas | ausentes | faixa e exemplo por campo |
 | Exemplo | ponto decimal | vírgula |
+| Envio | somente pelo botão | botão e Enter no campo |
+| Limpeza | imediata | confirmação antes de apagar |
+| Ajuda | ausente | seção com fórmulas e coeficientes |
+| Compartilhamento | ausente | resumo pelo APK, Web Share ou cópia |
 
 ## Aparência
 
@@ -53,9 +57,12 @@ e seguia para o cálculo.
 | Cabeçalho | alto | compacto, 94 px no computador e 129 px no celular |
 | Paleta | cores soltas | tokens semânticos |
 | Superfícies | raio de 16 px | raio de 20 px, borda de 1 px e sombra leve |
-| Campos | 46 px | 56 px, raio de 14 px e anel de foco de 4 px |
-| Botões | padding de 13 px | 48 px de altura mínima e raio de 12 px |
+| Campos | 46 px, label acima | 60 px, label flutuante, ícone e texto de apoio |
+| Botões | padding de 13 px | 48 px de altura mínima, raio de 12 px e onda de toque |
 | Tabela | linhas finas | cabeçalho em caixa alta e cartões abaixo de 620 px |
+| Tipografia | tamanhos pontuais | escala Material 3 |
+| Celular | botão no fim do formulário | barra inferior fixa com a ação principal |
+| APK | barra do sistema padrão | barra de status e splash na cor do site |
 
 Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 `#0c6b46`, ocre `#9a531e`, azul dos títulos `#123d68`, linha `#d6e2e1`.
@@ -65,12 +72,14 @@ Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 - Foco visível em todos os elementos interativos.
 - Contraste reforçado por `prefers-contrast: more`.
 - Movimento reduzido por `prefers-reduced-motion`.
-- Alvos de toque de 44 px nos botões.
+- Alvos de toque de 44 px nos botões e 48 px nos controles principais.
+- Erros ligados por `aria-errormessage` e resultados anunciados por `aria-live`.
+- Testes automáticos com axe no fluxo do Playwright.
 - Impressão sempre em cores claras.
 
 ## Verificação
 
-- 15 testes de unidade e 50 testes de navegador aprovados.
+- 15 testes de unidade e 56 testes de navegador aprovados, incluindo acessibilidade.
 - Capturas em `imagens/`, refeitas contra `original/`.
 - APK em `apk/dist`, com cópia idêntica em `apk/RECUPERA-SOLO.apk`.
 

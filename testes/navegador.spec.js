@@ -52,6 +52,14 @@ test('a página abre com o formulário e sem resultados', async function ({ page
   expect(erros).toEqual([]);
 });
 
+test('Enter em um campo gera o diagnóstico', async function ({ page }) {
+  await page.goto('/');
+  await page.getByRole('button', { name: /exemplo/i }).click();
+  await page.locator('#ph').press('Enter');
+
+  await expect(page.locator('#results')).toBeVisible();
+});
+
 test('o botão Usar exemplo preenche os campos com vírgula', async function ({ page }) {
   await page.goto('/');
   await page.getByRole('button', { name: /exemplo/i }).click();
@@ -259,6 +267,8 @@ test('o erro desaparece quando o campo é corrigido', async function ({ page }) 
 test('o botão Limpar restaura o formulário', async function ({ page }) {
   await carregarExemplo(page);
   await page.locator('#clear').click();
+  await expect(page.locator('#dialogo-limpeza')).toBeVisible();
+  await page.locator('#confirmar-limpeza').click();
 
   await expect(page.locator('#ph')).toHaveValue('');
   await expect(page.locator('#use' + GESSO)).not.toBeChecked();
@@ -310,13 +320,13 @@ test('todos os campos têm nome acessível', async function ({ page }) {
   expect(semNome).toEqual([]);
 });
 
-test('a dica e o erro são anunciados junto do campo', async function ({ page }) {
+test('a dica e o erro são associados ao campo', async function ({ page }) {
   await page.goto('/');
   await expect(page.locator('#ph')).toHaveAttribute('aria-describedby', /ph-dica/);
 
   await page.locator('#calc').click();
-  const descrito = await page.locator('#ph').getAttribute('aria-describedby');
-  expect(descrito).toContain('ph-erro');
+  await expect(page.locator('#ph')).toHaveAttribute('aria-errormessage', 'ph-erro');
+  await expect(page.locator('#ph')).toHaveAttribute('aria-describedby', /ph-dica/);
 });
 
 test('a tabela de resultados tem legenda e cabeçalhos com escopo', async function ({ page }) {
