@@ -656,6 +656,11 @@ function confirmarLimpeza() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/** Leva de volta ao formulário depois que o diagnóstico foi exibido. */
+function voltarAoInicio() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 /** Pede confirmação antes de apagar uma análise preenchida. */
 function pedirLimpeza() {
   if (!temDados()) {
@@ -799,6 +804,7 @@ function iniciarPagina() {
     }
   });
   elemento('share').addEventListener('click', compartilharResumo);
+  elemento('voltar-inicio').addEventListener('click', voltarAoInicio);
   prepararOndas();
   prepararAplicativo();
 }

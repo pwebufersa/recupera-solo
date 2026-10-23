@@ -1,7 +1,7 @@
 # Original e atual
 
 Comparação com o site que estava no Netlify, preservado em
-[`original/`](original/). Essa é a referência fixa: `npm run prints` refaz as
+[`site_original/`](site_original/). Essa é a referência fixa: `npm run prints` refaz as
 capturas sempre contra ela.
 
 ## Lighthouse
@@ -14,22 +14,22 @@ capturas sempre contra ela.
 
 ## Formulário
 
-![Computador](imagens/comparacao-formulario-desktop.jpg)
+![Computador](comparacao/comparacao-formulario-desktop.jpg)
 
-![Celular](imagens/comparacao-formulario-celular.jpg)
+![Celular](comparacao/comparacao-formulario-celular.jpg)
 
 ## Validação em ação
 
 Com pH 15, a versão atual recusa o valor e explica a faixa; o original aceitava
 e seguia para o cálculo.
 
-![Validação do pH 15](imagens/validacao-ph15.jpg)
+![Validação do pH 15](comparacao/validacao-ph15.jpg)
 
 ## Resultados
 
-![Computador](imagens/comparacao-desktop.jpg)
+![Computador](comparacao/comparacao-desktop.jpg)
 
-![Celular](imagens/comparacao-celular.jpg)
+![Celular](comparacao/comparacao-celular.jpg)
 
 ## Comportamento
 
@@ -49,6 +49,7 @@ e seguia para o cálculo.
 | Limpeza | imediata | confirmação antes de apagar |
 | Ajuda | ausente | seção com fórmulas e coeficientes |
 | Compartilhamento | ausente | resumo pelo APK, Web Share ou cópia |
+| Retorno | ausente | botão de volta ao início depois do cálculo |
 
 ## Aparência
 
@@ -57,8 +58,8 @@ e seguia para o cálculo.
 | Cabeçalho | alto | compacto, 94 px no computador e 129 px no celular |
 | Paleta | cores soltas | tokens semânticos |
 | Superfícies | raio de 16 px | raio de 20 px, borda de 1 px e sombra leve |
-| Campos | 46 px, label acima | 54 px, label flutuante, ícone e texto de apoio |
-| Botões | padding de 13 px | 48 px de altura mínima, raio de 12 px e onda de toque |
+| Campos | 46 px, label acima | 58 px, texto de 1,08 rem, label flutuante, ícone e texto de apoio |
+| Botões | padding de 13 px | 48 px de altura mínima, raio de 12 px e onda de toque, sem o realce quadrado do sistema |
 | Tabela | linhas finas | cabeçalho em caixa alta e cartões abaixo de 620 px |
 | Tipografia | tamanhos pontuais | escala Material 3 |
 | Celular | botão no fim do formulário | barra inferior fixa com a ação principal |
@@ -80,7 +81,7 @@ Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 ## Verificação
 
 - 15 testes de unidade e 56 testes de navegador aprovados, incluindo acessibilidade.
-- Capturas em `imagens/`, refeitas contra `original/`.
+- Capturas em `comparacao/`, refeitas contra `site_original/`.
 - APK em `apk/dist`, com cópia idêntica em `apk/RECUPERA-SOLO.apk`.
 
 ## Preservado

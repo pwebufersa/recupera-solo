@@ -114,10 +114,21 @@ code {
   scrollbar-width: thin;
 }
 
+/* O realce do toque do sistema é pintado em retângulo e ignora o raio dos
+   botões, o que deixa um quadrado azul sobre a onda. A onda já é o retorno. */
+button,
+a,
+input,
+select,
+summary,
+label {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 :focus-visible {
   outline: 3px solid var(--ocre);
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 .pular {
@@ -365,10 +376,10 @@ code {
 .campo input:not([type="checkbox"]),
 .campo select {
   margin: 0;
-  min-height: 54px;
-  padding: 21px 14px 7px 48px;
+  min-height: 58px;
+  padding: 23px 14px 9px 48px;
   color: var(--tinta-forte);
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 600;
 }
 
@@ -383,7 +394,7 @@ code {
   transform: translateY(-50%);
   max-width: calc(100% - 64px);
   overflow: hidden;
-  font-size: 0.97rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--tinta-suave);
   white-space: nowrap;
@@ -399,7 +410,7 @@ code {
 .campo select:valid + label {
   top: 6px;
   transform: none;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   line-height: 1;
   font-weight: 650;
   letter-spacing: 0.02em;
@@ -426,14 +437,14 @@ input:not([type="checkbox"]),
 select {
   width: 100%;
   margin-top: 7px;
-  min-height: 56px;
+  min-height: 58px;
   padding: 14px 16px;
   border: 1.5px solid var(--borda-forte);
   border-radius: var(--raio-medio);
   background: var(--campo-fundo);
   color: var(--tinta);
   font: inherit;
-  font-size: 1.06rem;
+  font-size: 1.08rem;
   font-variant-numeric: tabular-nums;
   transition: border-color var(--transicao), box-shadow var(--transicao), background var(--transicao);
 }
@@ -865,8 +876,14 @@ footer a:hover {
 
 .acoes-resultado {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 12px;
   margin-top: 14px;
+}
+
+.acoes-resultado .voltar {
+  margin-right: auto;
 }
 
 .com-icone {
@@ -1044,6 +1061,20 @@ footer a:hover {
 
   .acoes button,
   .acoes-modo button {
+    width: 100%;
+  }
+
+  .acoes-resultado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acoes-resultado .voltar {
+    margin-right: 0;
+  }
+
+  .acoes-resultado button {
+    justify-content: center;
     width: 100%;
   }
 
