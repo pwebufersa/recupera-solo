@@ -652,3 +652,4 @@ globalThis.RecuperaSolo = {
 if (typeof document !== 'undefined') {
   iniciarPagina();
 }
+

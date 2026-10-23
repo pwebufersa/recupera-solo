@@ -1,13 +1,13 @@
 # Mudanças visuais
 
-Registro da modernização da interface do RECUPERA-SOLO, aplicada na branch
-`modernizacao-visual`. O cálculo agronômico, os textos técnicos, os
-identificadores e a estrutura da página foram preservados. A alteração de
+Registro da modernização da interface do RECUPERA-SOLO, incorporada à `main`.
+O cálculo agronômico, os textos técnicos, os identificadores e a estrutura da
+página foram preservados. A alteração de
 interface ficou restrita a `index.html`, `style.css` e `script.js`.
 
-A documentação, a geração do artigo e os testes de uso permanecem na `main`.
-A branch de modernização carrega o código do site, o gerador do APK e o disparo
-do fluxo de integração contínua para a própria branch.
+A documentação, a geração do artigo e os testes de uso acompanham o site no
+mesmo repositório. O código do site, o gerador do APK e o fluxo de integração
+contínua ficam na `main`.
 
 ## Cabeçalho compacto
 
@@ -92,20 +92,16 @@ identidade original. O tema é sempre claro, e a página declara
 O comando `apk/gerar_apk.cmd` compila o site da branch em uso. Sem parâmetros, o
 `versionName` recebe o nome da branch e o `versionCode` recebe ano, mês, dia e
 hora em um número de oito dígitos, o que mantém a instalação possível sobre a
-versão anterior.
-
-- `main` gera `apk/dist/RECUPERA-SOLO-main.apk`.
-- `modernizacao-visual` gera
-  `apk/dist/RECUPERA-SOLO-modernizacao-visual.apk`.
+versão anterior. Na `main`, o arquivo gerado é
+`apk/dist/RECUPERA-SOLO-main.apk`.
 
 A pasta `dist` mantém apenas o APK da última compilação, e
 `apk/RECUPERA-SOLO.apk` recebe uma cópia idêntica. As duas pastas passam a
 conter o mesmo arquivo depois de cada execução.
 
-As duas versões usam o mesmo pacote `br.edu.ufersa.recuperasolo` e a mesma chave
+As compilações usam o mesmo pacote `br.edu.ufersa.recuperasolo` e a mesma chave
 de assinatura. A versão instalada substitui a anterior, e o nome da branch
 aparece nas informações do aplicativo.
 
-O fluxo **Aplicativo Android** também é disparado por push na branch
-`modernizacao-visual`. Nesse caso, o APK é publicado apenas como artefato da
-execução, sem substituir o arquivo versionado em `apk/RECUPERA-SOLO.apk`.
+O fluxo **Aplicativo Android** é disparado por push na `main` e publica o APK
+em `apk/RECUPERA-SOLO.apk`, além do artefato da execução.
