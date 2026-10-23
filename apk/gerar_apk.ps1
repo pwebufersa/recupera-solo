@@ -2,14 +2,16 @@
 # Uso:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao 1.0.1 -VersionCode 2
+# Sem -Versao e -VersionCode, o nome da branch e a hora atual sao usados, para
+# que uma compilacao local de cada branch possa ser instalada sobre a anterior.
 
 [CmdletBinding()]
 param(
     [string]$Site = "",
 
-    [string]$Versao = "1.0.0",
+    [string]$Versao = "",
 
-    [int]$VersionCode = 1
+    [int]$VersionCode = 0
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,6 +46,18 @@ function Escrever {
 function Falhar {
     param([string]$Texto)
     throw $Texto
+}
+
+function Resolver-Ramo {
+    try {
+        $ramo = & git -C $Raiz rev-parse --abbrev-ref HEAD 2>$null
+        if ($LASTEXITCODE -eq 0 -and $ramo) {
+            return ($ramo.Trim() -replace '[^0-9A-Za-z.-]', '-')
+        }
+    }
+    catch {
+    }
+    return "local"
 }
 
 function Salvar-Texto {
@@ -589,6 +603,14 @@ function Gerar-Apk {
 }
 
 Verificar-Windows
+
+if (-not $Versao) {
+    $Versao = Resolver-Ramo
+}
+if ($VersionCode -le 0) {
+    $VersionCode = [int](Get-Date).ToString("yyMMddHH", [Globalization.CultureInfo]::InvariantCulture)
+}
+Escrever "Versao local: $Versao ($VersionCode)"
 
 $siteResolvido = Achar-Site -Caminho $Site
 Escrever "Site: $siteResolvido"
