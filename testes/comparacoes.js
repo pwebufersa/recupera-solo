@@ -12,9 +12,7 @@ import { chromium } from '@playwright/test';
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pasta = path.join(raiz, 'imagens');
 const temporaria = fs.mkdtempSync(path.join(os.tmpdir(), 'recupera-prints-'));
-const original = pathToFileURL(
-  path.join(process.env.TEMP || os.tmpdir(), 'opencode', 'original_site', 'index.html')
-).href;
+const original = pathToFileURL(path.join(raiz, 'original', 'index.html')).href;
 const atual = pathToFileURL(path.join(raiz, 'index.html')).href;
 
 const TELAS = [
