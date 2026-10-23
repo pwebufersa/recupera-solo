@@ -4,8 +4,9 @@
 
 **Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
 
-O arquivo da pasta é substituído a cada build. Cada execução também publica o
-artefato `recupera-solo-apk`, com hash e versão.
+O arquivo da pasta é substituído a cada build. A pasta `dist` mantém apenas o
+APK da última compilação, e `apk/RECUPERA-SOLO.apk` recebe uma cópia idêntica.
+Cada execução também publica o artefato `recupera-solo-apk`, com hash e versão.
 
 ## Gerar
 

@@ -592,12 +592,22 @@ function Gerar-Apk {
     Remove-Item $alinhado -Force
     Get-ChildItem $Dist -Filter "*.idsig" | Remove-Item -Force
 
+    # A pasta dist guarda apenas o APK desta compilacao, e a pasta apk recebe
+    # uma copia identica, para que as duas permanecam iguais.
+    Get-ChildItem $Dist -Filter "*.apk" |
+        Where-Object { $_.FullName -ne $final } |
+        Remove-Item -Force
+
+    $publicado = Join-Path $Raiz "$Nome.apk"
+    Copy-Item $final $publicado -Force
+
     $hash = (Get-FileHash $final -Algorithm SHA256).Hash
     $linha = $hash + "  " + (Split-Path -Leaf $final)
     Salvar-Texto (Join-Path $Dist "SHA256.txt") ($linha + "`n")
 
     Write-Host ""
     Write-Host "APK gerado: $final"
+    Write-Host "APK publicado: $publicado"
     Write-Host "Versao: $versaoAtual"
     Write-Host "SHA-256: $hash"
 }

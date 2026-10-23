@@ -98,6 +98,10 @@ versão anterior.
 - `modernizacao-visual` gera
   `apk/dist/RECUPERA-SOLO-modernizacao-visual.apk`.
 
+A pasta `dist` mantém apenas o APK da última compilação, e
+`apk/RECUPERA-SOLO.apk` recebe uma cópia idêntica. As duas pastas passam a
+conter o mesmo arquivo depois de cada execução.
+
 As duas versões usam o mesmo pacote `br.edu.ufersa.recuperasolo` e a mesma chave
 de assinatura. A versão instalada substitui a anterior, e o nome da branch
 aparece nas informações do aplicativo.
