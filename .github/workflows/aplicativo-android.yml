@@ -42,39 +42,44 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # As chaves são estáveis de propósito: o hash do gerador mudava a cada
+      # ajuste no script e recriava centenas de megabytes de cache. A versão
+      # do sufixo só muda quando o conjunto de ferramentas muda.
       - name: Cache das ferramentas
-        uses: actions/cache@v4
+        id: cache-ferramentas
+        uses: actions/cache@v5
         with:
           path: apk/ferramentas
-          key: ferramentas-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          key: ferramentas-v2-${{ runner.os }}
           restore-keys: |
             ferramentas-${{ runner.os }}-
 
       - name: Cache do Gradle
-        uses: actions/cache@v4
+        id: cache-gradle
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          key: gradle-v2-${{ runner.os }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
       - name: Cache do projeto gerado
-        uses: actions/cache@v4
+        id: cache-app
+        uses: actions/cache@v5
         with:
           path: apk/app
-          key: app-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
+          key: app-v2-${{ runner.os }}
           restore-keys: |
             app-${{ runner.os }}-
 
-      - name: Cache do npm
-        uses: actions/cache@v4
-        with:
-          path: ~/AppData/Local/npm-cache
-          key: npm-${{ runner.os }}-${{ hashFiles('apk/gerar_apk.ps1') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
+      - name: Situação dos caches
+        shell: pwsh
+        run: |
+          "ferramentas: ${{ steps.cache-ferramentas.outputs.cache-hit }}"
+          "gradle: ${{ steps.cache-gradle.outputs.cache-hit }}"
+          "app: ${{ steps.cache-app.outputs.cache-hit }}"
 
       - name: Preparar a chave de assinatura
         shell: pwsh
@@ -120,7 +125,7 @@ jobs:
           ) | Set-Content -Encoding UTF8 dist/INFO.txt
           Get-Content dist/INFO.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: recupera-solo-apk
           path: |
