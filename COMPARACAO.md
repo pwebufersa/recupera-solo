@@ -1,8 +1,9 @@
 # Original e atual
 
-Comparação com o site que estava no Netlify, preservado em
-[`site_original/`](site_original/). Essa é a referência fixa: `npm run prints` refaz as
-capturas sempre contra ela.
+O cálculo agronômico é o mesmo; o que mudou foi a entrada de dados, a leitura do
+resultado e a instalação. A referência fixa é o site que estava no Netlify,
+preservado em [`site_original/`](site_original/), e `npm run prints` refaz as
+capturas sempre contra ele.
 
 ## Lighthouse
 
@@ -80,15 +81,12 @@ Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 
 ## Verificação
 
-- 15 testes de unidade e 56 testes de navegador aprovados, incluindo acessibilidade.
+- 15 testes de unidade e 56 testes de navegador aprovados, incluindo
+  acessibilidade.
 - Capturas em `comparacao/`, refeitas contra `site_original/`.
-- APK em `apk/dist`, com cópia idêntica em `apk/RECUPERA-SOLO.apk`.
+- APK publicado pelo fluxo **Aplicativo Android** em `apk/RECUPERA-SOLO.apk`.
 
 ## Preservado
 
 Fórmulas, coeficientes, PE, critérios de classificação, textos técnicos,
 estrutura e uso por `file://`.
-
-## Pendência
-
-Textura, drenagem e qualidade da água seguem fora do cálculo.

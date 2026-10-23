@@ -4,9 +4,10 @@
 
 **Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
 
-O arquivo da pasta é substituído a cada build. A pasta `dist` mantém apenas o
-APK da última compilação, e `apk/RECUPERA-SOLO.apk` recebe uma cópia idêntica.
-Cada execução também publica o artefato `recupera-solo-apk`, com hash e versão.
+O APK é republicado pelo fluxo a cada alteração de `index.html`, `style.css`,
+`script.js`, `favicon.svg`, do gerador ou dos ícones; documentação não dispara.
+Cada execução publica o artefato `recupera-solo-apk`, com hash e versão, e grava
+uma cópia idêntica em `apk/RECUPERA-SOLO.apk`.
 
 ## Gerar
 
@@ -21,22 +22,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
 ```
 
 Saída em `dist/RECUPERA-SOLO-<versão>.apk`, com hash em `dist/SHA256.txt`.
-Versão nova: `-Versao 1.0.4 -VersionCode 5`.
+Versão nova: `-Versao 1.0.4 -VersionCode 117`.
 
 ## Assinatura
 
 A chave fica em `segredos/`, com a senha em `keystore.properties`. Sem ela, o
 APK novo não atualiza uma instalação anterior. A pasta não deve ser publicada.
+No fluxo, os segredos `KEYSTORE_BASE64` e `KEYSTORE_PROPERTIES` assinam com a
+mesma chave.
 
 ## CI
 
-O fluxo gera o APK quando muda `index.html`, `style.css`, `script.js`,
-`favicon.svg`, o gerador ou os ícones. Documentação não dispara. Os testes ficam
-no fluxo separado **Testes automáticos**.
-
 Ferramentas, projeto gerado, Gradle e npm ficam em cache: o primeiro build baixa
-tudo, os seguintes reaproveitam. Para assinar com a mesma
-chave, os segredos `KEYSTORE_BASE64` e `KEYSTORE_PROPERTIES` devem existir.
+tudo, os seguintes reaproveitam. Os testes ficam no fluxo separado **Testes
+automáticos**.
 
 ## Instalar
 

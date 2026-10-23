@@ -9,7 +9,7 @@ internet.
 ## Abrir
 
 - Site: <https://pwebufersa.github.io/recupera-solo/>
-- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
+- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk), com instruções em [apk/README.md](apk/README.md)
 - Original, por registro histórico: <https://dapper-flan-955869.netlify.app/>
 
 ## Usar
@@ -67,29 +67,22 @@ No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
 
 ## Testes
 
-`npm test` roda cálculo e navegador. O roteiro do teste com pessoas está em
+`npm ci` instala as dependências, e `npm test` roda os testes de cálculo e de
+navegador. O roteiro do teste com pessoas está em
 [RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
 
 ## Estrutura
 
-- `index.html`, `style.css`, `script.js`: cálculo, validação e tela em um único
-  arquivo, para upload direto.
-- `apk/`: gerador e instruções do aplicativo.
-- CI gera o APK.
-- Publicação: GitHub Pages, a partir da branch `main`. iOS exige macOS com Xcode.
-
-## Modernização
-
-Paleta em tokens, campos com label flutuante, tipografia Material 3, cabeçalho
-compacto, barra inferior no celular e confirmação de limpeza. As mudanças estão
-em [COMPARACAO.md](COMPARACAO.md).
-
-`apk/gerar_apk.cmd` grava o APK em `apk/dist` e copia para
-`apk/RECUPERA-SOLO.apk`.
-
-## Comparação
-
-[COMPARACAO.md](COMPARACAO.md), com imagens do original e do atual.
+- `index.html`, `style.css`, `script.js`: cálculo, validação e tela, para upload
+  direto.
+- `testes/`: unidade, navegador e capturas de comparação.
+- `apk/`: gerador, instruções e APK publicado.
+- `site_original/` e `comparacao/`: cópia do site do Netlify e capturas do
+  original ao lado da versão atual.
+- `artigo_cientifico/`: artigo e figuras.
+- Publicação: GitHub Pages, a partir da branch `main`, e APK gerado pelo fluxo
+  **Aplicativo Android**. iOS exige macOS com Xcode.
+- Diferenças em relação ao original: [COMPARACAO.md](COMPARACAO.md).
 
 ## Autoria
 
