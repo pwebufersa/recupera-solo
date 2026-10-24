@@ -11,7 +11,7 @@ uma cópia idêntica em `app_android/RECUPERA-SOLO.apk`.
 
 ## Gerar
 
-Dois cliques em `gerar_apk.cmd`. O script usa Node.js, JDK e Android SDK já
+Dois cliques em `gerar_app_android.cmd`. O script usa Node.js, JDK e Android SDK já
 instalados na máquina quando as versões servem ao build; o que faltar é baixado
 para `app_android/ferramentas`, sem alterar variáveis do usuário. Depois compila, assina e
 verifica. Leva cerca de 10 minutos na primeira vez e ocupa cerca de 2 GB.
@@ -19,7 +19,7 @@ verifica. Leva cerca de 10 minutos na primeira vez e ocupa cerca de 2 GB.
 Pelo terminal:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1
 ```
 
 Saída em `dist/RECUPERA-SOLO-<versão>.apk`, com hash em `dist/SHA256.txt`.

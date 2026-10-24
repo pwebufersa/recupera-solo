@@ -22,7 +22,7 @@ on:
     branches: [main]
     paths:
       - "codigo_fonte/**"
-      - "app_android/gerar_apk.ps1"
+      - "app_android/gerar_app_android.ps1"
       - "app_android/assets/**"
       - ".github/workflows/aplicativo-android.yml"
 
@@ -103,7 +103,7 @@ jobs:
           $codigo = if ($env:CODIGO_INFORMADO) { [int]$env:CODIGO_INFORMADO } else { [int]$env:CODIGO_BASE + 100 }
           "VERSAO=$versao" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "CODIGO=$codigo" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao $versao -VersionCode $codigo
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1 -Versao $versao -VersionCode $codigo
 
       - name: Registrar versão e testes
         shell: pwsh

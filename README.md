@@ -71,7 +71,7 @@ e de navegador. O roteiro do teste com pessoas está em
 
 ## Ferramentas
 
-`app_android/gerar_apk.ps1` usa Node.js, JDK e Android SDK globais quando as versões
+`app_android/gerar_app_android.ps1` usa Node.js, JDK e Android SDK globais quando as versões
 servem ao build; caso contrário, instala tudo em `app_android/ferramentas`. O SDK global
 só é aceito quando já contém a plataforma, o build-tools e o cmdline-tools
 exigidos, para que nada seja instalado fora do repositório. A pasta fica fora do

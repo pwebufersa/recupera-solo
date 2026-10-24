@@ -1,7 +1,7 @@
 # Gera o APK do RECUPERA-SOLO em uma maquina limpa.
 # Uso:
-#   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
-#   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao 1.0.1 -VersionCode 2
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1 -Versao 1.0.1 -VersionCode 2
 # Sem -Versao e -VersionCode, o nome da branch e a hora atual sao usados, para
 # que uma compilacao local de cada branch possa ser instalada sobre a anterior.
 
