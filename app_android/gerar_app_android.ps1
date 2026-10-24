@@ -596,12 +596,21 @@ function Criar-Projeto {
 
     Push-Location $App
     try {
-        Escrever "Instalando as dependencias mais recentes do Capacitor."
-        & $npm install --prefer-offline --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest" "@capacitor/status-bar@latest" "@capacitor/share@latest" "@capacitor/splash-screen@latest"
-        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
+        $cli = Join-Path $App "node_modules\@capacitor\cli"
+        $assetsPacote = Join-Path $App "node_modules\@capacitor\assets"
+        if ((Test-Path $cli) -and (Test-Path $assetsPacote)) {
+            Escrever "Dependencias do Capacitor vindas do cache."
+            & $npm install --prefer-offline --no-audit --no-fund
+            if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
+        }
+        else {
+            Escrever "Instalando as dependencias mais recentes do Capacitor."
+            & $npm install --prefer-offline --no-audit --no-fund "@capacitor/core@latest" "@capacitor/cli@latest" "@capacitor/android@latest" "@capacitor/status-bar@latest" "@capacitor/share@latest" "@capacitor/splash-screen@latest"
+            if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar as dependencias do Capacitor." }
 
-        & $npm install --prefer-offline --no-audit --no-fund --save-dev "@capacitor/assets@latest"
-        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar o @capacitor/assets." }
+            & $npm install --prefer-offline --no-audit --no-fund --save-dev "@capacitor/assets@latest"
+            if ($LASTEXITCODE -ne 0) { Falhar "Falha ao instalar o @capacitor/assets." }
+        }
 
         $android = Join-Path $App "android"
         if (-not (Test-Path (Join-Path $android "app\build.gradle"))) {
@@ -627,12 +636,30 @@ function Criar-Projeto {
         $local = Join-Path $App "android\local.properties"
         Salvar-Texto $local ("sdk.dir=" + ($Sdk -replace '\\', '/') + "`n")
 
-        & $npx capacitor-assets generate --android `
-            --iconBackgroundColor "#f1f5ed" `
-            --iconBackgroundColorDark "#f1f5ed" `
-            --splashBackgroundColor "#f1f5ed" `
-            --splashBackgroundColorDark "#f1f5ed"
-        if ($LASTEXITCODE -ne 0) { Falhar "Falha ao gerar icones e splash." }
+        $marcador = Join-Path $App ".assets-hash"
+        $entradas = @(
+            (Join-Path $Assets "icon-only.png"),
+            (Join-Path $Assets "splash.png"),
+            (Join-Path $Assets "icon-foreground.png"),
+            (Join-Path $Assets "icon-background.png"),
+            $config
+        )
+        $assinatura = (@($entradas | ForEach-Object { (Get-FileHash -Algorithm SHA256 -Path $_).Hash }) -join "") + "f1f5ed"
+        $icone = Join-Path $android "app\src\main\res\mipmap-xxxhdpi\ic_launcher.png"
+        $regerar = (-not (Test-Path $marcador)) -or ((Get-Content $marcador -Raw).Trim() -ne $assinatura) -or (-not (Test-Path $icone))
+
+        if ($regerar) {
+            & $npx capacitor-assets generate --android `
+                --iconBackgroundColor "#f1f5ed" `
+                --iconBackgroundColorDark "#f1f5ed" `
+                --splashBackgroundColor "#f1f5ed" `
+                --splashBackgroundColorDark "#f1f5ed"
+            if ($LASTEXITCODE -ne 0) { Falhar "Falha ao gerar icones e splash." }
+            Salvar-Texto $marcador $assinatura
+        }
+        else {
+            Escrever "Icones e splash reaproveitados."
+        }
     }
     finally {
         Pop-Location
@@ -707,7 +734,7 @@ function Gerar-AppAndroid {
 
     Push-Location (Join-Path $App "android")
     try {
-        & .\gradlew.bat assembleRelease --no-daemon --build-cache
+        & .\gradlew.bat assembleRelease --no-daemon --build-cache --parallel
         if ($LASTEXITCODE -ne 0) { Falhar "Falha na compilacao do APK." }
     }
     finally {

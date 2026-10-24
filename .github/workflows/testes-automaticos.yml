@@ -18,12 +18,19 @@ jobs:
         with:
           node-version: lts/*
           cache: npm
+      - name: Cache do Playwright
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-v1-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - name: Relatório do navegador
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: relatorio-playwright
           path: test-results/

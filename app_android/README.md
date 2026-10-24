@@ -34,9 +34,9 @@ mesma chave.
 
 ## CI
 
-Ferramentas, projeto gerado, Gradle e npm ficam em cache: o primeiro build baixa
-tudo, os seguintes reaproveitam. Os testes ficam no fluxo separado **Testes
-automáticos**.
+Ferramentas, projeto gerado, npm, Android, Gradle e o Gradle do projeto ficam em
+cache: o primeiro build baixa tudo, os seguintes reaproveitam. Os testes ficam no
+fluxo separado **Testes automáticos**.
 
 ## Instalar
 

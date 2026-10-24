@@ -69,12 +69,42 @@ jobs:
           restore-keys: |
             app-${{ runner.os }}-
 
+      - name: Cache do npm
+        id: cache-npm
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: npm-v1-${{ runner.os }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Cache do Android
+        id: cache-android
+        uses: actions/cache@v5
+        with:
+          path: ~/.android
+          key: android-v1-${{ runner.os }}
+          restore-keys: |
+            android-${{ runner.os }}-
+
+      - name: Cache do Gradle do projeto
+        id: cache-gradle-projeto
+        uses: actions/cache@v5
+        with:
+          path: app_android/app/android/.gradle
+          key: gradle-projeto-v1-${{ runner.os }}
+          restore-keys: |
+            gradle-projeto-${{ runner.os }}-
+
       - name: Situação dos caches
         shell: pwsh
         run: |
           "ferramentas: ${{ steps.cache-ferramentas.outputs.cache-hit }}"
           "gradle: ${{ steps.cache-gradle.outputs.cache-hit }}"
           "app: ${{ steps.cache-app.outputs.cache-hit }}"
+          "npm: ${{ steps.cache-npm.outputs.cache-hit }}"
+          "android: ${{ steps.cache-android.outputs.cache-hit }}"
+          "gradle do projeto: ${{ steps.cache-gradle-projeto.outputs.cache-hit }}"
 
       - name: Preparar a chave de assinatura
         shell: pwsh
@@ -103,7 +133,7 @@ jobs:
           $codigo = if ($env:CODIGO_INFORMADO) { [int]$env:CODIGO_INFORMADO } else { [int]$env:CODIGO_BASE + 100 }
           "VERSAO=$versao" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "CODIGO=$codigo" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1 -Versao $versao -VersionCode $codigo
+          pwsh -NoProfile -ExecutionPolicy Bypass -File .\gerar_app_android.ps1 -Versao $versao -VersionCode $codigo
 
       - name: Registrar versão e testes
         shell: pwsh
@@ -122,7 +152,7 @@ jobs:
           ) | Set-Content -Encoding UTF8 dist/INFO.txt
           Get-Content dist/INFO.txt
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: recupera-solo-app-android
           path: |
