@@ -6,7 +6,7 @@
 
 O APK é republicado pelo fluxo a cada alteração em `codigo_fonte/`, no gerador ou
 nos ícones; documentação não dispara.
-Cada execução publica o artefato `recupera-solo-apk`, com hash e versão, e grava
+Cada execução publica o artefato `recupera-solo-app-android`, com hash e versão, e grava
 uma cópia idêntica em `app_android/RECUPERA-SOLO.apk`.
 
 ## Gerar

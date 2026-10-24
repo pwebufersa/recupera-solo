@@ -40,7 +40,7 @@ $AndroidApi = $null
 
 function Escrever {
     param([string]$Texto)
-    Write-Host "[apk] $Texto"
+    Write-Host "[app_android] $Texto"
 }
 
 function Falhar {
@@ -641,7 +641,7 @@ function Criar-Projeto {
     Escrever "Projeto pronto em $App"
 }
 
-function Gerar-Apk {
+function Gerar-AppAndroid {
     $gradle = Join-Path $App "android\app\build.gradle"
     $BuildTools = Achar-BuildTools
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK ausente. Rode -Etapa Ferramentas." }
@@ -737,7 +737,7 @@ function Gerar-Apk {
     Remove-Item $alinhado -Force
     Get-ChildItem $Dist -Filter "*.idsig" | Remove-Item -Force
 
-    # A pasta dist guarda apenas o APK desta compilacao, e a pasta apk recebe
+    # A pasta dist guarda apenas o APK desta compilacao, e a pasta app_android recebe
     # uma copia identica, para que as duas permanecam iguais.
     Get-ChildItem $Dist -Filter "*.apk" |
         Where-Object { $_.FullName -ne $final } |
@@ -772,6 +772,6 @@ Escrever "Site: $siteResolvido"
 
 Instalar-Ferramentas
 Criar-Projeto -SiteResolvido $siteResolvido
-Gerar-Apk
+Gerar-AppAndroid
 
 Escrever "Concluido."

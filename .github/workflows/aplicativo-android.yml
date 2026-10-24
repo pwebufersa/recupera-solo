@@ -6,7 +6,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: apk-main
+  group: app_android-main
   cancel-in-progress: false
 
 on:
@@ -27,7 +27,7 @@ on:
       - ".github/workflows/aplicativo-android.yml"
 
 jobs:
-  apk:
+  app_android:
     name: Gerar APK
     runs-on: windows-latest
     env:
@@ -124,7 +124,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: recupera-solo-apk
+          name: recupera-solo-app-android
           path: |
             app_android/dist/*.apk
             app_android/dist/SHA256.txt
