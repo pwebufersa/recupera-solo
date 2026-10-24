@@ -65,16 +65,17 @@ jobs:
         uses: actions/cache@v5
         with:
           path: app_android/app
-          key: app-v2-${{ runner.os }}
+          key: app-v3-${{ runner.os }}-${{ hashFiles('app_android/gerar_app_android.ps1', 'app_android/assets/**', 'codigo_fonte/**') }}
           restore-keys: |
+            app-v3-${{ runner.os }}-
             app-${{ runner.os }}-
 
       - name: Cache do npm
         id: cache-npm
         uses: actions/cache@v5
         with:
-          path: ~/.npm
-          key: npm-v1-${{ runner.os }}
+          path: ~/AppData/Local/npm-cache
+          key: npm-v2-${{ runner.os }}
           restore-keys: |
             npm-${{ runner.os }}-
 
