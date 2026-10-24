@@ -140,6 +140,7 @@ $Projeto = @(
 
 # Ferramentas instaladas fora do repositorio.
 $Globais = @(
+    (Join-Path $Perfil "jdk"),
     (Join-Path $Perfil "jdk21"),
     "C:\Android\sdk",
     (Join-Path $Perfil ".gradle"),
@@ -153,7 +154,7 @@ $Globais = @(
 )
 
 $TrechosPath = @(
-    "jdk21", "Android\sdk", ".gradle", "nodejs", "Python313", "ms-playwright"
+    "jdk", "jdk21", "Android\sdk", ".gradle", "nodejs", "node22", "Python313", "ms-playwright"
 )
 
 $Total = 0

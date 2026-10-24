@@ -18,8 +18,8 @@ $ErrorActionPreference = "Stop"
 
 $Raiz = $PSScriptRoot
 $Ferramentas = Join-Path $Raiz "ferramentas"
-$Jdk = Join-Path $Ferramentas "jdk21"
-$Node = Join-Path $Ferramentas "node22"
+$Jdk = Join-Path $Ferramentas "jdk"
+$Node = Join-Path $Ferramentas "node"
 $Sdk = Join-Path $Ferramentas "android-sdk"
 $App = Join-Path $Raiz "app"
 $Assets = Join-Path $Raiz "assets"
@@ -32,11 +32,11 @@ $Pacote = "br.edu.ufersa.recuperasolo"
 # resolvida a cada execucao, a partir das fontes oficiais.
 $UrlNodeIndice = "https://nodejs.org/dist/index.json"
 $UrlRepoAndroid = "https://dl.google.com/android/repository/repository2-3.xml"
-$SerieNode = "22"
+$UrlJdk = "https://api.adoptium.net/v3/info/available_releases"
 
 # Nivel da API do Android e decisao do projeto, nao versao de ferramenta:
 # acompanha o compileSdk e o targetSdk declarados em app/android/variables.gradle.
-$AndroidApi = "36"
+$AndroidApi = $null
 
 function Escrever {
     param([string]$Texto)
@@ -81,9 +81,11 @@ function Resolver-Node {
     finally {
         Remove-Item $indice -Force
     }
-    $versao = $lista | Where-Object { $_.version -like "v$SerieNode.*" } |
+    # A primeira entrada com LTS e a LTS mais recente do indice, que ja vem
+    # ordenado da versao mais nova para a mais antiga.
+    $versao = $lista | Where-Object { $_.lts } |
         Select-Object -First 1 -ExpandProperty version
-    if (-not $versao) { Falhar "Nenhuma versao da serie $SerieNode do Node.js em $UrlNodeIndice." }
+    if (-not $versao) { Falhar "Nenhuma versao LTS do Node.js em $UrlNodeIndice." }
     return $versao
 }
 
@@ -98,15 +100,15 @@ function Instalar-Node {
 
     $instalada = Achar-NodeInstalado
     $versao = $null
-    if (-not $instalada -or $instalada.Split('.')[0] -ne $SerieNode) {
+    if (-not $instalada) {
         $versao = Resolver-Node
     }
 
     if ($versao) {
         $nomeZip = "node-$versao-win-x64.zip"
-        $zip = Join-Path $Ferramentas "node22.zip"
-        $somas = Join-Path $Ferramentas "node22-SHASUMS256.txt"
-        $tmp = Join-Path $Ferramentas "node22_tmp"
+        $zip = Join-Path $Ferramentas "node.zip"
+        $somas = Join-Path $Ferramentas "node-SHASUMS256.txt"
+        $tmp = Join-Path $Ferramentas "node_tmp"
         $base = "https://nodejs.org/dist/$versao"
 
         Baixar "$base/$nomeZip" $zip
@@ -221,9 +223,18 @@ function Resolver-CmdlineTools {
     Remove-Item $xml -Force
 
     # A versao 20 em diante troca o sdkmanager por um wrapper experimental que
-    # falha no download e ainda devolve codigo 0. A 19.0 e a ultima estavel.
-    $bloco = [regex]::Match($texto, 'path="cmdline-tools;19\.0".*?</remotePackage>', 'Singleline')
-    if (-not $bloco.Success) {
+    # falha no download e ainda devolve codigo 0; a maior versao abaixo de 20
+    # e escolhida.
+    $numeradas = [regex]::Matches($texto, 'path="cmdline-tools;(\d+(?:\.\d+)*)"') |
+        ForEach-Object { $_.Groups[1].Value } |
+        Sort-Object { [version]$_ } -Descending -Unique
+    $estavel = $numeradas | Where-Object { [version]$_ -lt [version]"20.0" } | Select-Object -First 1
+
+    $bloco = $null
+    if ($estavel) {
+        $bloco = [regex]::Match($texto, 'path="cmdline-tools;' + [regex]::Escape($estavel) + '".*?</remotePackage>', 'Singleline')
+    }
+    if (-not $bloco -or -not $bloco.Success) {
         $bloco = [regex]::Match($texto, 'path="cmdline-tools;latest".*?</remotePackage>', 'Singleline')
     }
     if (-not $bloco.Success) { Falhar "Pacote cmdline-tools ausente em $UrlRepoAndroid." }
@@ -232,6 +243,31 @@ function Resolver-CmdlineTools {
     if (-not $arquivo) { Falhar "Pacote Windows do cmdline-tools ausente em $UrlRepoAndroid." }
 
     return "https://dl.google.com/android/repository/$arquivo"
+}
+
+function Resolver-Jdk {
+    # A Adoptium informa as versoes LTS disponiveis. O Gradle 8 aceita ate o
+    # Java 24, e por isso a maior LTS dentro desse limite e escolhida.
+    $info = Invoke-RestMethod -Uri $UrlJdk -UseBasicParsing
+    $lts = $info.available_lts_releases | Sort-Object -Descending
+    $escolhida = $lts | Where-Object { [int]$_ -le 24 } | Select-Object -First 1
+    if (-not $escolhida) { Falhar "Nenhuma versao LTS do JDK compativel com o Gradle em $UrlJdk." }
+    return [int]$escolhida
+}
+
+function Resolver-AndroidApi {
+    # A plataforma mais recente vem do repositorio oficial do Android.
+    $xml = Join-Path $Ferramentas "repository2-3-platforms.xml"
+    Baixar $UrlRepoAndroid $xml
+    $texto = Get-Content -Raw $xml
+    Remove-Item $xml -Force
+
+    $versoes = [regex]::Matches($texto, 'path="platforms;android-(\d+)"') |
+        ForEach-Object { [int]$_.Groups[1].Value } |
+        Sort-Object -Descending -Unique
+
+    if (-not $versoes) { Falhar "Nenhuma plataforma no repositorio do Android." }
+    return ($versoes | Select-Object -First 1)
 }
 
 function Resolver-BuildTools {
@@ -285,18 +321,19 @@ function Instalar-Ferramentas {
     Gravar-Licencas
 
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) {
-        $zip = Join-Path $Ferramentas "jdk21.zip"
-        $tmp = Join-Path $Ferramentas "jdk21_tmp"
-        Baixar "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk" $zip
+        $feature = Resolver-Jdk
+        $zip = Join-Path $Ferramentas "jdk.zip"
+        $tmp = Join-Path $Ferramentas "jdk_tmp"
+        Baixar "https://api.adoptium.net/v3/binary/latest/$feature/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk" $zip
         if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
         Expand-Archive -Path $zip -DestinationPath $tmp -Force
-        $pasta = Get-ChildItem $tmp -Directory | Where-Object { $_.Name -like "jdk-21*" } | Select-Object -First 1
+        $pasta = Get-ChildItem $tmp -Directory | Where-Object { $_.Name -like "jdk-*" } | Select-Object -First 1
         if (-not $pasta) { Falhar "Pasta do JDK nao encontrada no zip." }
         if (Test-Path $Jdk) { Remove-Item $Jdk -Recurse -Force }
         Move-Item $pasta.FullName $Jdk
         Remove-Item $tmp -Recurse -Force
         Remove-Item $zip -Force
-        Escrever "JDK 21 instalado em $Jdk"
+        Escrever "JDK $feature instalado em $Jdk"
     }
 
     $cmdToolsBin = Join-Path $Sdk "cmdline-tools\latest\bin"
@@ -323,6 +360,8 @@ function Instalar-Ferramentas {
     $env:ANDROID_HOME = $Sdk
     $env:ANDROID_SDK_ROOT = $Sdk
     $env:PATH = "$Jdk\bin;$cmdToolsBin;$Sdk\platform-tools;$env:PATH"
+
+    if (-not $AndroidApi) { $script:AndroidApi = Resolver-AndroidApi }
 
     $buildTools = Achar-BuildTools
     $apiOk = Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar")
@@ -351,7 +390,7 @@ function Instalar-Ferramentas {
         Escrever "SDK ja instalado: build-tools $instaladaBuildTools, Android $AndroidApi."
     }
 
-    if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK 21 ausente." }
+    if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK ausente." }
     if (-not $buildTools -or -not (Test-Path (Join-Path $buildTools "apksigner.bat"))) { Falhar "build-tools ausente." }
     if (-not (Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar"))) { Falhar "Android $AndroidApi ausente." }
 

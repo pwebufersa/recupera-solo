@@ -22,7 +22,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1
 ```
 
 Saída em `dist/RECUPERA-SOLO-<versão>.apk`, com hash em `dist/SHA256.txt`.
-Versão nova: `-Versao 1.0.4 -VersionCode 117`.
+A versão e o `versionCode` são informados na chamada; sem eles, valem o nome da branch e a hora atual.
 
 ## Assinatura
 

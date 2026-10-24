@@ -13,13 +13,11 @@ on:
   workflow_dispatch:
     inputs:
       versao:
-        description: "versionName do APK"
+        description: "versionName do APK; vazio usa a versao do package.json"
         required: false
-        default: "1.0.3"
       version_code:
-        description: "versionCode (inteiro, maior que o anterior)"
+        description: "versionCode inteiro; vazio usa o numero da execucao"
         required: false
-        default: "4"
   push:
     branches: [main]
     paths:
@@ -33,7 +31,7 @@ jobs:
     name: Gerar APK
     runs-on: windows-latest
     env:
-      VERSAO: ${{ inputs.versao || '1.0.3' }}
+      VERSAO: ${{ inputs.versao }}
       CODIGO_INFORMADO: ${{ inputs.version_code }}
       CODIGO_BASE: ${{ github.run_number }}
     steps:
@@ -101,9 +99,11 @@ jobs:
         working-directory: apk
         run: |
           # Expressoes do GitHub nao fazem aritmetica; o deslocamento e feito aqui.
+          $versao = if ($env:VERSAO) { $env:VERSAO } else { (Get-Content ..\package.json -Raw | ConvertFrom-Json).version }
           $codigo = if ($env:CODIGO_INFORMADO) { [int]$env:CODIGO_INFORMADO } else { [int]$env:CODIGO_BASE + 100 }
+          "VERSAO=$versao" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "CODIGO=$codigo" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao $env:VERSAO -VersionCode $codigo
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar_apk.ps1 -Versao $versao -VersionCode $codigo
 
       - name: Registrar versão e testes
         shell: pwsh
