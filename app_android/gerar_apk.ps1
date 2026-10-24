@@ -72,6 +72,63 @@ function Verificar-Windows {
     if ($PSVersionTable.PSVersion.Major -lt 5) { Falhar "PowerShell 5 ou superior e necessario." }
 }
 
+function Achar-NodeGlobal {
+    $comando = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $comando) { return $null }
+
+    $pasta = Split-Path -Parent $comando.Source
+    if (-not (Test-Path (Join-Path $pasta "npm.cmd"))) { return $null }
+
+    $versao = (& $comando.Source -p "process.versions.node" 2>$null)
+    if (-not $versao) { return $null }
+    $maior = [int]($versao.Trim().Split('.')[0])
+    if ($maior -lt 22) { return $null }
+
+    return [pscustomobject]@{ Pasta = $pasta; Versao = $versao.Trim() }
+}
+
+function Achar-JdkGlobal {
+    # Java 17 nao serve ao Android Gradle Plugin desta versao; a faixa aceita
+    # vai de 21 a 24, que e o limite do Gradle 8.
+    $candidatos = @()
+    if ($env:JAVA_HOME) { $candidatos += $env:JAVA_HOME }
+    $comando = Get-Command java -ErrorAction SilentlyContinue
+    if ($comando) { $candidatos += (Split-Path -Parent (Split-Path -Parent $comando.Source)) }
+
+    foreach ($candidato in $candidatos) {
+        $java = Join-Path $candidato "bin\java.exe"
+        if (-not (Test-Path $java)) { continue }
+        $saida = (& $java -version 2>&1 | ForEach-Object { "$_" }) -join "`n"
+        if ($saida -notmatch 'version "(\d+)') { continue }
+        $feature = [int]$Matches[1]
+        if ($feature -lt 21 -or $feature -gt 24) { continue }
+        return [pscustomobject]@{ Pasta = $candidato; Feature = $feature }
+    }
+    return $null
+}
+
+function Achar-SdkGlobal {
+    param([int]$Api)
+
+    $candidatos = @()
+    if ($env:ANDROID_HOME) { $candidatos += $env:ANDROID_HOME }
+    if ($env:ANDROID_SDK_ROOT) { $candidatos += $env:ANDROID_SDK_ROOT }
+    if ($env:LOCALAPPDATA) { $candidatos += (Join-Path $env:LOCALAPPDATA "Android\Sdk") }
+
+    foreach ($candidato in $candidatos) {
+        if (-not $candidato -or -not (Test-Path $candidato)) { continue }
+        if (-not (Test-Path (Join-Path $candidato "platform-tools"))) { continue }
+        if (-not (Test-Path (Join-Path $candidato "platforms\android-$Api\android.jar"))) { continue }
+        if (-not (Test-Path (Join-Path $candidato "cmdline-tools\latest\bin\sdkmanager.bat"))) { continue }
+        $buildTools = Get-ChildItem (Join-Path $candidato "build-tools") -Directory -ErrorAction SilentlyContinue |
+            Where-Object { Test-Path (Join-Path $_.FullName "apksigner.bat") } |
+            Select-Object -First 1
+        if (-not $buildTools) { continue }
+        return $candidato
+    }
+    return $null
+}
+
 function Resolver-Node {
     $indice = Join-Path $Ferramentas "node-index.json"
     Baixar $UrlNodeIndice $indice
@@ -97,6 +154,15 @@ function Achar-NodeInstalado {
 
 function Instalar-Node {
     New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
+
+    $global = Achar-NodeGlobal
+    if ($global) {
+        $script:Node = $global.Pasta
+        Escrever "Node.js $($global.Versao) global em $Node"
+        $partes = $env:PATH -split ';'
+        if (-not ($partes | Where-Object { $_ -ieq $Node })) { $env:PATH = "$Node;$env:PATH" }
+        return
+    }
 
     $instalada = Achar-NodeInstalado
     $versao = $null
@@ -318,9 +384,14 @@ function Chamar-SdkManager {
 
 function Instalar-Ferramentas {
     New-Item -ItemType Directory -Force -Path $Ferramentas | Out-Null
-    Gravar-Licencas
 
-    if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) {
+    # O JDK global e usado quando a versao serve ao Android Gradle Plugin.
+    $jdkGlobal = Achar-JdkGlobal
+    if ($jdkGlobal) {
+        $script:Jdk = $jdkGlobal.Pasta
+        Escrever "JDK $($jdkGlobal.Feature) global em $Jdk"
+    }
+    elseif (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) {
         $feature = Resolver-Jdk
         $zip = Join-Path $Ferramentas "jdk.zip"
         $tmp = Join-Path $Ferramentas "jdk_tmp"
@@ -333,35 +404,45 @@ function Instalar-Ferramentas {
         Move-Item $pasta.FullName $Jdk
         Remove-Item $tmp -Recurse -Force
         Remove-Item $zip -Force
-        Escrever "JDK $feature instalado em $Jdk"
+        Escrever "JDK $feature local em $Jdk"
     }
 
-    $cmdToolsBin = Join-Path $Sdk "cmdline-tools\latest\bin"
-    $sdkManager = Join-Path $cmdToolsBin "sdkmanager.bat"
+    if (-not $AndroidApi) { $script:AndroidApi = Resolver-AndroidApi }
 
-    if (-not (Test-Path $sdkManager)) {
-        $url = Resolver-CmdlineTools
-        $zip = Join-Path $Ferramentas "cmdline-tools.zip"
-        $tmp = Join-Path $Ferramentas "cmdline-tools-tmp"
-        Baixar $url $zip
-        if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
-        Expand-Archive -Path $zip -DestinationPath $tmp -Force
-        $cmdTools = Join-Path $Sdk "cmdline-tools"
-        New-Item -ItemType Directory -Force -Path $cmdTools | Out-Null
-        $latest = Join-Path $cmdTools "latest"
-        if (Test-Path $latest) { Remove-Item $latest -Recurse -Force }
-        Move-Item (Join-Path $tmp "cmdline-tools") $latest
-        Remove-Item $tmp -Recurse -Force
-        Remove-Item $zip -Force
-        Escrever "cmdline-tools instalado em $latest"
+    # O SDK global so e aceito quando ja contem tudo o que o build usa, para
+    # que nenhum pacote seja instalado fora do repositorio.
+    $sdkGlobal = Achar-SdkGlobal -Api $AndroidApi
+    if ($sdkGlobal) {
+        $script:Sdk = $sdkGlobal
+        Escrever "Android SDK global em $Sdk"
+    }
+    else {
+        Gravar-Licencas
+        $cmdToolsBin = Join-Path $Sdk "cmdline-tools\latest\bin"
+        $sdkManager = Join-Path $cmdToolsBin "sdkmanager.bat"
+
+        if (-not (Test-Path $sdkManager)) {
+            $url = Resolver-CmdlineTools
+            $zip = Join-Path $Ferramentas "cmdline-tools.zip"
+            $tmp = Join-Path $Ferramentas "cmdline-tools-tmp"
+            Baixar $url $zip
+            if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+            Expand-Archive -Path $zip -DestinationPath $tmp -Force
+            $cmdTools = Join-Path $Sdk "cmdline-tools"
+            New-Item -ItemType Directory -Force -Path $cmdTools | Out-Null
+            $latest = Join-Path $cmdTools "latest"
+            if (Test-Path $latest) { Remove-Item $latest -Recurse -Force }
+            Move-Item (Join-Path $tmp "cmdline-tools") $latest
+            Remove-Item $tmp -Recurse -Force
+            Remove-Item $zip -Force
+            Escrever "cmdline-tools local em $latest"
+        }
     }
 
     $env:JAVA_HOME = $Jdk
     $env:ANDROID_HOME = $Sdk
     $env:ANDROID_SDK_ROOT = $Sdk
-    $env:PATH = "$Jdk\bin;$cmdToolsBin;$Sdk\platform-tools;$env:PATH"
-
-    if (-not $AndroidApi) { $script:AndroidApi = Resolver-AndroidApi }
+    $env:PATH = "$Jdk\bin;$Sdk\cmdline-tools\latest\bin;$Sdk\platform-tools;$env:PATH"
 
     $buildTools = Achar-BuildTools
     $apiOk = Test-Path (Join-Path $Sdk "platforms\android-$AndroidApi\android.jar")
@@ -370,6 +451,7 @@ function Instalar-Ferramentas {
 
     if (-not $apiOk -or -not $buildTools) {
         $versaoBuildTools = Resolver-BuildTools
+        $sdkManager = Join-Path $Sdk "cmdline-tools\latest\bin\sdkmanager.bat"
 
         Escrever "Instalando platform-tools, Android $AndroidApi e build-tools $versaoBuildTools."
         # O cmdline-tools 19 usa ponto e virgula; o 20 em diante usa barra.
@@ -387,7 +469,7 @@ function Instalar-Ferramentas {
         }
     }
     else {
-        Escrever "SDK ja instalado: build-tools $instaladaBuildTools, Android $AndroidApi."
+        Escrever "SDK pronto: build-tools $instaladaBuildTools, Android $AndroidApi."
     }
 
     if (-not (Test-Path (Join-Path $Jdk "bin\java.exe"))) { Falhar "JDK ausente." }

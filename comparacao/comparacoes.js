@@ -9,10 +9,10 @@ import { chromium } from '@playwright/test';
    As capturas mostram a seção de resultados, onde a diferença é maior.
    Execução: npm run prints */
 
-const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pasta = path.join(raiz, 'comparacao');
+const pasta = path.dirname(fileURLToPath(import.meta.url));
+const raiz = path.resolve(pasta, '..');
 const temporaria = fs.mkdtempSync(path.join(os.tmpdir(), 'recupera-prints-'));
-const original = pathToFileURL(path.join(raiz, 'comparacao', 'site_original', 'index.html')).href;
+const original = pathToFileURL(path.join(pasta, 'site_original', 'index.html')).href;
 const atual = pathToFileURL(path.join(raiz, 'codigo_fonte', 'index.html')).href;
 
 const TELAS = [

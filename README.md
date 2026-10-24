@@ -9,7 +9,7 @@ internet.
 ## Abrir
 
 - Site: <https://pwebufersa.github.io/recupera-solo/>
-- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk), com instruções em [apk/README.md](apk/README.md)
+- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/app_android/RECUPERA-SOLO.apk), com instruções em [app_android/README.md](app_android/README.md)
 - Original, por registro histórico: <https://dapper-flan-955869.netlify.app/>
 
 ## Usar
@@ -33,7 +33,7 @@ internet.
 | PST final | % | 0 a 100 | 10 |
 | Área | ha | 0,01 a 10.000 | 1,0 |
 | Pureza | % | 0,1 a 100 | 80 |
-| Preço | R$/t | maior que zero | 425,00 |
+| Preço | R$/t | maior que zero | 410,00 |
 
 Valor fora da faixa avisa durante a digitação e é recusado no envio. Letras não
 entram nos campos numéricos.
@@ -49,27 +49,32 @@ O programa não substitui recomendação agronômica.
 
 ## Preços
 
-Consulta de 20/10/2026, por tonelada, sem frete. Cotação da Agrícola Gemelli
-de 22/09/2026.
+Consulta de 24/10/2026, por tonelada, sem frete. Cotações da Agrícola Gemelli
+atualizadas em 16/01/2026.
 
-| Corretivo | Granel entregue | Bag entregue | Granel aplicado |
-|---|---:|---:|---:|
-| Gesso agrícola | R$ 425,00 | R$ 445,00 | R$ 475,00 |
-| Calcário dolomítico | R$ 272,00 | R$ 292,00 | R$ 322,00 |
-| Calcário calcítico | R$ 295,00 | R$ 315,00 | R$ 345,00 |
+| Corretivo | Granel | Bag |
+|---|---:|---:|
+| Gesso agrícola | R$ 410,00 | R$ 430,00 |
+| Calcário dolomítico | R$ 255,00 | R$ 275,00 |
+| Calcário calcítico | R$ 278,00 | R$ 298,00 |
 
-| Corretivo | Preço | Fonte |
-|---|---|---|
-| Enxofre elementar 99% | R$ 6.200,00/t | MF Rural, anúncios de São Paulo |
-| Enxofre importado, CFR | US$ 1.200,00/t | Forbes Agro, julho de 2026 |
+Enxofre elementar 99%: R$ 7.998,00/t, anúncio do MF Rural em Dumont-SP.
 
-No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
+No exemplo: gesso R$ 28.415,15/ha e enxofre R$ 86.843,13/ha.
 
 ## Testes
 
 `npm ci` instala as dependências na raiz, e `npm test` roda os testes de cálculo
 e de navegador. O roteiro do teste com pessoas está em
 [testes/RECUPERA-SOLO - Teste de uso.docx](<testes/RECUPERA-SOLO - Teste de uso.docx>).
+
+## Ferramentas
+
+`app_android/gerar_apk.ps1` usa Node.js, JDK e Android SDK globais quando as versões
+servem ao build; caso contrário, instala tudo em `app_android/ferramentas`. O SDK global
+só é aceito quando já contém a plataforma, o build-tools e o cmdline-tools
+exigidos, para que nada seja instalado fora do repositório. A pasta fica fora do
+controle de versão.
 
 ## Estrutura
 
@@ -79,10 +84,8 @@ e de navegador. O roteiro do teste com pessoas está em
   uso.
 - `comparacao/`: capturas e o `COMPARACAO.md`, com o site do Netlify preservado em
   `comparacao/site_original/`.
-- `apk/`: gerador, instruções e APK publicado.
+- `app_android/`: gerador, instruções e APK publicado.
 - `artigo_cientifico/`: artigo e figuras.
-- `limpar.ps1` e `limpar.cmd`: removem pastas baixáveis e as ferramentas de
-  construção.
 - Publicação: GitHub Pages, a partir de `codigo_fonte/`, e APK gerado pelo fluxo
   **Aplicativo Android**. iOS exige macOS com Xcode.
 - Diferenças em relação ao original: [comparacao/COMPARACAO.md](comparacao/COMPARACAO.md).

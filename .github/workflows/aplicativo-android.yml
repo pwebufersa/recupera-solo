@@ -22,8 +22,8 @@ on:
     branches: [main]
     paths:
       - "codigo_fonte/**"
-      - "apk/gerar_apk.ps1"
-      - "apk/assets/**"
+      - "app_android/gerar_apk.ps1"
+      - "app_android/assets/**"
       - ".github/workflows/aplicativo-android.yml"
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
         id: cache-ferramentas
         uses: actions/cache@v5
         with:
-          path: apk/ferramentas
+          path: app_android/ferramentas
           key: ferramentas-v2-${{ runner.os }}
           restore-keys: |
             ferramentas-${{ runner.os }}-
@@ -64,7 +64,7 @@ jobs:
         id: cache-app
         uses: actions/cache@v5
         with:
-          path: apk/app
+          path: app_android/app
           key: app-v2-${{ runner.os }}
           restore-keys: |
             app-${{ runner.os }}-
@@ -82,7 +82,7 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
         run: |
-          $destino = "apk/segredos"
+          $destino = "app_android/segredos"
           New-Item -ItemType Directory -Force -Path $destino | Out-Null
           if ($env:KEYSTORE_BASE64) {
             [IO.File]::WriteAllBytes("$destino/recupera-solo.keystore", [Convert]::FromBase64String($env:KEYSTORE_BASE64))
@@ -96,7 +96,7 @@ jobs:
 
       - name: Gerar o APK
         shell: pwsh
-        working-directory: apk
+        working-directory: app_android
         run: |
           # Expressoes do GitHub nao fazem aritmetica; o deslocamento e feito aqui.
           $versao = if ($env:VERSAO) { $env:VERSAO } else { (Get-Content ..\package.json -Raw | ConvertFrom-Json).version }
@@ -107,7 +107,7 @@ jobs:
 
       - name: Registrar versão e testes
         shell: pwsh
-        working-directory: apk
+        working-directory: app_android
         run: |
           $apk = Get-ChildItem dist -Filter "*.apk" | Select-Object -First 1
           $hash = (Get-FileHash $apk.FullName -Algorithm SHA256).Hash
@@ -126,19 +126,19 @@ jobs:
         with:
           name: recupera-solo-apk
           path: |
-            apk/dist/*.apk
-            apk/dist/SHA256.txt
-            apk/dist/INFO.txt
+            app_android/dist/*.apk
+            app_android/dist/SHA256.txt
+            app_android/dist/INFO.txt
           retention-days: 30
       - name: Publicar o APK na pasta apk
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          $apk = Get-ChildItem apk/dist -Filter "*.apk" | Select-Object -First 1
-          Copy-Item $apk.FullName "apk/RECUPERA-SOLO.apk" -Force
+          $apk = Get-ChildItem app_android/dist -Filter "*.apk" | Select-Object -First 1
+          Copy-Item $apk.FullName "app_android/RECUPERA-SOLO.apk" -Force
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apk/RECUPERA-SOLO.apk
+          git add app_android/RECUPERA-SOLO.apk
           git diff --cached --quiet
           if ($LASTEXITCODE -eq 0) {
             Write-Host "APK sem mudanca; nada a publicar."

@@ -84,7 +84,7 @@ Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 - 15 testes de unidade e 56 testes de navegador aprovados, incluindo
   acessibilidade.
 - Capturas nesta pasta, refeitas contra `site_original/`.
-- APK publicado pelo fluxo **Aplicativo Android** em `apk/RECUPERA-SOLO.apk`.
+- APK publicado pelo fluxo **Aplicativo Android** em `app_android/RECUPERA-SOLO.apk`.
 
 ## Preservado
 

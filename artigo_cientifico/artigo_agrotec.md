@@ -6,7 +6,7 @@ Nildo Dias^1^; Francisco de Assis P. V. de Arruda^1^
 
 Resumo
 
-A recuperação de solos sódicos envolve diagnóstico, escolha de corretivo, dose, custo e procedimento, e a decisão é tomada em campo, muitas vezes sem conexão com a internet. Este trabalho descreve o desenvolvimento e a verificação do RECUPERA-SOLO, sistema de apoio à decisão que reúne essas etapas em página estática e em aplicativo Android. O modelo agronômico original foi preservado e reimplementado em HTML, CSS e JavaScript, sem servidor. A saturação por sódio (PST) é calculada pela razão entre o sódio trocável e a capacidade de troca de cátions (CTC); a dose teórica combina o déficit de saturação, a CTC, o poder de neutralização (PE), a profundidade e a densidade do solo; as doses prática e comercial aplicam o coeficiente de eficiência (C) e a pureza do insumo. Oito corretivos foram cadastrados, com adequação classificada pelo tipo, pelo pH e pelos carbonatos. A entrada de dados recebeu faixas de sanidade, limite de casas decimais e resumo de erros, e a verificação reuniu 15 testes unitários, 25 testes de navegador e auditoria Lighthouse. No caso demonstrativo, a PST inicial foi de 81,4% e o gesso agrícola custou R$ 29.454,73 por hectare, menos da metade do enxofre elementar; o calcário, de menor custo, foi excluído da comparação por baixa prioridade técnica. O sistema orienta a decisão e não substitui a recomendação agronômica.
+A recuperação de solos sódicos envolve diagnóstico, escolha de corretivo, dose, custo e procedimento, e a decisão é tomada em campo, muitas vezes sem conexão com a internet. Este trabalho descreve o desenvolvimento e a verificação do RECUPERA-SOLO, sistema de apoio à decisão que reúne essas etapas em página estática e em aplicativo Android. O modelo agronômico original foi preservado e reimplementado em HTML, CSS e JavaScript, sem servidor. A saturação por sódio (PST) é calculada pela razão entre o sódio trocável e a capacidade de troca de cátions (CTC); a dose teórica combina o déficit de saturação, a CTC, o poder de neutralização (PE), a profundidade e a densidade do solo; as doses prática e comercial aplicam o coeficiente de eficiência (C) e a pureza do insumo. Oito corretivos foram cadastrados, com adequação classificada pelo tipo, pelo pH e pelos carbonatos. A entrada de dados recebeu faixas de sanidade, limite de casas decimais e resumo de erros, e a verificação reuniu 15 testes unitários, 56 testes de navegador e auditoria Lighthouse. No caso demonstrativo, a PST inicial foi de 81,4% e o gesso agrícola custou R$ 28.415,15 por hectare, menos da metade do enxofre elementar; o calcário, de menor custo, foi excluído da comparação por baixa prioridade técnica. O sistema orienta a decisão e não substitui a recomendação agronômica.
 
 Palavras-chave: Solos sódicos; Gesso agrícola; Software aplicado; Semiárido; Acessibilidade.
 
@@ -14,7 +14,7 @@ RECUPERA-SOLO: A DECISION SUPPORT SYSTEM FOR SODIC SOIL RECLAMATION
 
 Abstract
 
-The reclamation of sodic soils involves diagnosis, amendment selection, dose, cost and procedure, and the decision is often made in the field without internet access. This paper describes the development and verification of RECUPERA-SOLO, a decision support system that gathers these steps in a static page and an Android application. The original agronomic model was preserved and reimplemented in HTML, CSS and JavaScript, without a server. Sodium saturation (PST) is calculated as the ratio between exchangeable sodium and cation exchange capacity (CEC); the theoretical dose combines the saturation deficit, CEC, neutralizing power (NP), soil depth and bulk density; practical and commercial doses apply the efficiency coefficient (C) and amendment purity. Eight amendments were registered, with suitability classified by type, pH and carbonates. Data entry received range checks, decimal limits and an error summary, and verification included 15 unit tests, 25 browser tests and a Lighthouse audit. In the demonstration case, initial PST was 81.4% and agricultural gypsum cost R$ 29,454.73 per hectare, less than half the cost of elemental sulfur; limestone, the cheapest option, was excluded from the comparison due to low technical priority. The system guides the decision and does not replace agronomic recommendation.
+The reclamation of sodic soils involves diagnosis, amendment selection, dose, cost and procedure, and the decision is often made in the field without internet access. This paper describes the development and verification of RECUPERA-SOLO, a decision support system that gathers these steps in a static page and an Android application. The original agronomic model was preserved and reimplemented in HTML, CSS and JavaScript, without a server. Sodium saturation (PST) is calculated as the ratio between exchangeable sodium and cation exchange capacity (CEC); the theoretical dose combines the saturation deficit, CEC, neutralizing power (NP), soil depth and bulk density; practical and commercial doses apply the efficiency coefficient (C) and amendment purity. Eight amendments were registered, with suitability classified by type, pH and carbonates. Data entry received range checks, decimal limits and an error summary, and verification included 15 unit tests, 56 browser tests and a Lighthouse audit. In the demonstration case, initial PST was 81.4% and agricultural gypsum cost R$ 28,415.15 per hectare, less than half the cost of elemental sulfur; limestone, the cheapest option, was excluded from the comparison due to low technical priority. The system guides the decision and does not replace agronomic recommendation.
 
 Keywords: Sodic soils; Agricultural gypsum; Applied software; Semiarid; Accessibility.
 
@@ -69,7 +69,7 @@ Nove campos numéricos recebem faixas de sanidade, limite de casas decimais e v�
 
 2.5 Verificação
 
-A verificação reúne 15 testes unitários, executados em Node.js, e 25 testes de navegador, executados em Playwright, que cobrem cálculo, validação, acessibilidade e layout. A auditoria Lighthouse compara a versão atual com a original. O protocolo de usabilidade, com oito tarefas e registro de conclusão, tempo, erros e ajuda, foi elaborado para aplicação com produtores e extensionistas, mas não foi aplicado nesta etapa.
+A verificação reúne 15 testes unitários, executados em Node.js, e 56 testes de navegador, executados em Playwright, que cobrem cálculo, validação, acessibilidade e layout. A auditoria Lighthouse compara a versão atual com a original. O protocolo de usabilidade, com nove tarefas e registro de conclusão, tempo, erros e ajuda, foi elaborado para aplicação com produtores e extensionistas, mas não foi aplicado nesta etapa.
 
 2.6 Caso demonstrativo
 
@@ -89,13 +89,13 @@ Tabela 2 - Doses teórica (DT), prática (DP) e comercial (DC), em kg/ha, e cust
 
 | Corretivo | Adequação | DT | DP | DC | Custo/ha | Total |
 |:---|:---|:---:|:---:|:---:|:---:|:---:|
-| Gesso agrícola | Potencialmente adequado | 44.355,36 | 55.444,20 | 69.305,25 | 29.454,73 | 29.454,73 |
-| Enxofre elementar | Adequado com carbonatos | 8.252,16 | 10.315,20 | 10.858,11 | 67.320,25 | 67.320,25 |
-| Calcário | Baixa prioridade | 25.788,00 | 32.235,00 | 32.235,00 | 8.767,92 | 8.767,92 |
+| Gesso agrícola | Potencialmente adequado | 44.355,36 | 55.444,20 | 69.305,25 | 28.415,15 | 28.415,15 |
+| Enxofre elementar | Adequado com carbonatos | 8.252,16 | 10.315,20 | 10.858,11 | 86.843,13 | 86.843,13 |
+| Calcário | Baixa prioridade | 25.788,00 | 32.235,00 | 32.235,00 | 8.219,93 | 8.219,93 |
 
 Fonte: dados da pesquisa (2026).
 
-O gesso exige 69.305,25 kg/ha e custa R$ 29.454,73/ha; o enxofre, 10.858,11 kg/ha e R$ 67.320,25/ha; o calcário, 32.235,00 kg/ha e R$ 8.767,92/ha. O calcário tem o menor custo, mas recebe baixa prioridade pela baixa solubilidade em pH 9,2 com carbonatos, e não participa da indicação de menor custo. A exclusão evita a escolha de insumo tecnicamente inadequado. O gesso custa menos da metade do enxofre, o que é coerente com a literatura, que indica o gesso como corretivo de uso corrente na recuperação de solos sódicos (Leite et al., 2010; Cavalcanti et al., 2018; Mandal, 2023). O enxofre elementar, embora eficiente, depende da oxidação microbiana e apresenta custo elevado.
+O gesso exige 69.305,25 kg/ha e custa R$ 28.415,15/ha; o enxofre, 10.858,11 kg/ha e R$ 86.843,13/ha; o calcário, 32.235,00 kg/ha e R$ 8.219,93/ha. O calcário tem o menor custo, mas recebe baixa prioridade pela baixa solubilidade em pH 9,2 com carbonatos, e não participa da indicação de menor custo. A exclusão evita a escolha de insumo tecnicamente inadequado. O gesso custa menos da metade do enxofre, o que é coerente com a literatura, que indica o gesso como corretivo de uso corrente na recuperação de solos sódicos (Leite et al., 2010; Cavalcanti et al., 2018; Mandal, 2023). O enxofre elementar, embora eficiente, depende da oxidação microbiana e apresenta custo elevado.
 
 A dose de gesso é elevada e decorre da combinação de PST inicial de 81,4%, meta de 10% e profundidade de 60 cm. A dose é proporcional ao déficit e à massa de solo corrigida; a redução da profundidade para 30 cm, mantidas as demais condições, reduziria a dose comercial pela metade. A pureza também altera o resultado: com pureza de 60%, a dose comercial do gesso passaria de 69,3 t/ha para 92,4 t/ha.
 
@@ -115,7 +115,7 @@ Fonte: dados da pesquisa (2026).
 
 Fonte: dados da pesquisa (2026).
 
-Na verificação, pH 15 passou a ser recusado com indicação de campo, faixa e correção, enquanto a versão de origem seguia para o cálculo. Os 40 testes automatizados aprovam cálculo, validação e os requisitos de acessibilidade verificados. A auditoria Lighthouse subiu de 0,81 para 1,00 em acessibilidade e de 0,75 para 1,00 em busca e estrutura. O aplicativo, de 3,5 MB, repete o resultado sem conexão. A Tabela 3 resume a comparação entre a versão de origem e a versão atual.
+Na verificação, pH 15 passou a ser recusado com indicação de campo, faixa e correção, enquanto a versão de origem seguia para o cálculo. Os 71 testes automatizados aprovam cálculo, validação e os requisitos de acessibilidade verificados. A auditoria Lighthouse subiu de 0,81 para 1,00 em acessibilidade e de 0,75 para 1,00 em busca e estrutura. O aplicativo, de 3,5 MB, repete o resultado sem conexão. A Tabela 3 resume a comparação entre a versão de origem e a versão atual.
 
 Tabela 3 - Comparação entre a versão de origem e a versão atual do RECUPERA-SOLO
 

@@ -9,9 +9,9 @@
 // 1. Dados do sistema
 
 const CORRETIVOS = [
-  { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80, precoExemplo: 425 },
+  { nome: 'Gesso agrícola (CaSO₄·2H₂O)', pe: 86, c: 1.25, tipo: 'direto', purezaExemplo: 80, precoExemplo: 410 },
   { nome: 'Cloreto de cálcio (CaCl₂·2H₂O)', pe: 73, c: 1.10, tipo: 'direto' },
-  { nome: 'Enxofre elementar (S)', pe: 16, c: 1.25, tipo: 'acido', purezaExemplo: 95, precoExemplo: 6200 },
+  { nome: 'Enxofre elementar (S)', pe: 16, c: 1.25, tipo: 'acido', purezaExemplo: 95, precoExemplo: 7998 },
   { nome: 'Ácido sulfúrico (H₂SO₄)', pe: 49, c: 1.10, tipo: 'acido' },
   { nome: 'Sulfato de ferro (FeSO₄·7H₂O)', pe: 139, c: 1.10, tipo: 'acido' },
   { nome: 'Sulfato de alumínio (Al₂(SO₄)₃·18H₂O)', pe: 111, c: 1.10, tipo: 'acido' },
@@ -111,7 +111,7 @@ function adequacao(corretivo, ph, caco3) {
  * Exemplo de uso:
  *   calcularDoses({ ph: 9.2, ce: 2.4, ctc: 8.6, na: 7, caco3: 1.5,
  *                   ds: 1.4, h: 60, pstf: 10, area: 1 },
- *                 [{ corretivo: CORRETIVOS[0], pureza: 80, preco: 425 }]);
+ *                 [{ corretivo: CORRETIVOS[0], pureza: 80, preco: 410 }]);
  */
 function calcularDoses(dados, selecionados) {
   const pstInicial = (dados.na / dados.ctc) * 100;

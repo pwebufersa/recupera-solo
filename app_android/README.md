@@ -2,18 +2,19 @@
 
 [![Aplicativo Android](https://github.com/pwebufersa/recupera-solo/actions/workflows/aplicativo-android.yml/badge.svg?branch=main)](https://github.com/pwebufersa/recupera-solo/actions/workflows/aplicativo-android.yml)
 
-**Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
+**Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/app_android/RECUPERA-SOLO.apk)
 
 O APK é republicado pelo fluxo a cada alteração em `codigo_fonte/`, no gerador ou
 nos ícones; documentação não dispara.
 Cada execução publica o artefato `recupera-solo-apk`, com hash e versão, e grava
-uma cópia idêntica em `apk/RECUPERA-SOLO.apk`.
+uma cópia idêntica em `app_android/RECUPERA-SOLO.apk`.
 
 ## Gerar
 
-Dois cliques em `gerar_apk.cmd`. O script confere o que já existe e baixa só o
-que falta: JDK, Node.js, Android SDK, depois compila, assina e verifica. Leva
-cerca de 10 minutos na primeira vez e ocupa cerca de 2 GB.
+Dois cliques em `gerar_apk.cmd`. O script usa Node.js, JDK e Android SDK já
+instalados na máquina quando as versões servem ao build; o que faltar é baixado
+para `app_android/ferramentas`, sem alterar variáveis do usuário. Depois compila, assina e
+verifica. Leva cerca de 10 minutos na primeira vez e ocupa cerca de 2 GB.
 
 Pelo terminal:
 

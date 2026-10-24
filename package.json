@@ -9,7 +9,7 @@
     "test:unidade": "node --test testes/calc.test.js",
     "test:navegador": "playwright test --config testes/playwright.config.js",
     "servidor": "node testes/servidor.js",
-    "prints": "node testes/comparacoes.js"
+    "prints": "node comparacao/comparacoes.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

@@ -70,8 +70,8 @@ test('com preços de mercado o gesso custa menos da metade do enxofre', function
 
   const linhaDoGesso = resultado.linhas[0];
   const linhaDoEnxofre = resultado.linhas[1];
-  proximo(linhaDoGesso.custo, 29454.73);
-  proximo(linhaDoEnxofre.custo, 67320.25);
+  proximo(linhaDoGesso.custo, 28415.15);
+  proximo(linhaDoEnxofre.custo, 86843.13);
   assert.equal(resultado.melhor.nome, linhaDoGesso.nome);
   assert.ok(linhaDoEnxofre.custo > linhaDoGesso.custo * 2);
 });
@@ -85,7 +85,7 @@ test('o calcário aparece na tabela e fica fora da comparação por baixa priori
   const linhaDoCalcario = resultado.linhas[1];
   assert.equal(linhaDoCalcario.ajuste.ok, false);
   assert.equal(linhaDoCalcario.ajuste.rotulo, 'Baixa prioridade');
-  proximo(linhaDoCalcario.custo, 8767.92);
+  proximo(linhaDoCalcario.custo, 8219.93);
   assert.equal(resultado.melhor.nome, resultado.linhas[0].nome);
 });
 
