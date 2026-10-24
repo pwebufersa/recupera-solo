@@ -3,6 +3,7 @@ name: Testes automáticos
 run-name: Testes automáticos · ${{ github.ref_name }}
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
