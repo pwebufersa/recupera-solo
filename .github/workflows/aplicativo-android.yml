@@ -68,7 +68,7 @@ jobs:
           key: app-v3-${{ runner.os }}-${{ hashFiles('app_android/gerar_app_android.ps1', 'app_android/assets/**', 'codigo_fonte/**') }}
           restore-keys: |
             app-v3-${{ runner.os }}-
-            app-${{ runner.os }}-
+            app-v2-${{ runner.os }}-
 
       - name: Cache do npm
         id: cache-npm
@@ -88,15 +88,6 @@ jobs:
           restore-keys: |
             android-${{ runner.os }}-
 
-      - name: Cache do Gradle do projeto
-        id: cache-gradle-projeto
-        uses: actions/cache@v5
-        with:
-          path: app_android/app/android/.gradle
-          key: gradle-projeto-v1-${{ runner.os }}
-          restore-keys: |
-            gradle-projeto-${{ runner.os }}-
-
       - name: Situação dos caches
         shell: pwsh
         run: |
@@ -105,7 +96,6 @@ jobs:
           "app: ${{ steps.cache-app.outputs.cache-hit }}"
           "npm: ${{ steps.cache-npm.outputs.cache-hit }}"
           "android: ${{ steps.cache-android.outputs.cache-hit }}"
-          "gradle do projeto: ${{ steps.cache-gradle-projeto.outputs.cache-hit }}"
 
       - name: Preparar a chave de assinatura
         shell: pwsh

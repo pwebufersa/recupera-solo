@@ -615,7 +615,8 @@ function Criar-Projeto {
         $android = Join-Path $App "android"
         if (-not (Test-Path (Join-Path $android "app\build.gradle"))) {
             if (Test-Path $android) {
-                Falhar "A pasta app\android existe mas esta incompleta. Remova-a e rode novamente."
+                Escrever "Pasta android incompleta; recriando."
+                Remove-Item $android -Recurse -Force
             }
             & $npx cap add android
             if ($LASTEXITCODE -ne 0) { Falhar "Falha ao adicionar a plataforma Android." }
