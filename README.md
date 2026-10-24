@@ -9,7 +9,8 @@ internet.
 ## Abrir
 
 - Site: <https://pwebufersa.github.io/recupera-solo/>
-- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/app_android/RECUPERA-SOLO.apk), com instruções em [app_android/README.md](app_android/README.md)
+- APK: [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/app_android/RECUPERA-SOLO.apk),
+  com [instruções do aplicativo](app_android/README.md).
 - Original, por registro histórico: <https://dapper-flan-955869.netlify.app/>
 
 ## Usar
@@ -66,7 +67,7 @@ No exemplo: gesso R$ 28.415,15/ha e enxofre R$ 86.843,13/ha.
 
 `npm ci` instala as dependências na raiz, e `npm test` roda os testes de cálculo
 e de navegador. O roteiro do teste com pessoas está em
-[testes/RECUPERA-SOLO - Teste de uso.docx](<testes/RECUPERA-SOLO - Teste de uso.docx>).
+[Teste de uso.docx](<testes/RECUPERA-SOLO - Teste de uso.docx>).
 
 ## Ferramentas
 
@@ -88,7 +89,7 @@ controle de versão.
 - `artigo_cientifico/`: artigo e figuras.
 - Publicação: GitHub Pages, a partir de `codigo_fonte/`, e APK gerado pelo fluxo
   **Aplicativo Android**. iOS exige macOS com Xcode.
-- Diferenças em relação ao original: [comparacao/COMPARACAO.md](comparacao/COMPARACAO.md).
+- Diferenças em relação ao original: [COMPARACAO.md](comparacao/COMPARACAO.md).
 
 ## Autoria
 

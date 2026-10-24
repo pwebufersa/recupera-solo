@@ -10,7 +10,7 @@ const pasta = path.dirname(fileURLToPath(import.meta.url));
 const raiz = path.dirname(pasta);
 const site = pathToFileURL(path.join(raiz, 'codigo_fonte', 'index.html')).href;
 
-const navegador = await chromium.launch();
+const navegador = await chromium.launch({ channel: process.env.CI ? undefined : 'chrome' });
 
 async function abrir(viewport) {
   const pagina = await navegador.newPage({ viewport, deviceScaleFactor: 2 });
@@ -34,9 +34,9 @@ await avisoPagina.locator('#customMode').click();
 await avisoPagina.locator('#ph').fill('15');
 await avisoPagina.locator('#ph').blur();
 await avisoPagina.waitForTimeout(300);
-const formulario = avisoPagina.locator('section.cartao').nth(1);
-await formulario.scrollIntoViewIfNeeded();
-await formulario.screenshot({ path: path.join(pasta, 'figura2.png') });
+const campoPh = avisoPagina.locator('div.campo').filter({ has: avisoPagina.locator('#ph') });
+await campoPh.scrollIntoViewIfNeeded();
+await campoPh.screenshot({ path: path.join(pasta, 'figura2.png') });
 await avisoPagina.close();
 
 await navegador.close();

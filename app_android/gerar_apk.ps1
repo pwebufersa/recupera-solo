@@ -66,6 +66,22 @@ function Salvar-Texto {
     [IO.File]::WriteAllText($Caminho, $Texto, $utf8)
 }
 
+function Obter-Saida {
+    # Programas nativos escrevem avisos em stderr. Com ErrorActionPreference
+    # Stop, a juncao de stderr ao fluxo de saida vira erro terminante; por isso
+    # a preferencia e suspensa apenas durante a chamada.
+    param([string]$Caminho, [string[]]$Argumentos)
+
+    $anterior = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        return ((& $Caminho @Argumentos 2>&1 | ForEach-Object { "$_" }) -join "`n").Trim()
+    }
+    finally {
+        $ErrorActionPreference = $anterior
+    }
+}
+
 function Verificar-Windows {
     if ($env:OS -ne "Windows_NT") { Falhar "Este script exige Windows." }
     if (-not [Environment]::Is64BitOperatingSystem) { Falhar "Este script exige Windows de 64 bits." }
@@ -79,7 +95,7 @@ function Achar-NodeGlobal {
     $pasta = Split-Path -Parent $comando.Source
     if (-not (Test-Path (Join-Path $pasta "npm.cmd"))) { return $null }
 
-    $versao = (& $comando.Source -p "process.versions.node" 2>$null)
+    $versao = Obter-Saida -Caminho $comando.Source -Argumentos @("-p", "process.versions.node")
     if (-not $versao) { return $null }
     $maior = [int]($versao.Trim().Split('.')[0])
     if ($maior -lt 22) { return $null }
@@ -98,7 +114,7 @@ function Achar-JdkGlobal {
     foreach ($candidato in $candidatos) {
         $java = Join-Path $candidato "bin\java.exe"
         if (-not (Test-Path $java)) { continue }
-        $saida = (& $java -version 2>&1 | ForEach-Object { "$_" }) -join "`n"
+        $saida = Obter-Saida -Caminho $java -Argumentos @("-version")
         if ($saida -notmatch 'version "(\d+)') { continue }
         $feature = [int]$Matches[1]
         if ($feature -lt 21 -or $feature -gt 24) { continue }
@@ -258,7 +274,7 @@ function Baixar {
     Escrever "Baixando $Url"
     $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
     if ($curl) {
-        & $curl.Source -sS -L --fail --retry 3 $Url -o $Destino
+        & $curl.Source -sS -L --fail --retry 5 --retry-all-errors $Url -o $Destino
         if ($LASTEXITCODE -ne 0) { Falhar "Falha no download: $Url" }
     }
     else {

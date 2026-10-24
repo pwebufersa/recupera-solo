@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: app_android/ferramentas
-          key: ferramentas-v2-${{ runner.os }}
+          key: ferramentas-v3-${{ runner.os }}
           restore-keys: |
             ferramentas-${{ runner.os }}-
 
@@ -130,7 +130,7 @@ jobs:
             app_android/dist/SHA256.txt
             app_android/dist/INFO.txt
           retention-days: 30
-      - name: Publicar o APK na pasta apk
+      - name: Publicar o APK na pasta app_android
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |

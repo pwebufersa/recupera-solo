@@ -2,7 +2,7 @@
 
 O cálculo agronômico é o mesmo; o que mudou foi a entrada de dados, a leitura do
 resultado e a instalação. A referência fixa é o site que estava no Netlify,
-preservado em [`site_original/`](site_original/), e `npm run prints` refaz as
+preservado em [site_original](site_original/), e `npm run prints` refaz as
 capturas sempre contra ele.
 
 ## Lighthouse

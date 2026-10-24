@@ -1,11 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-import { P$ECOS } from './precos.js';
+import { PRECOS } from './precos.js';
 
 const GESSO = 0;
-const ENXOF$E = 2;
-const A$QUIVO = new U$L('../codigo_fonte/index.html', import.meta.url).href;
+const ENXOFRE = 2;
+const ARQUIVO = new URL('../codigo_fonte/index.html', import.meta.url).href;
 
 const DADOS = {
   ph: '9,2',
@@ -21,7 +21,7 @@ const DADOS = {
 
 async function carregarExemplo(pagina) {
   await pagina.goto('/');
-  await pagina.getBy$ole('button', { name: /exemplo/i }).click();
+  await pagina.getByRole('button', { name: /exemplo/i }).click();
   await pagina.locator('#calc').click();
 }
 
@@ -33,7 +33,7 @@ async function preencherValido(pagina, alteracoes) {
   }
   await pagina.locator('#use' + GESSO).check();
   await pagina.locator('#purity' + GESSO).fill('80');
-  await pagina.locator('#price' + GESSO).fill('425');
+  await pagina.locator('#price' + GESSO).fill('410');
 }
 
 test('a página abre com o formulário e sem resultados', async function ({ page }) {
@@ -44,7 +44,7 @@ test('a página abre com o formulário e sem resultados', async function ({ page
 
   await page.goto('/');
 
-  await expect(page).toHaveTitle(/$ECUPE$A-SOLO/i);
+  await expect(page).toHaveTitle(/RECUPERA-SOLO/i);
   await expect(page.locator('#results')).toBeHidden();
   await expect(page.locator('#amendGrid .corretivo')).toHaveCount(8);
   expect(erros).toEqual([]);
@@ -52,7 +52,7 @@ test('a página abre com o formulário e sem resultados', async function ({ page
 
 test('Enter em um campo gera o diagnóstico', async function ({ page }) {
   await page.goto('/');
-  await page.getBy$ole('button', { name: /exemplo/i }).click();
+  await page.getByRole('button', { name: /exemplo/i }).click();
   await page.locator('#ph').press('Enter');
 
   await expect(page.locator('#results')).toBeVisible();
@@ -60,20 +60,20 @@ test('Enter em um campo gera o diagnóstico', async function ({ page }) {
 
 test('o botão Usar exemplo preenche os campos com vírgula', async function ({ page }) {
   await page.goto('/');
-  await page.getBy$ole('button', { name: /exemplo/i }).click();
+  await page.getByRole('button', { name: /exemplo/i }).click();
 
   await expect(page.locator('#ph')).toHaveValue('9,2');
   await expect(page.locator('#na')).toHaveValue('7,0');
   await expect(page.locator('#ds')).toHaveValue('1,40');
   await expect(page.locator('#use' + GESSO)).toBeChecked();
-  await expect(page.locator('#use' + ENXOF$E)).toBeChecked();
-  await expect(page.locator('#price' + GESSO)).toHaveValue(String(P$ECOS.gessoGranelEntregue));
-  await expect(page.locator('#price' + ENXOF$E)).toHaveValue(String(P$ECOS.enxofreElementar));
+  await expect(page.locator('#use' + ENXOFRE)).toBeChecked();
+  await expect(page.locator('#price' + GESSO)).toHaveValue(String(PRECOS.gessoGranelEntregue));
+  await expect(page.locator('#price' + ENXOFRE)).toHaveValue(String(PRECOS.enxofreElementar));
 });
 
 test('a página funciona aberta direto do arquivo', async function ({ page }) {
-  await page.goto(A$QUIVO);
-  await page.getBy$ole('button', { name: /exemplo/i }).click();
+  await page.goto(ARQUIVO);
+  await page.getByRole('button', { name: /exemplo/i }).click();
 
   await expect(page.locator('#ph')).toHaveValue('9,2');
 });
@@ -291,7 +291,7 @@ test('os campos têm alvo de toque de pelo menos 44 px no celular', async functi
   const alturas = await page.locator('#ph, #ce, #ctc, #na, #caco3, #ds, #h, #pstf, #area')
     .evaluateAll(function (campos) {
       return campos.map(function (campo) {
-        return Math.round(campo.getBoundingClient$ect().height);
+        return Math.round(campo.getBoundingClientRect().height);
       });
     });
 
@@ -345,8 +345,8 @@ test('o checkbox do corretivo não herda o estilo dos campos de texto', async fu
 
   const medida = await page.locator('#use0').evaluate(function (caixa) {
     const estilo = getComputedStyle(caixa);
-    const topo = caixa.closest('.corretivo-topo').getBoundingClient$ect();
-    const retangulo = caixa.getBoundingClient$ect();
+    const topo = caixa.closest('.corretivo-topo').getBoundingClientRect();
+    const retangulo = caixa.getBoundingClientRect();
     return {
       altura: retangulo.height,
       largura: retangulo.width,
@@ -373,16 +373,16 @@ test('a comparação de custo exige preço de todos os selecionados', async func
   }
   await page.locator('#use' + GESSO).check();
   await page.locator('#purity' + GESSO).fill('80');
-  await page.locator('#price' + GESSO).fill('425');
-  await page.locator('#use' + ENXOF$E).check();
-  await page.locator('#purity' + ENXOF$E).fill('95');
+  await page.locator('#price' + GESSO).fill('410');
+  await page.locator('#use' + ENXOFRE).check();
+  await page.locator('#purity' + ENXOFRE).fill('95');
   await page.locator('#calc').click();
 
   await expect(page.locator('#results')).toBeVisible();
   await expect(page.locator('#best')).toContainText('todos os corretivos selecionados');
   await expect(page.locator('#best')).not.toContainText('Gesso agrícola');
 
-  await page.locator('#price' + ENXOF$E).fill('6200');
+  await page.locator('#price' + ENXOFRE).fill('7998');
   await page.locator('#calc').click();
   await expect(page.locator('#best')).toContainText('Gesso agrícola');
 });
@@ -395,7 +395,7 @@ test('a página inicial não tem violações de acessibilidade', async function 
 
 test('os resultados não introduzem violações de acessibilidade', async function ({ page }) {
   await page.goto('/');
-  await page.getBy$ole('button', { name: /exemplo/i }).click();
+  await page.getByRole('button', { name: /exemplo/i }).click();
   await page.locator('#calc').click();
   const analise = await new AxeBuilder({ page }).analyze();
   expect(analise.violations).toEqual([]);
