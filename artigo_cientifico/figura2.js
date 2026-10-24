@@ -14,7 +14,7 @@ const pagina = await navegador.newPage({
   deviceScaleFactor: 2
 });
 
-await pagina.goto(pathToFileURL(path.join(raiz, 'index.html')).href);
+await pagina.goto(pathToFileURL(path.join(raiz, 'codigo_fonte', 'index.html')).href);
 await pagina.locator('#customMode').click();
 await pagina.locator('#ph').fill('15');
 await pagina.locator('#ph').blur();

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 /* Servidor estático mínimo, sem dependências, para os testes de navegador. */
 
-const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'codigo_fonte');
 const porta = Number(process.env.PORTA || 8099);
 
 const TIPOS = {

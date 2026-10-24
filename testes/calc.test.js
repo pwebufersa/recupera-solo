@@ -8,7 +8,7 @@ import { PRECOS } from './precos.js';
 /* O site usa um arquivo único, sem módulos, para abrir também por file://.
    O teste carrega esse arquivo em um contexto do Node e usa a API exposta. */
 
-const codigo = fs.readFileSync(new URL('../script.js', import.meta.url), 'utf8');
+const codigo = fs.readFileSync(new URL('../codigo_fonte/script.js', import.meta.url), 'utf8');
 const contexto = vm.createContext({});
 vm.runInContext(codigo, contexto, { filename: 'script.js' });
 

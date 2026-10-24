@@ -25,6 +25,6 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: relatorio-playwright
-          path: playwright-report/
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 7

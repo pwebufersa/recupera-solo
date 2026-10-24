@@ -12,8 +12,8 @@ import { chromium } from '@playwright/test';
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pasta = path.join(raiz, 'comparacao');
 const temporaria = fs.mkdtempSync(path.join(os.tmpdir(), 'recupera-prints-'));
-const original = pathToFileURL(path.join(raiz, 'site_original', 'index.html')).href;
-const atual = pathToFileURL(path.join(raiz, 'index.html')).href;
+const original = pathToFileURL(path.join(raiz, 'comparacao', 'site_original', 'index.html')).href;
+const atual = pathToFileURL(path.join(raiz, 'codigo_fonte', 'index.html')).href;
 
 const TELAS = [
   { nome: 'desktop', largura: 1280, coluna: 600 },

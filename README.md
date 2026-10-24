@@ -67,22 +67,25 @@ No exemplo: gesso R$ 29.454,73/ha e enxofre R$ 67.320,25/ha.
 
 ## Testes
 
-`npm ci` instala as dependências, e `npm test` roda os testes de cálculo e de
-navegador. O roteiro do teste com pessoas está em
-[RECUPERA-SOLO - Teste de uso.docx](<RECUPERA-SOLO - Teste de uso.docx>).
+`npm ci` instala as dependências na raiz, e `npm test` roda os testes de cálculo
+e de navegador. O roteiro do teste com pessoas está em
+[testes/RECUPERA-SOLO - Teste de uso.docx](<testes/RECUPERA-SOLO - Teste de uso.docx>).
 
 ## Estrutura
 
-- `index.html`, `style.css`, `script.js`: cálculo, validação e tela, para upload
-  direto.
-- `testes/`: unidade, navegador e capturas de comparação.
+- `codigo_fonte/`: `index.html`, `style.css`, `script.js` e `favicon.svg`, para
+  upload direto e para o APK.
+- `testes/`: unidade, navegador, servidor local, capturas e o roteiro do teste de
+  uso.
+- `comparacao/`: capturas e o `COMPARACAO.md`, com o site do Netlify preservado em
+  `comparacao/site_original/`.
 - `apk/`: gerador, instruções e APK publicado.
-- `site_original/` e `comparacao/`: cópia do site do Netlify e capturas do
-  original ao lado da versão atual.
 - `artigo_cientifico/`: artigo e figuras.
-- Publicação: GitHub Pages, a partir da branch `main`, e APK gerado pelo fluxo
+- `limpar.ps1` e `limpar.cmd`: removem pastas baixáveis e as ferramentas de
+  construção.
+- Publicação: GitHub Pages, a partir de `codigo_fonte/`, e APK gerado pelo fluxo
   **Aplicativo Android**. iOS exige macOS com Xcode.
-- Diferenças em relação ao original: [COMPARACAO.md](COMPARACAO.md).
+- Diferenças em relação ao original: [comparacao/COMPARACAO.md](comparacao/COMPARACAO.md).
 
 ## Autoria
 

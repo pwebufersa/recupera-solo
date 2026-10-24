@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run test:unidade && npm run test:navegador",
     "test:unidade": "node --test testes/calc.test.js",
-    "test:navegador": "playwright test",
+    "test:navegador": "playwright test --config testes/playwright.config.js",
     "servidor": "node testes/servidor.js",
     "prints": "node testes/comparacoes.js"
   },

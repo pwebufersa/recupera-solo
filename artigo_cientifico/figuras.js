@@ -14,7 +14,7 @@ const pagina = await navegador.newPage({
   deviceScaleFactor: 2
 });
 
-await pagina.goto(pathToFileURL(path.join(raiz, 'index.html')).href);
+await pagina.goto(pathToFileURL(path.join(raiz, 'codigo_fonte', 'index.html')).href);
 await pagina.getByRole('button', { name: /exemplo/i }).click();
 await pagina.locator('#calc').click();
 await pagina.waitForTimeout(700);

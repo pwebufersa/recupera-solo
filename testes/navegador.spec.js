@@ -1,13 +1,10 @@
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-
 import { expect, test } from '@playwright/test';
 
 import { PRECOS } from './precos.js';
 
 const GESSO = 0;
 const ENXOFRE = 2;
-const ARQUIVO = pathToFileURL(path.resolve('index.html')).href;
+const ARQUIVO = new URL('../codigo_fonte/index.html', import.meta.url).href;
 
 const DADOS = {
   ph: '9,2',

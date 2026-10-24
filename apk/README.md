@@ -4,8 +4,8 @@
 
 **Baixar:** [RECUPERA-SOLO.apk](https://github.com/pwebufersa/recupera-solo/raw/main/apk/RECUPERA-SOLO.apk)
 
-O APK é republicado pelo fluxo a cada alteração de `index.html`, `style.css`,
-`script.js`, `favicon.svg`, do gerador ou dos ícones; documentação não dispara.
+O APK é republicado pelo fluxo a cada alteração em `codigo_fonte/`, no gerador ou
+nos ícones; documentação não dispara.
 Cada execução publica o artefato `recupera-solo-apk`, com hash e versão, e grava
 uma cópia idêntica em `apk/RECUPERA-SOLO.apk`.
 

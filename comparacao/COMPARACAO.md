@@ -15,22 +15,22 @@ capturas sempre contra ele.
 
 ## Formulário
 
-![Computador](comparacao/comparacao-formulario-desktop.jpg)
+![Computador](comparacao-formulario-desktop.jpg)
 
-![Celular](comparacao/comparacao-formulario-celular.jpg)
+![Celular](comparacao-formulario-celular.jpg)
 
 ## Validação em ação
 
 Com pH 15, a versão atual recusa o valor e explica a faixa; o original aceitava
 e seguia para o cálculo.
 
-![Validação do pH 15](comparacao/validacao-ph15.jpg)
+![Validação do pH 15](validacao-ph15.jpg)
 
 ## Resultados
 
-![Computador](comparacao/comparacao-desktop.jpg)
+![Computador](comparacao-desktop.jpg)
 
-![Celular](comparacao/comparacao-celular.jpg)
+![Celular](comparacao-celular.jpg)
 
 ## Comportamento
 
@@ -83,7 +83,7 @@ Paleta atual: fundo `#f3f7f5`, superfície `#ffffff`, texto `#102a3a`, verde
 
 - 15 testes de unidade e 56 testes de navegador aprovados, incluindo
   acessibilidade.
-- Capturas em `comparacao/`, refeitas contra `site_original/`.
+- Capturas nesta pasta, refeitas contra `site_original/`.
 - APK publicado pelo fluxo **Aplicativo Android** em `apk/RECUPERA-SOLO.apk`.
 
 ## Preservado

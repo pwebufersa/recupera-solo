@@ -166,12 +166,14 @@ function Achar-Site {
     }
 
     $pai = Split-Path -Parent $Raiz
-    $candidatos = @((Join-Path $Raiz "site"))
+    $candidatos = @()
     if ($pai) {
+        $candidatos += (Join-Path $pai "codigo_fonte")
         $candidatos += (Join-Path $pai "site")
         $candidatos += $pai
         $candidatos += (Join-Path $pai "recupera-solo")
     }
+    $candidatos += (Join-Path $Raiz "site")
 
     foreach ($candidato in $candidatos) {
         if ($candidato -and (Test-Path (Join-Path $candidato "index.html"))) {
